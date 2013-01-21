@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
 /**
  * Decision (XOR) node only used by annotation.

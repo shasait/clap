@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
-import de.hasait.util.clap.CLAPOptionA;
+import de.hasait.clap.CLAPOptionA;
 
 /**
  * Class used by {@link CLAPTest}.

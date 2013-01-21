@@ -14,22 +14,39 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.hasait.clap.CLAPDecisionA;
+import de.hasait.clap.CLAPOptionA;
 
 /**
- * Annotation to mark a setter as target for a CLAP decision (XOR).
+ * Class used by {@link CLAPTest}.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-	ElementType.METHOD
-})
-public @interface CLAPDecisionA {
+public class CLAPTypeC {
 
-	public abstract Class<? extends Object>[] branches();
+	private Boolean _boolean;
+
+	private Object _object;
+
+	public Boolean getBoolean() {
+		return _boolean;
+	}
+
+	public Object getObject() {
+		return _object;
+	}
+
+	@CLAPOptionA(shortKey = 'c', longKey = "cboolean", order = 1)
+	public void setBoolean(final Boolean pBoolean) {
+		_boolean = pBoolean;
+	}
+
+	@CLAPDecisionA(branches = {
+			CLAPTypeA.class,
+			CLAPTypeB.class
+	})
+	public void setObject(final Object pObject) {
+		_object = pObject;
+	}
 
 }

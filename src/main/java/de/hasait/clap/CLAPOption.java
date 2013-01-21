@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

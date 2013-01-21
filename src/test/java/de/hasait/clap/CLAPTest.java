@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -24,11 +24,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import de.hasait.util.clap.CLAP;
-import de.hasait.util.clap.CLAPException;
-import de.hasait.util.clap.ICLAPHasResult;
-import de.hasait.util.clap.ICLAPNode;
-import de.hasait.util.clap.ICLAPResult;
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPException;
+import de.hasait.clap.ICLAPHasResult;
+import de.hasait.clap.ICLAPNode;
+import de.hasait.clap.ICLAPResult;
 
 /**
  * Various tests for {@link CLAP}.

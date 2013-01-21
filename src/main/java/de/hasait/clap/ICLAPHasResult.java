@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
 /**
- * 
+ * Tagging interface.
  */
-public interface ICLAPResult {
-
-	int getCount(ICLAPHasResult<?> pNode);
-
-	<T> T getValue(ICLAPHasResult<T> pNode);
-
+public interface ICLAPHasResult<T> {
+	// Tagging interface
 }

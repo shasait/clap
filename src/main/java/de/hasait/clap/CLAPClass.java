@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
+
+import java.util.List;
 
 /**
- * Decision node (XOR).
+ * A list of nodes.
  */
-public class CLAPDecision extends AbstractCLAPDecision implements ICLAPNode {
+public class CLAPNodeList extends AbstractCLAPNodeList implements ICLAPNode {
 
-	CLAPDecision(final CLAP pCLAP) {
+	CLAPNodeList(final CLAP pCLAP) {
 		super(pCLAP);
 	}
 
@@ -65,10 +67,22 @@ public class CLAPDecision extends AbstractCLAPDecision implements ICLAPNode {
 
 	@Override
 	public final void fillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
-		final AbstractCLAPNode decision = pContext.getDecision(this);
-		if (decision != null) {
-			decision.fillResult(pContext, pResult);
-		}
+		internalFillResult(pContext, pResult);
+	}
+
+	@Override
+	public final CLAPParseContext[] parse(final CLAPParseContext pContext) {
+		return internalParse(pContext);
+	}
+
+	@Override
+	public final String toString() {
+		return internalToString(" "); //$NON-NLS-1$
+	}
+
+	@Override
+	public final void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
+		internalValidate(pContext, pErrorMessages);
 	}
 
 }

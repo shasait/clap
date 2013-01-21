@@ -14,13 +14,35 @@
  * limitations under the License.
  */
 
-package de.hasait.util.clap;
+package de.hasait.clap;
+
+import de.hasait.clap.CLAPOptionA;
 
 /**
- * 
+ * Class used by {@link CLAPTest}.
  */
-public class CLAPException extends RuntimeException {
+public class CLAPTypeB {
 
-	private static final long serialVersionUID = 1L;
+	private Boolean _boolean;
+
+	private String _string;
+
+	public Boolean getBoolean() {
+		return _boolean;
+	}
+
+	public String getString() {
+		return _string;
+	}
+
+	@CLAPOptionA(shortKey = 'b', longKey = "bboolean", order = 1)
+	public void setBoolean(final Boolean pBoolean) {
+		_boolean = pBoolean;
+	}
+
+	@CLAPOptionA(longKey = "bstring", argCount = 1, order = 2)
+	public void setString(final String pString) {
+		_string = pString;
+	}
 
 }
