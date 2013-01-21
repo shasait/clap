@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import de.hasait.clap.impl.CLAPNodeList;
-import de.hasait.clap.impl.CLAPOption;
+import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
 import de.hasait.clap.impl.CLAPResultImpl;
 
@@ -67,8 +67,18 @@ public final class CLAP implements CLAPNode {
 	}
 
 	@Override
-	public CLAPOption<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public final <V> CLAPValue<V> addDecision(final Class<V> pResultClass, final Class<? extends V>... pBranchClasses) {
+		return _root.addDecision(pResultClass, pBranchClasses);
+	}
+
+	@Override
+	public CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	@Override
+	public void addKeyword(final String pKeyword) {
+		_root.addKeyword(pKeyword);
 	}
 
 	@Override
@@ -141,8 +151,6 @@ public final class CLAP implements CLAPNode {
 				validatedResults.add(result);
 			}
 		}
-		// TODO remove duplicate results, e.g. resulting from two branches where all options are optional and none matched
-		// Implement equals and hashcode for CLAPParseResult
 		if (validatedResults.size() != 1) {
 			throw new CLAPException();
 		}

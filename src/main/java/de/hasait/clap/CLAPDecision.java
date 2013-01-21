@@ -22,31 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a setter as target for an CLAP option.
+ * Annotation to mark a setter as target for a CLAP decision (XOR).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
 	ElementType.METHOD
 })
-public @interface CLAPOptionA {
+public @interface CLAPDecision {
 
-	public static final int UNLIMITED_ARG_COUNT = -1;
-	public static final int AUTOMATIC_ARG_COUNT = -2;
-
-	public abstract int argCount() default AUTOMATIC_ARG_COUNT;
-
-	public abstract String argUsageNLSKey() default "";
-
-	public abstract String descriptionNLSKey() default "";
-
-	public abstract String longKey() default "";
-
-	public abstract char multiArgSplit() default ' ';
+	public abstract Class<? extends Object>[] branches();
 
 	public abstract int order() default 1000;
-
-	public abstract boolean required() default false;
-
-	public abstract char shortKey() default ' ';
 
 }

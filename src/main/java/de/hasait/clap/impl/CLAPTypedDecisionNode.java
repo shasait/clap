@@ -22,13 +22,13 @@ import de.hasait.clap.CLAPValue;
 /**
  * Decision (XOR) node only used by annotation.
  */
-public class CLAPTypedDecision<T> extends AbstractCLAPDecision implements CLAPValue<T> {
+public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CLAPValue<T> {
 
-	public CLAPTypedDecision(final CLAP pCLAP) {
+	public CLAPTypedDecisionNode(final CLAP pCLAP) {
 		super(pCLAP);
 	}
 
-	public final <V extends T> CLAPClass<V> addClass(final Class<V> pClass) {
+	public final <V extends T> CLAPClassNode<V> addClass(final Class<V> pClass) {
 		return internalAddClass(pClass);
 	}
 

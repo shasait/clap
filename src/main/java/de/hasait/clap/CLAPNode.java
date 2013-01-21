@@ -16,7 +16,7 @@
 
 package de.hasait.clap;
 
-import de.hasait.clap.impl.CLAPOption;
+import de.hasait.clap.impl.CLAPOptionNode;
 
 /**
  * 
@@ -27,7 +27,11 @@ public interface CLAPNode {
 
 	CLAPNode addDecision();
 
-	CLAPOption<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
+	<V> CLAPValue<V> addDecision(Class<V> pResultClass, Class<? extends V>... pBranchClasses);
+
+	CLAPOptionNode<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
+
+	void addKeyword(String pKeyword);
 
 	CLAPNode addNodeList();
 

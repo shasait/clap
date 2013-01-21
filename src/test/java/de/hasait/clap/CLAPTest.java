@@ -24,12 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import de.hasait.clap.CLAP;
-import de.hasait.clap.CLAPException;
-import de.hasait.clap.CLAPValue;
-import de.hasait.clap.CLAPNode;
-import de.hasait.clap.CLAPResult;
-
 /**
  * Various tests for {@link CLAP}.
  */
@@ -100,6 +94,32 @@ public class CLAPTest {
 		final CLAPTypeB typeB = (CLAPTypeB) object;
 		assertEquals("Hallo", typeB.getString()); //$NON-NLS-1$
 		assertNull(typeB.getBoolean());
+	}
+
+	@Test
+	public void testAnnotationWorks05() {
+		final CLAP clap = new CLAP(null);
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("-v", "-vh", "--dstring=Hallo", "Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertEquals(2, result.getCount(verboseOption));
+		assertEquals(1, result.getCount(helpOption));
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertEquals("Hallo", typeD.getString()); //$NON-NLS-1$
+		assertNull(typeD.getBoolean());
+	}
+
+	@Test(expected = CLAPException.class)
+	public void testAnnotationWorks06() {
+		final CLAP clap = new CLAP(null);
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addClass(CLAPTypeD.class);
+
+		clap.parse("-v", "-vh", "--dstring=Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 	}
 
 	@Test(expected = CLAPException.class)
@@ -185,6 +205,25 @@ public class CLAPTest {
 	}
 
 	@Test
+	public void testKeywordWorks01() {
+		final CLAP clap = new CLAP(null);
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addKeyword("Hallo"); //$NON-NLS-1$
+
+		final CLAPResult result = clap.parse("-vv", "-v", "Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		assertEquals(3, result.getCount(verboseOption));
+	}
+
+	@Test(expected = CLAPException.class)
+	public void testKeywordWorks02() {
+		final CLAP clap = new CLAP(null);
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addKeyword("Hallo"); //$NON-NLS-1$
+
+		clap.parse("-vv", "-v"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	@Test
 	public void testLongKeyWithArg01() {
 		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -215,15 +254,11 @@ public class CLAPTest {
 	@Test(expected = CLAPException.class)
 	public void testLongKeyWithArg03() {
 		final CLAP clap = new CLAP(null);
-		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		final CLAPResult result = clap.parse("-vv", "--port=22", "-vh", "--port", "22"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
-		assertEquals(3, result.getCount(verboseOption));
-		assertEquals(1, result.getCount(helpOption));
-		assertEquals(1, result.getCount(portOption));
-		assertEquals(Integer.valueOf(22), result.getValue(portOption));
+		clap.parse("-vv", "--port=22", "-vh", "--port", "22"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 	}
 
 	@Test
@@ -301,19 +336,12 @@ public class CLAPTest {
 	@Test(expected = CLAPException.class)
 	public void testLongKeyWithArg08() {
 		final CLAP clap = new CLAP(null);
-		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<String[]> usersOption = clap.addOption(String[].class, 'u', "users", false, 2, null, "udkey", "uukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addOption(String[].class, 'u', "users", false, 2, null, "udkey", "uukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		final CLAPResult result = clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
-		assertEquals(3, result.getCount(verboseOption));
-		assertEquals(1, result.getCount(helpOption));
-		assertEquals(1, result.getCount(portOption));
-		assertEquals(1, result.getCount(usersOption));
-		assertEquals(Integer.valueOf(22), result.getValue(portOption));
-		assertArrayEquals(new String[] {
-				"user1", "user2"}, result.getValue(usersOption)); //$NON-NLS-1$ //$NON-NLS-2$ 
+		clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	@Test

@@ -16,7 +16,7 @@
 
 package de.hasait.clap;
 
-import de.hasait.clap.CLAPOptionA;
+import de.hasait.clap.CLAPOption;
 
 /**
  * Class used by {@link CLAPTest}.
@@ -35,12 +35,12 @@ public class CLAPTypeB {
 		return _string;
 	}
 
-	@CLAPOptionA(shortKey = 'b', longKey = "bboolean", order = 1)
+	@CLAPOption(shortKey = 'b', longKey = "bboolean", order = 1)
 	public void setBoolean(final Boolean pBoolean) {
 		_boolean = pBoolean;
 	}
 
-	@CLAPOptionA(longKey = "bstring", argCount = 1, order = 2)
+	@CLAPOption(longKey = "bstring", argCount = 1, order = 2)
 	public void setString(final String pString) {
 		_string = pString;
 	}

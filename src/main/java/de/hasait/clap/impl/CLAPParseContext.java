@@ -17,9 +17,7 @@
 package de.hasait.clap.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -31,8 +29,7 @@ import de.hasait.clap.CLAP;
 public class CLAPParseContext implements Cloneable {
 
 	private final CLAP _clap;
-	private final List<Pair<? extends CLAPOption<?>, List<String>>> _stringValuesMap;
-	private final Map<AbstractCLAPDecision, AbstractCLAPNode> _decisionMap;
+	private final List<Pair<? extends AbstractCLAPNode, ? extends Object>> _nodeContextMap;
 	private final String[] _args;
 	private int _currentArgIndex;
 	private String _currentArg;
@@ -44,8 +41,7 @@ public class CLAPParseContext implements Cloneable {
 
 		_args = pArgs.clone();
 
-		_stringValuesMap = new ArrayList<Pair<? extends CLAPOption<?>, List<String>>>();
-		_decisionMap = new HashMap<AbstractCLAPDecision, AbstractCLAPNode>();
+		_nodeContextMap = new ArrayList<Pair<? extends AbstractCLAPNode, ? extends Object>>();
 
 		_currentArgIndex = -1;
 		_currentArg = null;
@@ -60,15 +56,22 @@ public class CLAPParseContext implements Cloneable {
 		// used read only - so can use reference
 		_args = pOther._args;
 
-		_stringValuesMap = new ArrayList<Pair<? extends CLAPOption<?>, List<String>>>(pOther._stringValuesMap);
-		_decisionMap = new HashMap<AbstractCLAPDecision, AbstractCLAPNode>(pOther._decisionMap);
+		_nodeContextMap = new ArrayList<Pair<? extends AbstractCLAPNode, ? extends Object>>(pOther._nodeContextMap);
 
 		_currentArgIndex = pOther._currentArgIndex;
 		_currentArg = pOther._currentArg;
 	}
 
-	public void addOptionToResult(final CLAPOption<?> pOption, final List<String> pArgs) {
-		_stringValuesMap.add(Pair.of(pOption, pArgs));
+	public <T> void addDecision(final AbstractCLAPDecision pDecisionNode, final AbstractCLAPNode pBranchNode) {
+		_nodeContextMap.add(Pair.of(pDecisionNode, pBranchNode));
+	}
+
+	public void addKeyword(final CLAPKeywordNode pKeywordNode) {
+		_nodeContextMap.add(Pair.of(pKeywordNode, null));
+	}
+
+	public void addOption(final CLAPOptionNode<?> pOption, final List<String> pArgs) {
+		_nodeContextMap.add(Pair.of(pOption, pArgs));
 	}
 
 	@Override
@@ -114,27 +117,33 @@ public class CLAPParseContext implements Cloneable {
 		return _currentArg;
 	}
 
-	public int getArgCount(final CLAPOption<?> pOption) {
+	public int getArgCount(final CLAPOptionNode<?> pOptionNode) {
 		int count = 0;
 
-		for (final Pair<? extends CLAPOption<?>, List<String>> entry : _stringValuesMap) {
-			if (entry.getLeft().equals(pOption)) {
-				count += entry.getRight().size();
+		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+			if (entry.getLeft().equals(pOptionNode)) {
+				count += ((List<String>) entry.getRight()).size();
 			}
 		}
 
 		return count;
 	}
 
-	public AbstractCLAPNode getDecision(final AbstractCLAPDecision pDecision) {
-		return _decisionMap.get(pDecision);
+	public AbstractCLAPNode getDecision(final AbstractCLAPDecision pDecisionNode) {
+		AbstractCLAPNode lastBranchNode = null;
+		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+			if (entry.getLeft().equals(pDecisionNode)) {
+				lastBranchNode = (AbstractCLAPNode) entry.getRight();
+			}
+		}
+		return lastBranchNode;
 	}
 
-	public int getOptionCount(final CLAPOption<?> pOption) {
+	public int getNodeCount(final AbstractCLAPNode pNode) {
 		int result = 0;
 
-		for (final Pair<? extends CLAPOption<?>, List<String>> entry : _stringValuesMap) {
-			if (entry.getLeft().equals(pOption)) {
+		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+			if (entry.getLeft().equals(pNode)) {
 				result++;
 			}
 		}
@@ -142,12 +151,12 @@ public class CLAPParseContext implements Cloneable {
 		return result;
 	}
 
-	public String[] getStringValues(final CLAPOption<?> pOption) {
+	public String[] getOptionArgs(final CLAPOptionNode<?> pOptionNode) {
 		final List<String> result = new ArrayList<String>();
 		boolean anyFound = false;
-		for (final Pair<? extends CLAPOption<?>, List<String>> entry : _stringValuesMap) {
-			if (entry.getLeft().equals(pOption)) {
-				result.addAll(entry.getRight());
+		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+			if (entry.getLeft().equals(pOptionNode)) {
+				result.addAll((List<String>) entry.getRight());
 				anyFound = true;
 			}
 		}
@@ -170,10 +179,6 @@ public class CLAPParseContext implements Cloneable {
 
 	public boolean hasMoreTokens() {
 		return _currentArg != null;
-	}
-
-	public <T> void setDecision(final AbstractCLAPDecision pDecision, final AbstractCLAPNode pBranch) {
-		_decisionMap.put(pDecision, pBranch);
 	}
 
 	@Override

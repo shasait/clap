@@ -28,7 +28,7 @@ import de.hasait.clap.CLAPValue;
 /**
  * An option node.
  */
-public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T> {
+public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T> {
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -48,7 +48,7 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T
 
 	private final Mapper<T> _mapper;
 
-	private CLAPOption(final CLAP pCLAP, final Class<T> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
+	private CLAPOptionNode(final CLAP pCLAP, final Class<T> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
 			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		super(pCLAP);
 
@@ -62,7 +62,7 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T
 		if (pArgCount == null) {
 			// autodetect using resultClass
 			if (pResultClass.isArray() || Collection.class.isAssignableFrom(pResultClass)) {
-				_argCount = CLAPOption.UNLIMITED_ARG_COUNT;
+				_argCount = CLAPOptionNode.UNLIMITED_ARG_COUNT;
 			} else if (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE)) {
 				_argCount = 0;
 			} else {
@@ -182,17 +182,17 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T
 
 	}
 
-	public static <V> CLAPOption<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
+	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
 			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return new CLAPOption<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+		return new CLAPOptionNode<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
 	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
-		final int optionCount = pContext.getOptionCount(this);
+		final int optionCount = pContext.getNodeCount(this);
 		if (optionCount > 0) {
 			pResult.setCount(this, optionCount);
-			final String[] stringValues = pContext.getStringValues(this);
+			final String[] stringValues = pContext.getOptionArgs(this);
 			pResult.setValue(this, _mapper.transform(stringValues));
 		}
 	}
@@ -203,7 +203,7 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T
 		if (args == null) {
 			return null;
 		}
-		pContext.addOptionToResult(this, args);
+		pContext.addOption(this, args);
 		return new CLAPParseContext[] {
 			pContext
 		};
@@ -263,7 +263,7 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T
 
 	@Override
 	public void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
-		if (pContext.getOptionCount(this) == 0) {
+		if (pContext.getNodeCount(this) == 0) {
 			if (_required) {
 				pErrorMessages.add(this + " is missing"); //$NON-NLS-1$
 			}

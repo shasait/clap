@@ -40,7 +40,7 @@ public abstract class AbstractCLAPDecision extends AbstractCLAPNodeList {
 			final CLAPParseContext[] result = new CLAPParseContext[list().size()];
 			for (int i = 0; i < list().size(); i++) {
 				result[i] = pContext.clone();
-				result[i].setDecision(this, list().get(i));
+				result[i].addDecision(this, list().get(i));
 			}
 			return result;
 		} else {
