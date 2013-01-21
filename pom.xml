@@ -92,7 +92,7 @@ limitations under the License.
 	<distributionManagement>
 		<repository>
 			<id>github.repo</id>
-			<url>file:///srv/jenkins/userContent/repo/clap</url>
+			<url>file:///srv/jenkins/workspace/de.hasait.util.clap-repo</url>
 		</repository>
 	</distributionManagement>
 
