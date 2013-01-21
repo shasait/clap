@@ -19,6 +19,6 @@ package de.hasait.clap;
 /**
  * Tagging interface.
  */
-public interface ICLAPHasResult<T> {
+public interface CLAPValue<T> {
 	// Tagging interface
 }

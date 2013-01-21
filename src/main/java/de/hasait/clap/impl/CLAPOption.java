@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -22,10 +22,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPValue;
+
 /**
  * An option node.
  */
-public final class CLAPOption<T> extends AbstractCLAPNode implements ICLAPHasResult<T> {
+public final class CLAPOption<T> extends AbstractCLAPNode implements CLAPValue<T> {
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -179,13 +182,13 @@ public final class CLAPOption<T> extends AbstractCLAPNode implements ICLAPHasRes
 
 	}
 
-	static <V> CLAPOption<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
-			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public static <V> CLAPOption<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
+			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return new CLAPOption<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public void fillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
+	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final int optionCount = pContext.getOptionCount(this);
 		if (optionCount > 0) {
 			pResult.setCount(this, optionCount);

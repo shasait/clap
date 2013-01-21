@@ -16,25 +16,27 @@
 
 package de.hasait.clap;
 
+import de.hasait.clap.impl.CLAPOption;
+
 /**
  * 
  */
-public interface ICLAPNode {
+public interface CLAPNode {
 
-	<V> ICLAPHasResult<V> addClass(Class<V> pClass);
+	<V> CLAPValue<V> addClass(Class<V> pClass);
 
-	ICLAPNode addDecision();
+	CLAPNode addDecision();
 
 	CLAPOption<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
-	ICLAPNode addNodeList();
+	CLAPNode addNodeList();
 
-	<V> ICLAPHasResult<V> addOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit,
+	<V> CLAPValue<V> addOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit,
 			String pDescriptionNLSKey, String pArgUsageNLSKey);
 
-	<V> ICLAPHasResult<V> addOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
+	<V> CLAPValue<V> addOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
-	<V> ICLAPHasResult<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey,
+	<V> CLAPValue<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey,
 			String pArgUsageNLSKey);
 
 }

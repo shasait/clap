@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
+
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPValue;
 
 /**
  * Decision (XOR) node only used by annotation.
  */
-public class CLAPTypedDecision<T> extends AbstractCLAPDecision implements ICLAPHasResult<T> {
+public class CLAPTypedDecision<T> extends AbstractCLAPDecision implements CLAPValue<T> {
 
-	CLAPTypedDecision(final CLAP pCLAP) {
+	public CLAPTypedDecision(final CLAP pCLAP) {
 		super(pCLAP);
 	}
 
@@ -30,13 +33,13 @@ public class CLAPTypedDecision<T> extends AbstractCLAPDecision implements ICLAPH
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
+	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final AbstractCLAPNode decision = pContext.getDecision(this);
 		if (decision != null) {
 			decision.fillResult(pContext, pResult);
-			if (decision instanceof ICLAPHasResult) {
+			if (decision instanceof CLAPValue) {
 				@SuppressWarnings("unchecked")
-				final ICLAPHasResult<? extends T> decisionWithResult = (ICLAPHasResult<? extends T>) decision;
+				final CLAPValue<? extends T> decisionWithResult = (CLAPValue<? extends T>) decision;
 				final int count = pResult.getCount(decisionWithResult);
 				if (count > 0) {
 					pResult.setCount(this, count);

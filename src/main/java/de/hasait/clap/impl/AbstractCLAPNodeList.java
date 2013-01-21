@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import de.hasait.clap.CLAP;
 
 /**
  * Base class for nodes containing multiple child nodes.
@@ -85,7 +87,7 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return option;
 	}
 
-	protected final void internalFillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
+	protected final void internalFillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		for (final AbstractCLAPNode node : list()) {
 			node.fillResult(pContext, pResult);
 		}

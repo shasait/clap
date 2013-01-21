@@ -14,15 +14,33 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
+
+import java.util.List;
+
+import de.hasait.clap.CLAP;
 
 /**
- * 
+ * Base class of all nodes forming the option tree.
  */
-public interface ICLAPResult {
+public abstract class AbstractCLAPNode {
 
-	int getCount(ICLAPHasResult<?> pNode);
+	private final CLAP _clap;
 
-	<T> T getValue(ICLAPHasResult<T> pNode);
+	protected AbstractCLAPNode(final CLAP pCLAP) {
+		super();
+
+		_clap = pCLAP;
+	}
+
+	public abstract void fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
+
+	public CLAP getCLAP() {
+		return _clap;
+	}
+
+	public abstract CLAPParseContext[] parse(CLAPParseContext pContext);
+
+	public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
 
 }

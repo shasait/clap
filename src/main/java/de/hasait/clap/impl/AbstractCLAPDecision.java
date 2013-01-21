@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.util.List;
+
+import de.hasait.clap.CLAP;
 
 /**
  * Base class for all decision (XOR) nodes.

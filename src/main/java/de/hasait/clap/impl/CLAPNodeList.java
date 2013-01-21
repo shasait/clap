@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.util.List;
+
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPNode;
 
 /**
  * A list of nodes.
  */
-public class CLAPNodeList extends AbstractCLAPNodeList implements ICLAPNode {
+public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 
-	CLAPNodeList(final CLAP pCLAP) {
+	public CLAPNodeList(final CLAP pCLAP) {
 		super(pCLAP);
 	}
 
@@ -38,7 +41,8 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements ICLAPNode {
 	}
 
 	@Override
-	public final CLAPOption<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public final CLAPOption<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
+			final String pArgUsageNLSKey) {
 		return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
@@ -66,7 +70,7 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements ICLAPNode {
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
+	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		internalFillResult(pContext, pResult);
 	}
 

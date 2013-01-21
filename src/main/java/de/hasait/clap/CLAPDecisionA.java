@@ -32,4 +32,6 @@ public @interface CLAPDecisionA {
 
 	public abstract Class<? extends Object>[] branches();
 
+	public abstract int order() default 1000;
+
 }

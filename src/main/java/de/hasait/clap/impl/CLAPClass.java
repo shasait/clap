@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -27,21 +27,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPDecisionA;
+import de.hasait.clap.CLAPOptionA;
+import de.hasait.clap.CLAPValue;
+
 /**
  * CLAPNode for handling annotated classes.
  */
-public class CLAPClass<T> extends AbstractCLAPNodeList implements ICLAPHasResult<T> {
+public class CLAPClass<T> extends AbstractCLAPNodeList implements CLAPValue<T> {
 
 	private final Class<T> _class;
 
-	private final Map<ICLAPHasResult<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
+	private final Map<CLAPValue<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
 
-	CLAPClass(final CLAP pCLAP, final Class<T> pClass) {
+	public CLAPClass(final CLAP pCLAP, final Class<T> pClass) {
 		super(pCLAP);
 
 		_class = pClass;
 
-		_propertyDescriptorByOptionMap = new HashMap<ICLAPHasResult<?>, PropertyDescriptor>();
+		_propertyDescriptorByOptionMap = new HashMap<CLAPValue<?>, PropertyDescriptor>();
 
 		BeanInfo beanInfo;
 		try {
@@ -86,7 +91,7 @@ public class CLAPClass<T> extends AbstractCLAPNodeList implements ICLAPHasResult
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResult pResult) {
+	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		internalFillResult(pContext, pResult);
 
 		T value;
@@ -96,8 +101,8 @@ public class CLAPClass<T> extends AbstractCLAPNodeList implements ICLAPHasResult
 			throw new RuntimeException(e);
 		}
 		boolean anySet = false;
-		for (final Entry<ICLAPHasResult<?>, PropertyDescriptor> entry : _propertyDescriptorByOptionMap.entrySet()) {
-			final ICLAPHasResult<?> node = entry.getKey();
+		for (final Entry<CLAPValue<?>, PropertyDescriptor> entry : _propertyDescriptorByOptionMap.entrySet()) {
+			final CLAPValue<?> node = entry.getKey();
 			if (pResult.getCount(node) > 0) {
 				anySet = true;
 				final PropertyDescriptor propertyDescriptor = entry.getValue();

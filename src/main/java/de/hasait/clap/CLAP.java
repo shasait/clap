@@ -23,10 +23,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import de.hasait.clap.impl.CLAPNodeList;
+import de.hasait.clap.impl.CLAPOption;
+import de.hasait.clap.impl.CLAPParseContext;
+import de.hasait.clap.impl.CLAPResultImpl;
+
 /**
  * Entry point to CLAP library.
  */
-public final class CLAP implements ICLAPNode {
+public final class CLAP implements CLAPNode {
 
 	private final ResourceBundle _nls;
 
@@ -52,12 +57,12 @@ public final class CLAP implements ICLAPNode {
 	}
 
 	@Override
-	public <V> ICLAPHasResult<V> addClass(final Class<V> pClass) {
+	public <V> CLAPValue<V> addClass(final Class<V> pClass) {
 		return _root.addClass(pClass);
 	}
 
 	@Override
-	public ICLAPNode addDecision() {
+	public CLAPNode addDecision() {
 		return _root.addDecision();
 	}
 
@@ -67,24 +72,24 @@ public final class CLAP implements ICLAPNode {
 	}
 
 	@Override
-	public ICLAPNode addNodeList() {
+	public CLAPNode addNodeList() {
 		return _root.addNodeList();
 	}
 
 	@Override
-	public <V> ICLAPHasResult<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
+	public <V> CLAPValue<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
 			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public <V> ICLAPHasResult<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
+	public <V> CLAPValue<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
 			final String pArgUsageNLSKey) {
 		return _root.addOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public <V> ICLAPHasResult<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
+	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
 			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
@@ -105,7 +110,7 @@ public final class CLAP implements ICLAPNode {
 		return _shortOptPrefix;
 	}
 
-	public ICLAPResult parse(final String... pArgs) {
+	public CLAPResult parse(final String... pArgs) {
 		final List<CLAPParseContext> parsedContexts = new ArrayList<CLAPParseContext>();
 		final LinkedList<CLAPParseContext> activeContexts = new LinkedList<CLAPParseContext>();
 		activeContexts.add(new CLAPParseContext(this, pArgs));
@@ -126,12 +131,12 @@ public final class CLAP implements ICLAPNode {
 			throw new CLAPException();
 		}
 
-		final Set<CLAPResult> validatedResults = new LinkedHashSet<CLAPResult>();
+		final Set<CLAPResultImpl> validatedResults = new LinkedHashSet<CLAPResultImpl>();
 		for (final CLAPParseContext context : parsedContexts) {
 			final List<String> errorMessages = new ArrayList<String>();
 			_root.validate(context, errorMessages);
 			if (errorMessages.isEmpty()) {
-				final CLAPResult result = new CLAPResult();
+				final CLAPResultImpl result = new CLAPResultImpl();
 				_root.fillResult(context, result);
 				validatedResults.add(result);
 			}

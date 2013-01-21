@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import de.hasait.clap.CLAP;
 
 /**
  * Context used while parsing arguments.
@@ -35,7 +37,7 @@ public class CLAPParseContext implements Cloneable {
 	private int _currentArgIndex;
 	private String _currentArg;
 
-	CLAPParseContext(final CLAP pCLAP, final String[] pArgs) {
+	public CLAPParseContext(final CLAP pCLAP, final String[] pArgs) {
 		super();
 
 		_clap = pCLAP;
