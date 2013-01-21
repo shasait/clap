@@ -25,7 +25,7 @@ import de.hasait.clap.CLAPValue;
 /**
  * Result.
  */
-public final class CLAPResultImpl implements Cloneable, CLAPResult {
+public class CLAPResultImpl implements Cloneable, CLAPResult {
 
 	private final Map<CLAPValue<?>, Object> _valueMap;
 	private final Map<CLAPValue<?>, Integer> _countMap;

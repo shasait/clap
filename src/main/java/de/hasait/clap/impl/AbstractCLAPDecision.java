@@ -49,16 +49,14 @@ public abstract class AbstractCLAPDecision extends AbstractCLAPNodeList {
 	}
 
 	@Override
-	public final String toString() {
-		final StringBuilder result = new StringBuilder();
+	public final void printUsage(final StringBuilder pResult) {
 		if (list().size() > 1) {
-			result.append("{ "); //$NON-NLS-1$
+			pResult.append("{ "); //$NON-NLS-1$
 		}
-		result.append(internalToString(" | ")); //$NON-NLS-1$
+		internalPrintUsage(pResult, " | "); //$NON-NLS-1$
 		if (list().size() > 1) {
-			result.append(" }"); //$NON-NLS-1$
+			pResult.append(" }"); //$NON-NLS-1$
 		}
-		return result.toString();
 	}
 
 	@Override

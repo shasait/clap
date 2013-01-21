@@ -16,6 +16,7 @@
 
 package de.hasait.clap.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,18 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 
 	protected AbstractCLAPNodeList(final CLAP pCLAP) {
 		super(pCLAP);
+	}
+
+	@Override
+	public final void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
+		for (final AbstractCLAPNode node : list()) {
+			node.collectOptionNodes(pOptionNodes);
+		}
+	}
+
+	@Override
+	public final String toString() {
+		return MessageFormat.format("{0}[{1}]", getClass().getSimpleName(), internalToString(", ")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected final <V> CLAPClassNode<V> internalAddClass(final Class<V> pClass) {
@@ -111,6 +124,18 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 			}
 		}
 		return null;
+	}
+
+	protected final void internalPrintUsage(final StringBuilder pResult, final String pSeparator) {
+		boolean first = true;
+		for (final AbstractCLAPNode node : _list) {
+			if (first) {
+				first = false;
+			} else {
+				pResult.append(pSeparator);
+			}
+			node.printUsage(pResult);
+		}
 	}
 
 	protected final String internalToString(final String pSeparator) {

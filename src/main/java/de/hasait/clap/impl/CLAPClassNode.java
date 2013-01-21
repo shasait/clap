@@ -171,8 +171,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 	}
 
 	@Override
-	public String toString() {
-		return internalToString(" "); //$NON-NLS-1$
+	public void printUsage(final StringBuilder pResult) {
+		internalPrintUsage(pResult, " "); //$NON-NLS-1$
 	}
 
 	@Override

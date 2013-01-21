@@ -33,13 +33,21 @@ public abstract class AbstractCLAPNode {
 		_clap = pCLAP;
 	}
 
+	public abstract void collectOptionNodes(List<CLAPOptionNode<?>> pOptions);
+
 	public abstract void fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
 
 	public CLAP getCLAP() {
 		return _clap;
 	}
 
+	public final String nls(final String pKey) {
+		return _clap.nls(pKey);
+	}
+
 	public abstract CLAPParseContext[] parse(CLAPParseContext pContext);
+
+	public abstract void printUsage(StringBuilder pResult);
 
 	public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
 

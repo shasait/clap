@@ -18,6 +18,7 @@ package de.hasait.clap.impl;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -136,8 +137,22 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
 				@Override
 				public Boolean transform(final String[] pStringValues) {
-					return pStringValues.length == 0 ? true : pStringValues[0].equalsIgnoreCase("true") || pStringValues[0].equalsIgnoreCase("yes") ||
-							pStringValues[0].equals("on");
+					if (pStringValues.length == 0) {
+						return true;
+					}
+					if (pStringValues[0].equalsIgnoreCase("true")) {
+						return true;
+					}
+					if (pStringValues[0].equalsIgnoreCase("yes")) {
+						return true;
+					}
+					if (pStringValues[0].equalsIgnoreCase("on")) {
+						return true;
+					}
+					if (pStringValues[0].equalsIgnoreCase("enable")) {
+						return true;
+					}
+					return false;
 				}
 
 			};
@@ -188,6 +203,11 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
+	public void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
+		pOptionNodes.add(this);
+	}
+
+	@Override
 	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final int optionCount = pContext.getNodeCount(this);
 		if (optionCount > 0) {
@@ -195,6 +215,26 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			final String[] stringValues = pContext.getOptionArgs(this);
 			pResult.setValue(this, _mapper.transform(stringValues));
 		}
+	}
+
+	public String getArgUsageNLSKey() {
+		return _argUsageNLSKey;
+	}
+
+	public String getDescriptionNLSKey() {
+		return _descriptionNLSKey;
+	}
+
+	public String getLongKey() {
+		return _longKey;
+	}
+
+	public Character getShortKey() {
+		return _shortKey;
+	}
+
+	public boolean isRequired() {
+		return _required;
 	}
 
 	@Override
@@ -210,8 +250,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
-	public String toString() {
-		final StringBuilder result = new StringBuilder();
+	public void printUsage(final StringBuilder result) {
 		if (_required) {
 			if (_shortKey != null && _longKey != null) {
 				result.append('{');
@@ -246,7 +285,8 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 					result.append("..."); //$NON-NLS-1$
 				} else {
 					result.append('<');
-					result.append(_argUsageNLSKey);
+					result.append(nls(_argUsageNLSKey));
+					result.append(i + 1);
 					result.append('>');
 				}
 			}
@@ -258,7 +298,11 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		} else {
 			result.append(']');
 		}
-		return result.toString();
+	}
+
+	@Override
+	public String toString() {
+		return MessageFormat.format("{0}[''{1}'', \"{2}\"]", getClass().getSimpleName(), _shortKey, _longKey); //$NON-NLS-1$ 
 	}
 
 	@Override

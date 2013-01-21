@@ -16,6 +16,7 @@
 
 package de.hasait.clap.impl;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import de.hasait.clap.CLAP;
@@ -23,7 +24,7 @@ import de.hasait.clap.CLAP;
 /**
  * An option node.
  */
-public final class CLAPKeywordNode extends AbstractCLAPNode {
+public class CLAPKeywordNode extends AbstractCLAPNode {
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -47,6 +48,11 @@ public final class CLAPKeywordNode extends AbstractCLAPNode {
 	}
 
 	@Override
+	public void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
+		// none
+	}
+
+	@Override
 	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		// none
 	}
@@ -64,8 +70,13 @@ public final class CLAPKeywordNode extends AbstractCLAPNode {
 	}
 
 	@Override
+	public void printUsage(final StringBuilder pResult) {
+		pResult.append(_keyword);
+	}
+
+	@Override
 	public String toString() {
-		return _keyword;
+		return MessageFormat.format("{0}[\"{1}\"]", getClass().getSimpleName(), _keyword); //$NON-NLS-1$ 
 	}
 
 	@Override

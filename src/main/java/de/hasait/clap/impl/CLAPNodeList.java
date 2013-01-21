@@ -31,23 +31,22 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public final <V> CLAPClassNode<V> addClass(final Class<V> pClass) {
+	public <V> CLAPClassNode<V> addClass(final Class<V> pClass) {
 		return internalAddClass(pClass);
 	}
 
 	@Override
-	public final CLAPDecisionNode addDecision() {
+	public CLAPDecisionNode addDecision() {
 		return internalAddDecision();
 	}
 
 	@Override
-	public final <V> CLAPTypedDecisionNode<V> addDecision(final Class<V> pResultClass, final Class<? extends V>... pBranchClasses) {
+	public <V> CLAPTypedDecisionNode<V> addDecision(final Class<V> pResultClass, final Class<? extends V>... pBranchClasses) {
 		return internalAddDecision(pResultClass, pBranchClasses);
 	}
 
 	@Override
-	public final CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
-			final String pArgUsageNLSKey) {
+	public CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
@@ -57,45 +56,45 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public final CLAPNodeList addNodeList() {
+	public CLAPNodeList addNodeList() {
 		return internalAddNodeList();
 	}
 
 	@Override
-	public final <V> CLAPOptionNode<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
+	public <V> CLAPOptionNode<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
 			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return internalAddOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public final <V> CLAPOptionNode<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
+	public <V> CLAPOptionNode<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
 			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return internalAddOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public final <V> CLAPOptionNode<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public <V> CLAPOptionNode<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
+			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return internalAddOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		internalFillResult(pContext, pResult);
 	}
 
 	@Override
-	public final CLAPParseContext[] parse(final CLAPParseContext pContext) {
+	public CLAPParseContext[] parse(final CLAPParseContext pContext) {
 		return internalParse(pContext);
 	}
 
 	@Override
-	public final String toString() {
-		return internalToString(" "); //$NON-NLS-1$
+	public void printUsage(final StringBuilder pResult) {
+		internalPrintUsage(pResult, " "); //$NON-NLS-1$
 	}
 
 	@Override
-	public final void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
+	public void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
 		internalValidate(pContext, pErrorMessages);
 	}
 

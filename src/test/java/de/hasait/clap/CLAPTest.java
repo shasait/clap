@@ -22,6 +22,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -29,9 +31,21 @@ import org.junit.Test;
  */
 public class CLAPTest {
 
+	private CLAP clap;
+
+	@Before
+	public void setUp() {
+		clap = new CLAP(null);
+	}
+
+	@After
+	public void tearDown() {
+		clap.printUsage(System.out);
+		clap.printHelp(System.out);
+	}
+
 	@Test
 	public void testAnnotationWorks01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<CLAPTypeA> typeAClass = clap.addClass(CLAPTypeA.class);
@@ -47,7 +61,6 @@ public class CLAPTest {
 
 	@Test
 	public void testAnnotationWorks02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<CLAPTypeA> typeAClass = clap.addClass(CLAPTypeA.class);
@@ -63,7 +76,6 @@ public class CLAPTest {
 
 	@Test
 	public void testAnnotationWorks03() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<CLAPTypeA> typeAClass = clap.addClass(CLAPTypeA.class);
@@ -79,7 +91,6 @@ public class CLAPTest {
 
 	@Test
 	public void testAnnotationWorks04() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<CLAPTypeC> typeCClass = clap.addClass(CLAPTypeC.class);
@@ -98,7 +109,6 @@ public class CLAPTest {
 
 	@Test
 	public void testAnnotationWorks05() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
@@ -114,7 +124,6 @@ public class CLAPTest {
 
 	@Test(expected = CLAPException.class)
 	public void testAnnotationWorks06() {
-		final CLAP clap = new CLAP(null);
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addClass(CLAPTypeD.class);
@@ -122,9 +131,24 @@ public class CLAPTest {
 		clap.parse("-v", "-vh", "--dstring=Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 	}
 
+	@Test
+	public void testAnnotationWorks07() {
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Object> typeABClass = clap.addDecision(Object.class, CLAPTypeA.class, CLAPTypeB.class);
+
+		final CLAPResult result = clap.parse("-v", "-vh", "--bstring=Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		assertEquals(2, result.getCount(verboseOption));
+		assertEquals(1, result.getCount(helpOption));
+		final Object object = result.getValue(typeABClass);
+		assertTrue(object instanceof CLAPTypeB);
+		final CLAPTypeB typeB = (CLAPTypeB) object;
+		assertEquals("Hallo", typeB.getString()); //$NON-NLS-1$
+		assertNull(typeB.getBoolean());
+	}
+
 	@Test(expected = CLAPException.class)
 	public void testDecision01() {
-		final CLAP clap = new CLAP(null);
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPNode ftpHttpDecision = clap.addDecision();
@@ -141,7 +165,6 @@ public class CLAPTest {
 
 	@Test
 	public void testDecision02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPNode ftpHttpDecision = clap.addDecision();
@@ -160,7 +183,6 @@ public class CLAPTest {
 
 	@Test
 	public void testDecision03() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPNode ftpHttpDecision = clap.addDecision();
@@ -182,7 +204,6 @@ public class CLAPTest {
 
 	@Test
 	public void testDecision04() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPNode ftpHttpDecision = clap.addDecision();
@@ -206,7 +227,6 @@ public class CLAPTest {
 
 	@Test
 	public void testKeywordWorks01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addKeyword("Hallo"); //$NON-NLS-1$
 
@@ -216,7 +236,6 @@ public class CLAPTest {
 
 	@Test(expected = CLAPException.class)
 	public void testKeywordWorks02() {
-		final CLAP clap = new CLAP(null);
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addKeyword("Hallo"); //$NON-NLS-1$
 
@@ -225,7 +244,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -239,7 +257,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -253,7 +270,6 @@ public class CLAPTest {
 
 	@Test(expected = CLAPException.class)
 	public void testLongKeyWithArg03() {
-		final CLAP clap = new CLAP(null);
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -263,7 +279,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg04() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -281,7 +296,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg05() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -299,7 +313,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg06() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -317,7 +330,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWithArg07() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -335,7 +347,6 @@ public class CLAPTest {
 
 	@Test(expected = CLAPException.class)
 	public void testLongKeyWithArg08() {
-		final CLAP clap = new CLAP(null);
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -346,7 +357,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWorks01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -357,7 +367,6 @@ public class CLAPTest {
 
 	@Test
 	public void testLongKeyWorks02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -368,7 +377,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -382,7 +390,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -396,7 +403,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg03() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -410,7 +416,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg04() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -424,7 +429,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg05() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -438,7 +442,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWithArg06() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Integer[]> numbersOption = clap.addOptionU(Integer[].class, 'n', "numbers", false, ';', "ndkey", "nukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -459,7 +462,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWorks01() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -470,7 +472,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWorks02() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -481,7 +482,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWorks03() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -492,7 +492,6 @@ public class CLAPTest {
 
 	@Test
 	public void testShortKeyWorks04() {
-		final CLAP clap = new CLAP(null);
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
