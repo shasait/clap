@@ -16,23 +16,36 @@
 
 package de.hasait.clap;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javassist.util.proxy.MethodFilter;
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.Proxy;
+import javassist.util.proxy.ProxyFactory;
+
 import de.hasait.clap.impl.CLAPNodeList;
 import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
 import de.hasait.clap.impl.CLAPResultImpl;
+import de.hasait.clap.impl.ConsoleReadPasswordCallback;
+import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
 
 /**
  * Entry point to CLAP library.
@@ -47,6 +60,8 @@ public final class CLAP implements CLAPNode {
 
 	private final CLAPNodeList _root;
 
+	private CLAPReadPasswordCallback _readPasswordCallback;
+
 	/**
 	 * 
 	 */
@@ -60,6 +75,12 @@ public final class CLAP implements CLAPNode {
 		_longOptEquals = "="; //$NON-NLS-1$
 
 		_root = new CLAPNodeList(this);
+
+		if (System.console() != null) {
+			_readPasswordCallback = new ConsoleReadPasswordCallback();
+		} else {
+			_readPasswordCallback = new SwingDialogReadPasswordCallback();
+		}
 	}
 
 	@Override
@@ -126,6 +147,69 @@ public final class CLAP implements CLAPNode {
 
 	public ResourceBundle getNLS() {
 		return _nls;
+	}
+
+	public <T> T getPasswordOrReadInteractivly(final T pObject, final String pCancelNLSKey) {
+		try {
+			final BeanInfo beanInfo = Introspector.getBeanInfo(pObject.getClass());
+			final Map<Method, String> readMethodMap = new HashMap<Method, String>();
+			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+				final Method readMethod = propertyDescriptor.getReadMethod();
+				if (readMethod != null) {
+					final Method writeMethod = propertyDescriptor.getWriteMethod();
+					if (writeMethod != null) {
+						final CLAPOption clapOption = writeMethod.getAnnotation(CLAPOption.class);
+						if (clapOption != null) {
+							final String descriptionNLSKey = clapOption.descriptionNLSKey();
+							if (descriptionNLSKey.trim().length() != 0) {
+								readMethodMap.put(readMethod, descriptionNLSKey);
+							}
+						}
+					}
+				}
+			}
+			final ProxyFactory proxyFactory = new ProxyFactory();
+			proxyFactory.setSuperclass(pObject.getClass());
+			proxyFactory.setFilter(new MethodFilter() {
+				@Override
+				public boolean isHandled(final Method m) {
+					// ignore finalize()
+					if (m.getName().equals("finalize")) { //$NON-NLS-1$
+						return false;
+					}
+					if (m.isSynthetic() || m.isBridge()) {
+						return false;
+					}
+					return m.getReturnType().equals(String.class) && m.getParameterTypes().length == 0;
+				}
+			});
+			final MethodHandler handler = new MethodHandler() {
+				@Override
+				public Object invoke(final Object self, final Method m, final Method proceed, final Object[] args) throws Throwable {
+					final String result = (String) proceed.invoke(self, args); // execute the original method.
+					if (result == null) {
+						final String descriptionNLSKey = readMethodMap.get(m);
+						final String prompt = descriptionNLSKey != null ? nls(descriptionNLSKey) : m.getName();
+						final String newResult = _readPasswordCallback.readPassword(prompt);
+						if (newResult == null) {
+							throw new RuntimeException(nls(pCancelNLSKey));
+						}
+						return newResult;
+					}
+					return result;
+				}
+			};
+			final Class<T> proxyClass = proxyFactory.createClass();
+			final T proxy = proxyClass.newInstance();
+			((Proxy) proxy).setHandler(handler);
+			return proxy;
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public CLAPReadPasswordCallback getReadPasswordCallback() {
+		return _readPasswordCallback;
 	}
 
 	public char getShortOptPrefix() {
@@ -251,6 +335,13 @@ public final class CLAP implements CLAPNode {
 
 	public void printUsage(final PrintStream pPrintStream) {
 		pPrintStream.println(buildUsage());
+	}
+
+	public void setReadPasswordCallback(final CLAPReadPasswordCallback pReadPasswordCallback) {
+		if (pReadPasswordCallback == null) {
+			throw new IllegalArgumentException();
+		}
+		_readPasswordCallback = pReadPasswordCallback;
 	}
 
 	@Override

@@ -376,6 +376,28 @@ public class CLAPTest {
 	}
 
 	@Test
+	public void testReadPasswordWorks01() {
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("Hallo"); //$NON-NLS-1$ 
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertNull(typeD.getString());
+		assertNull(typeD.getBoolean());
+
+		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+
+			@Override
+			public String readPassword(final String pPrompt) {
+				return "secret";
+			}
+
+		});
+
+		assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey").getString());
+	}
+
+	@Test
 	public void testShortKeyWithArg01() {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPDecision;
@@ -46,6 +48,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 	private final Class<T> _class;
 
 	private final Map<CLAPValue<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
+	private final Set<CLAPKeywordNode> _keywordNodes;
 
 	public CLAPClassNode(final CLAP pCLAP, final Class<T> pClass) {
 		super(pCLAP);
@@ -53,6 +56,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 		_class = pClass;
 
 		_propertyDescriptorByOptionMap = new HashMap<CLAPValue<?>, PropertyDescriptor>();
+		_keywordNodes = new HashSet<CLAPKeywordNode>();
 
 		BeanInfo beanInfo;
 		try {
@@ -100,7 +104,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 		for (final Item entry : annotations) {
 			final Object annotation = entry._annotation;
 			if (annotation instanceof CLAPKeyword) {
-				internalAddKeyword(((CLAPKeyword) annotation).value());
+				final CLAPKeywordNode node = internalAddKeyword(((CLAPKeyword) annotation).value());
+				_keywordNodes.add(node);
 			}
 			if (annotation instanceof CLAPOption) {
 				processCLAPOption(entry._propertyDescriptor.getPropertyType(), entry._propertyDescriptor, (CLAPOption) annotation);
@@ -157,6 +162,11 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 				} catch (final Exception e) {
 					throw new RuntimeException(e);
 				}
+			}
+		}
+		for (final CLAPKeywordNode node : _keywordNodes) {
+			if (pContext.getNodeCount(node) > 0) {
+				anySet = true;
 			}
 		}
 		if (anySet) {
