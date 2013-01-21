@@ -89,11 +89,4 @@ limitations under the License.
 		</plugins>
 	</build>
 
-	<distributionManagement>
-		<repository>
-			<id>github.repo</id>
-			<url>file:///srv/jenkins/workspace/de.hasait.util.clap-repo</url>
-		</repository>
-	</distributionManagement>
-
 </project>
