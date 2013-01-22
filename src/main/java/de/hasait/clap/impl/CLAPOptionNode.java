@@ -31,6 +31,8 @@ import de.hasait.clap.CLAPValue;
  */
 public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T> {
 
+	public static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
+
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
 	private final Character _shortKey;
@@ -270,7 +272,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			result.append(_longKey);
 		}
 		if (_argCount != 0) {
-			final int count = _argCount == UNLIMITED_ARG_COUNT ? 3 : _argCount;
+			final int count = _argCount == UNLIMITED_ARG_COUNT ? 2 : _argCount;
 			for (int i = 0; i < count; i++) {
 				if (_multiArgSplit != null) {
 					if (i == 0) {
@@ -281,12 +283,14 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 				} else {
 					result.append(' ');
 				}
-				if (_argCount == UNLIMITED_ARG_COUNT && i == 2) {
+				if (_argCount == UNLIMITED_ARG_COUNT && i == count - 1) {
 					result.append("..."); //$NON-NLS-1$
 				} else {
 					result.append('<');
-					result.append(nls(_argUsageNLSKey));
-					result.append(i + 1);
+					result.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
+					if (count > 1 + (_argCount == UNLIMITED_ARG_COUNT ? 1 : 0)) {
+						result.append(i + 1);
+					}
 					result.append('>');
 				}
 			}

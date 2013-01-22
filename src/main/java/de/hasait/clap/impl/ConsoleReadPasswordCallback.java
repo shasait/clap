@@ -25,9 +25,7 @@ public class ConsoleReadPasswordCallback implements CLAPReadPasswordCallback {
 	@Override
 	public String readPassword(final String pPrompt) {
 		final Console console = System.console();
-		console.writer().print(pPrompt);
-		console.flush();
-		final char[] passwordRaw = console.readPassword();
+		final char[] passwordRaw = console.readPassword(pPrompt + ": "); //$NON-NLS-1$
 		return passwordRaw == null ? null : new String(passwordRaw);
 	}
 

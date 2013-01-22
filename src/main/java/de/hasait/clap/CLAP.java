@@ -52,6 +52,10 @@ import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
  */
 public final class CLAP implements CLAPNode {
 
+	private static final String NLSKEY_CLAP_OPTIONAL = "clap.optional"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_REQUIRED = "clap.required"; //$NON-NLS-1$
+	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
+
 	private final ResourceBundle _nls;
 
 	private final char _shortOptPrefix;
@@ -149,23 +153,25 @@ public final class CLAP implements CLAPNode {
 		return _nls;
 	}
 
-	public <T> T getPasswordOrReadInteractivly(final T pObject, final String pCancelNLSKey) {
+	public <T> T getPasswordOrReadInteractivly(final T pObject, final String pCancelNLSKey, final boolean pSetAfterRead) {
 		try {
 			final BeanInfo beanInfo = Introspector.getBeanInfo(pObject.getClass());
-			final Map<Method, String> readMethodMap = new HashMap<Method, String>();
+			final Map<Method, String> readMethodToDescriptionMap = new HashMap<Method, String>();
+			final Map<Method, Method> readMethodToWriteMethodMap = new HashMap<Method, Method>();
 			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
 				final Method readMethod = propertyDescriptor.getReadMethod();
-				if (readMethod != null) {
-					final Method writeMethod = propertyDescriptor.getWriteMethod();
-					if (writeMethod != null) {
-						final CLAPOption clapOption = writeMethod.getAnnotation(CLAPOption.class);
-						if (clapOption != null) {
-							final String descriptionNLSKey = clapOption.descriptionNLSKey();
-							if (descriptionNLSKey.trim().length() != 0) {
-								readMethodMap.put(readMethod, descriptionNLSKey);
-							}
-						}
+				final Method writeMethod = propertyDescriptor.getWriteMethod();
+				if (readMethod != null && writeMethod != null && propertyDescriptor.getPropertyType().equals(String.class)) {
+					final String description;
+					final CLAPOption clapOption = writeMethod.getAnnotation(CLAPOption.class);
+					final String descriptionNLSKey = clapOption == null ? null : clapOption.descriptionNLSKey();
+					if (descriptionNLSKey != null && descriptionNLSKey.trim().length() != 0) {
+						description = nls(descriptionNLSKey);
+					} else {
+						description = propertyDescriptor.getDisplayName();
 					}
+					readMethodToDescriptionMap.put(readMethod, description);
+					readMethodToWriteMethodMap.put(readMethod, writeMethod);
 				}
 			}
 			final ProxyFactory proxyFactory = new ProxyFactory();
@@ -173,26 +179,22 @@ public final class CLAP implements CLAPNode {
 			proxyFactory.setFilter(new MethodFilter() {
 				@Override
 				public boolean isHandled(final Method m) {
-					// ignore finalize()
-					if (m.getName().equals("finalize")) { //$NON-NLS-1$
-						return false;
-					}
-					if (m.isSynthetic() || m.isBridge()) {
-						return false;
-					}
-					return m.getReturnType().equals(String.class) && m.getParameterTypes().length == 0;
+					return readMethodToDescriptionMap.containsKey(m);
 				}
 			});
 			final MethodHandler handler = new MethodHandler() {
 				@Override
 				public Object invoke(final Object self, final Method m, final Method proceed, final Object[] args) throws Throwable {
-					final String result = (String) proceed.invoke(self, args); // execute the original method.
+					final String result = (String) m.invoke(pObject, args); // execute the original method.
 					if (result == null) {
-						final String descriptionNLSKey = readMethodMap.get(m);
-						final String prompt = descriptionNLSKey != null ? nls(descriptionNLSKey) : m.getName();
+						final String description = readMethodToDescriptionMap.get(m);
+						final String prompt = nls(NLSKEY_ENTER_PASSWORD, description);
 						final String newResult = _readPasswordCallback.readPassword(prompt);
 						if (newResult == null) {
 							throw new RuntimeException(nls(pCancelNLSKey));
+						}
+						if (pSetAfterRead) {
+							readMethodToWriteMethodMap.get(m).invoke(pObject, newResult);
 						}
 						return newResult;
 					}
@@ -218,7 +220,7 @@ public final class CLAP implements CLAPNode {
 
 	public final String nls(final String pKey, final Object... pArguments) {
 		String pattern;
-		if (_nls != null) {
+		if (_nls != null && pKey != null) {
 			pattern = _nls.getString(pKey);
 		} else {
 			pattern = pKey != null ? pKey : ""; //$NON-NLS-1$
@@ -304,6 +306,11 @@ public final class CLAP implements CLAPNode {
 			if (longKey != null) {
 				keyLength += getLongOptPrefix().length() + longKey.length();
 			}
+			if (shortKey == null && longKey == null) {
+				final String argUsageNLSKey = node.getArgUsageNLSKey();
+				final String text = argUsageNLSKey != null ? nls(argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
+				keyLength += text.length() + 2;
+			}
 			keyLength += 4; // space to description
 			if (keyLength > minKeyLength) {
 				minKeyLength = keyLength;
@@ -323,11 +330,16 @@ public final class CLAP implements CLAPNode {
 			if (longKey != null) {
 				keySB.append(getLongOptPrefix()).append(longKey);
 			}
+			if (shortKey == null && longKey == null) {
+				final String argUsageNLSKey = node.getArgUsageNLSKey();
+				final String text = argUsageNLSKey != null ? nls(argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
+				keySB.append('<').append(text).append('>');
+			}
 			pPrintStream.print(StringUtils.rightPad(keySB.toString(), minKeyLength));
 			pPrintStream.println(nls(node.getDescriptionNLSKey()));
 			pPrintStream.print(StringUtils.repeat(' ', minKeyLength + 4));
 			pPrintStream.print('(');
-			pPrintStream.print(nls(node.isRequired() ? "clap.required" : "clap.optional")); //$NON-NLS-1$ //$NON-NLS-2$
+			pPrintStream.print(nls(node.isRequired() ? NLSKEY_CLAP_REQUIRED : NLSKEY_CLAP_OPTIONAL));
 			pPrintStream.print(')');
 			pPrintStream.println();
 		}

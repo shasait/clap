@@ -226,6 +226,75 @@ public class CLAPTest {
 	}
 
 	@Test
+	public void testGetPasswordOrReadInteractivlyWorks01() {
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("Hallo"); //$NON-NLS-1$ 
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertNull(typeD.getString());
+		assertNull(typeD.getBoolean());
+
+		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+
+			@Override
+			public String readPassword(final String pPrompt) {
+				return "secret"; //$NON-NLS-1$
+			}
+
+		});
+
+		assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", false).getString()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertNull(typeD.getString());
+	}
+
+	@Test
+	public void testGetPasswordOrReadInteractivlyWorks02() {
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("Hallo", "--dstring", "foobar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertEquals("foobar", typeD.getString()); //$NON-NLS-1$
+		assertNull(typeD.getBoolean());
+
+		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+
+			@Override
+			public String readPassword(final String pPrompt) {
+				return "secret"; //$NON-NLS-1$
+			}
+
+		});
+
+		assertEquals("foobar", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", false).getString()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("foobar", typeD.getString()); //$NON-NLS-1$
+	}
+
+	@Test
+	public void testGetPasswordOrReadInteractivlyWorks03() {
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("Hallo"); //$NON-NLS-1$ 
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertNull(typeD.getString());
+		assertNull(typeD.getBoolean());
+
+		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+
+			@Override
+			public String readPassword(final String pPrompt) {
+				return "secret"; //$NON-NLS-1$
+			}
+
+		});
+
+		assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", true).getString()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("secret", typeD.getString()); //$NON-NLS-1$
+	}
+
+	@Test
 	public void testKeywordWorks01() {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addKeyword("Hallo"); //$NON-NLS-1$
@@ -373,28 +442,6 @@ public class CLAPTest {
 		final CLAPResult result = clap.parse("--verbose", "--help"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertEquals(1, result.getCount(verboseOption));
 		assertEquals(1, result.getCount(helpOption));
-	}
-
-	@Test
-	public void testReadPasswordWorks01() {
-		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
-
-		final CLAPResult result = clap.parse("Hallo"); //$NON-NLS-1$ 
-		final CLAPTypeD typeD = result.getValue(typeDClass);
-		assertNotNull(typeD);
-		assertNull(typeD.getString());
-		assertNull(typeD.getBoolean());
-
-		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
-
-			@Override
-			public String readPassword(final String pPrompt) {
-				return "secret";
-			}
-
-		});
-
-		assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey").getString());
 	}
 
 	@Test
