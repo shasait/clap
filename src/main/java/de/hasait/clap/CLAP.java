@@ -81,7 +81,7 @@ public final class CLAP implements CLAPNode {
 		_longOptEquals = "="; //$NON-NLS-1$
 
 		_root = new CLAPNodeList(this);
-		_root.setHelpCategory(0, NLSKEY_DEFAULT_HELP_CATEGORY);
+		_root.setHelpCategory(1000, NLSKEY_DEFAULT_HELP_CATEGORY);
 
 		if (System.console() != null) {
 			_readPasswordCallback = new ConsoleReadPasswordCallback();

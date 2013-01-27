@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,14 +69,14 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 
 		final List<Item> annotations = new ArrayList<Item>();
 
-		final CLAPKeywords clapKeywords = pClass.getAnnotation(CLAPKeywords.class);
+		final CLAPKeywords clapKeywords = findAnnotation(pClass, CLAPKeywords.class);
 		if (clapKeywords != null) {
 			for (final CLAPKeyword clapKeyword : clapKeywords.value()) {
 				annotations.add(new Item(clapKeyword.order(), clapKeyword, null));
 			}
 		}
 
-		final CLAPHelpCategory helpCategory = pClass.getAnnotation(CLAPHelpCategory.class);
+		final CLAPHelpCategory helpCategory = findAnnotation(pClass, CLAPHelpCategory.class);
 		if (helpCategory != null) {
 			setHelpCategory(helpCategory.order(), helpCategory.titleNLSKey());
 		}
@@ -124,6 +125,25 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 			}
 		}
 
+	}
+
+	private static <A extends Annotation> A findAnnotation(final Class<?> pClass, final Class<A> pAnnotationClass) {
+		final LinkedList<Class<?>> queue = new LinkedList<Class<?>>();
+		queue.add(pClass);
+		while (!queue.isEmpty()) {
+			final Class<?> clazz = queue.removeFirst();
+			if (clazz != null) {
+				final A result = clazz.getAnnotation(pAnnotationClass);
+				if (result != null) {
+					return result;
+				}
+				queue.add(clazz.getSuperclass());
+				for (final Class<?> interfaze : clazz.getInterfaces()) {
+					queue.add(interfaze);
+				}
+			}
+		}
+		return null;
 	}
 
 	private static <T extends Annotation> T getAnnotation(final PropertyDescriptor pPropertyDescriptor, final Class<T> pAnnotationClass) {
