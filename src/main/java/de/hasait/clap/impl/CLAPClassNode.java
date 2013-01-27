@@ -35,6 +35,7 @@ import java.util.Set;
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPDecision;
 import de.hasait.clap.CLAPDelegate;
+import de.hasait.clap.CLAPHelpCategory;
 import de.hasait.clap.CLAPKeyword;
 import de.hasait.clap.CLAPKeywords;
 import de.hasait.clap.CLAPOption;
@@ -72,6 +73,11 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 			for (final CLAPKeyword clapKeyword : clapKeywords.value()) {
 				annotations.add(new Item(clapKeyword.order(), clapKeyword, null));
 			}
+		}
+
+		final CLAPHelpCategory helpCategory = pClass.getAnnotation(CLAPHelpCategory.class);
+		if (helpCategory != null) {
+			setHelpCategory(helpCategory.order(), helpCategory.titleNLSKey());
 		}
 
 		for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {

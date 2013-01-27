@@ -43,4 +43,6 @@ public interface CLAPNode {
 	<V> CLAPValue<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey,
 			String pArgUsageNLSKey);
 
+	void setHelpCategory(int pOrder, String pNLSKey);
+
 }

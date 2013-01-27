@@ -18,6 +18,8 @@ package de.hasait.clap.impl;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.hasait.clap.CLAP;
 
@@ -48,7 +50,7 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 	}
 
 	@Override
-	public void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
+	public void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
 		// none
 	}
 
