@@ -17,6 +17,8 @@
 package de.hasait.clap.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.hasait.clap.CLAP;
 
@@ -27,18 +29,24 @@ public abstract class AbstractCLAPNode {
 
 	private final CLAP _clap;
 
+	private CLAPHelpCategoryImpl _helpCategory;
+
 	protected AbstractCLAPNode(final CLAP pCLAP) {
 		super();
 
 		_clap = pCLAP;
 	}
 
-	public abstract void collectOptionNodes(List<CLAPOptionNode<?>> pOptions);
+	public abstract void collectOptionNodesForHelp(Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory);
 
 	public abstract void fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
 
 	public CLAP getCLAP() {
 		return _clap;
+	}
+
+	public final CLAPHelpCategoryImpl getHelpCategory() {
+		return _helpCategory;
 	}
 
 	public final String nls(final String pKey) {
@@ -48,6 +56,10 @@ public abstract class AbstractCLAPNode {
 	public abstract CLAPParseContext[] parse(CLAPParseContext pContext);
 
 	public abstract void printUsage(StringBuilder pResult);
+
+	public final void setHelpCategory(final int pOrder, final String pNLSKey) {
+		_helpCategory = new CLAPHelpCategoryImpl(pOrder, pNLSKey);
+	}
 
 	public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
 

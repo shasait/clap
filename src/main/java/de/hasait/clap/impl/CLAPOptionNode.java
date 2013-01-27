@@ -21,7 +21,15 @@ import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPValue;
@@ -48,6 +56,8 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	private final String _descriptionNLSKey;
 
 	private final String _argUsageNLSKey;
+
+	private final Class<T> _resultClass;
 
 	private final Mapper<T> _mapper;
 
@@ -196,6 +206,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		_multiArgSplit = pMultiArgSplit;
 		_descriptionNLSKey = pDescriptionNLSKey;
 		_argUsageNLSKey = pArgUsageNLSKey;
+		_resultClass = pResultClass;
 
 	}
 
@@ -205,8 +216,79 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
-	public void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
-		pOptionNodes.add(this);
+	public void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
+		final CLAPHelpCategoryImpl currentCategory = getHelpCategory() != null ? getHelpCategory() : pCurrentCategory;
+		if (!pOptionNodes.containsKey(currentCategory)) {
+			pOptionNodes.put(currentCategory, new TreeSet<CLAPOptionNode<?>>(new Comparator<CLAPOptionNode<?>>() {
+
+				@Override
+				public int compare(final CLAPOptionNode<?> pO1, final CLAPOptionNode<?> pO2) {
+					final Character sk1 = pO1.getShortKey();
+					final String lk1 = pO1.getLongKey();
+					final Character sk2 = pO2.getShortKey();
+					final String lk2 = pO2.getLongKey();
+					final String or1 = sk1 != null ? sk1.toString() : lk1 != null ? lk1 : ""; //$NON-NLS-1$
+					final String or2 = sk2 != null ? sk2.toString() : lk2 != null ? lk2 : ""; //$NON-NLS-1$
+					final int r = or1.compareTo(or2);
+					return r;
+				}
+
+			}));
+		}
+		pOptionNodes.get(currentCategory).add(this);
+	}
+
+	@Override
+	public boolean equals(final Object pOther) {
+		if (pOther == this) {
+			return true;
+		}
+
+		if (pOther == null) {
+			return false;
+		}
+
+		if (getClass() != pOther.getClass()) {
+			return false;
+		}
+
+		final CLAPOptionNode<?> other = (CLAPOptionNode<?>) pOther;
+
+		if (_shortKey != other._shortKey) {
+			return false;
+		}
+
+		if (!StringUtils.equals(_longKey, other._longKey)) {
+			return false;
+		}
+
+		if (_required != other._required) {
+			return false;
+		}
+
+		if (_argCount != other._argCount) {
+			return false;
+		}
+
+		if (!ObjectUtils.equals(_multiArgSplit, other._multiArgSplit)) {
+			return false;
+		}
+
+		if (!StringUtils.equals(_descriptionNLSKey, other._descriptionNLSKey)) {
+			return false;
+		}
+
+		if (!StringUtils.equals(_argUsageNLSKey, other._argUsageNLSKey)) {
+			return false;
+		}
+
+		if (!ObjectUtils.equals(_resultClass, other._resultClass)) {
+			return false;
+		}
+
+		// _mapper depends on _resultClass 
+
+		return true;
 	}
 
 	@Override
@@ -233,6 +315,11 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
 	public Character getShortKey() {
 		return _shortKey;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(_shortKey).append(_longKey).append(_required).append(_argCount).toHashCode();
 	}
 
 	public boolean isRequired() {

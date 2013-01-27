@@ -20,6 +20,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.hasait.clap.CLAP;
 
@@ -36,9 +38,10 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 	}
 
 	@Override
-	public final void collectOptionNodes(final List<CLAPOptionNode<?>> pOptionNodes) {
+	public final void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
+		final CLAPHelpCategoryImpl currentCategory = getHelpCategory() != null ? getHelpCategory() : pCurrentCategory;
 		for (final AbstractCLAPNode node : list()) {
-			node.collectOptionNodes(pOptionNodes);
+			node.collectOptionNodesForHelp(pOptionNodes, currentCategory);
 		}
 	}
 
