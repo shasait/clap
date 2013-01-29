@@ -26,7 +26,7 @@ import de.hasait.clap.CLAP;
 /**
  * An option node.
  */
-public class CLAPKeywordNode extends AbstractCLAPNode {
+public class CLAPKeywordNode extends AbstractCLAPNode implements CLAPHelpNode {
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -50,13 +50,28 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 	}
 
 	@Override
-	public void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
-		// none
+	public void collectHelpNodes(final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
+		addHelpNode(pNodes, pCurrentCategory, this);
 	}
 
 	@Override
 	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		// none
+	}
+
+	@Override
+	public String getDescriptionNLSKey() {
+		return null;
+	}
+
+	@Override
+	public String getHelpID() {
+		return _keyword;
+	}
+
+	@Override
+	public boolean isRequired() {
+		return true;
 	}
 
 	@Override

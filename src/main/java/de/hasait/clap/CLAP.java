@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
@@ -41,6 +42,7 @@ import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyFactory;
 
 import de.hasait.clap.impl.CLAPHelpCategoryImpl;
+import de.hasait.clap.impl.CLAPHelpNode;
 import de.hasait.clap.impl.CLAPNodeList;
 import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
@@ -222,10 +224,15 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public final String nls(final String pKey, final Object... pArguments) {
-		String pattern;
+		String pattern = null;
 		if (_nls != null && pKey != null) {
-			pattern = _nls.getString(pKey);
-		} else {
+			try {
+				pattern = _nls.getString(pKey);
+			} catch (final MissingResourceException e) {
+				pattern = null;
+			}
+		}
+		if (pattern == null) {
 			pattern = pKey != null ? pKey : ""; //$NON-NLS-1$
 			for (int i = 0; i < pArguments.length; i++) {
 				pattern += "{" + i + "}"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -277,60 +284,30 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public void printHelp(final PrintStream pPrintStream) {
-		final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> optionNodes = new TreeMap<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>>();
-		_root.collectOptionNodesForHelp(optionNodes, null);
+		final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes = new TreeMap<CLAPHelpCategoryImpl, Set<CLAPHelpNode>>();
+		_root.collectHelpNodes(nodes, null);
 
-		int minKeyLength = 0;
-		for (final Entry<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> entry : optionNodes.entrySet()) {
-			for (final CLAPOptionNode<?> node : entry.getValue()) {
-				int keyLength = 0;
-				final Character shortKey = node.getShortKey();
-				final String longKey = node.getLongKey();
-				if (shortKey != null) {
-					keyLength += 1 + 1; // <SKPREFIX><SK>
-					if (longKey != null) {
-						keyLength += 2; // <COMMA><SPACE>
-					}
-				}
-				if (longKey != null) {
-					keyLength += getLongOptPrefix().length() + longKey.length();
-				}
-				if (shortKey == null && longKey == null) {
-					final String argUsageNLSKey = node.getArgUsageNLSKey();
-					final String text = argUsageNLSKey != null ? nls(argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
-					keyLength += text.length() + 2;
-				}
-				keyLength += 4; // space to description
-				if (keyLength > minKeyLength) {
-					minKeyLength = keyLength;
+		int maxLength = 0;
+		for (final Entry<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> entry : nodes.entrySet()) {
+			for (final CLAPHelpNode node : entry.getValue()) {
+				final int length = node.getHelpID().length();
+				if (length > maxLength) {
+					maxLength = length;
 				}
 			}
 		}
+		maxLength += 4; // space to description
 
-		for (final Entry<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> entry : optionNodes.entrySet()) {
+		for (final Entry<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> entry : nodes.entrySet()) {
 			pPrintStream.println();
 			pPrintStream.println(nls(entry.getKey().getTitleNLSKey()));
-			for (final CLAPOptionNode<?> node : entry.getValue()) {
-				final StringBuilder keySB = new StringBuilder();
-				final Character shortKey = node.getShortKey();
-				final String longKey = node.getLongKey();
-				if (shortKey != null) {
-					keySB.append(getShortOptPrefix()).append(shortKey); // <SKPREFIX><SK>
-					if (longKey != null) {
-						keySB.append(", "); // <COMMA><SPACE> //$NON-NLS-1$
-					}
+			for (final CLAPHelpNode node : entry.getValue()) {
+				pPrintStream.print(StringUtils.rightPad(node.getHelpID(), maxLength));
+				final String descriptionNLSKey = node.getDescriptionNLSKey();
+				if (descriptionNLSKey != null) {
+					pPrintStream.println(nls(descriptionNLSKey));
+					pPrintStream.print(StringUtils.repeat(' ', maxLength));
 				}
-				if (longKey != null) {
-					keySB.append(getLongOptPrefix()).append(longKey);
-				}
-				if (shortKey == null && longKey == null) {
-					final String argUsageNLSKey = node.getArgUsageNLSKey();
-					final String text = argUsageNLSKey != null ? nls(argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
-					keySB.append('<').append(text).append('>');
-				}
-				pPrintStream.print(StringUtils.rightPad(keySB.toString(), minKeyLength));
-				pPrintStream.println(nls(node.getDescriptionNLSKey()));
-				pPrintStream.print(StringUtils.repeat(' ', minKeyLength + 4));
 				pPrintStream.print('(');
 				pPrintStream.print(nls(node.isRequired() ? NLSKEY_CLAP_REQUIRED : NLSKEY_CLAP_OPTIONAL));
 				pPrintStream.print(')');
@@ -344,8 +321,8 @@ public final class CLAP implements CLAPNode {
 	}
 
 	@Override
-	public void setHelpCategory(final int pOrder, final String pNLSKey) {
-		_root.setHelpCategory(pOrder, pNLSKey);
+	public void setHelpCategory(final int pOrder, final String pTitleNLSKey) {
+		_root.setHelpCategory(pOrder, pTitleNLSKey);
 	}
 
 	public void setReadPasswordCallback(final CLAPReadPasswordCallback pReadPasswordCallback) {

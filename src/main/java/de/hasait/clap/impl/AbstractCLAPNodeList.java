@@ -38,10 +38,10 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 	}
 
 	@Override
-	public final void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
+	public final void collectHelpNodes(final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
 		final CLAPHelpCategoryImpl currentCategory = getHelpCategory() != null ? getHelpCategory() : pCurrentCategory;
 		for (final AbstractCLAPNode node : list()) {
-			node.collectOptionNodesForHelp(pOptionNodes, currentCategory);
+			node.collectHelpNodes(pNodes, currentCategory);
 		}
 	}
 

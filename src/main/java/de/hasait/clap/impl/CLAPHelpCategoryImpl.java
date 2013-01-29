@@ -16,7 +16,6 @@
 
 package de.hasait.clap.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
@@ -41,7 +40,17 @@ public class CLAPHelpCategoryImpl implements Comparable<CLAPHelpCategoryImpl> {
 
 	@Override
 	public int compareTo(final CLAPHelpCategoryImpl pOther) {
-		return Integer.valueOf(_order).compareTo(Integer.valueOf(pOther._order));
+		final int orderResult = Integer.valueOf(_order).compareTo(Integer.valueOf(pOther._order));
+		if (orderResult != 0) {
+			return orderResult;
+		}
+
+		final int titleNLSKeyResult = _titleNLSKey.compareTo(pOther._titleNLSKey);
+		if (titleNLSKeyResult != 0) {
+			return titleNLSKeyResult;
+		}
+
+		return 0;
 	}
 
 	@Override
@@ -64,7 +73,7 @@ public class CLAPHelpCategoryImpl implements Comparable<CLAPHelpCategoryImpl> {
 			return false;
 		}
 
-		if (!StringUtils.equals(_titleNLSKey, other._titleNLSKey)) {
+		if (!_titleNLSKey.equals(other._titleNLSKey)) {
 			return false;
 		}
 

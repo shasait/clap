@@ -21,11 +21,9 @@ import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +35,9 @@ import de.hasait.clap.CLAPValue;
 /**
  * An option node.
  */
-public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T> {
+public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T>, CLAPHelpNode {
 
-	public static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -216,26 +214,8 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
-	public void collectOptionNodesForHelp(final Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
-		final CLAPHelpCategoryImpl currentCategory = getHelpCategory() != null ? getHelpCategory() : pCurrentCategory;
-		if (!pOptionNodes.containsKey(currentCategory)) {
-			pOptionNodes.put(currentCategory, new TreeSet<CLAPOptionNode<?>>(new Comparator<CLAPOptionNode<?>>() {
-
-				@Override
-				public int compare(final CLAPOptionNode<?> pO1, final CLAPOptionNode<?> pO2) {
-					final Character sk1 = pO1.getShortKey();
-					final String lk1 = pO1.getLongKey();
-					final Character sk2 = pO2.getShortKey();
-					final String lk2 = pO2.getLongKey();
-					final String or1 = sk1 != null ? sk1.toString() : lk1 != null ? lk1 : ""; //$NON-NLS-1$
-					final String or2 = sk2 != null ? sk2.toString() : lk2 != null ? lk2 : ""; //$NON-NLS-1$
-					final int r = or1.compareTo(or2);
-					return r;
-				}
-
-			}));
-		}
-		pOptionNodes.get(currentCategory).add(this);
+	public void collectHelpNodes(final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, final CLAPHelpCategoryImpl pCurrentCategory) {
+		addHelpNode(pNodes, pCurrentCategory, this);
 	}
 
 	@Override
@@ -305,8 +285,28 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		return _argUsageNLSKey;
 	}
 
+	@Override
 	public String getDescriptionNLSKey() {
 		return _descriptionNLSKey;
+	}
+
+	@Override
+	public String getHelpID() {
+		final StringBuilder helpIDSB = new StringBuilder();
+		if (_shortKey != null) {
+			helpIDSB.append(getCLAP().getShortOptPrefix()).append(_shortKey);
+			if (_longKey != null) {
+				helpIDSB.append(", "); //$NON-NLS-1$
+			}
+		}
+		if (_longKey != null) {
+			helpIDSB.append(getCLAP().getLongOptPrefix()).append(_longKey);
+		}
+		if (_shortKey == null && _longKey == null) {
+			final String text = _argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
+			helpIDSB.append('<').append(text).append('>');
+		}
+		return helpIDSB.toString();
 	}
 
 	public String getLongKey() {
@@ -322,6 +322,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		return new HashCodeBuilder().append(_shortKey).append(_longKey).append(_required).append(_argCount).toHashCode();
 	}
 
+	@Override
 	public boolean isRequired() {
 		return _required;
 	}

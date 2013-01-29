@@ -16,9 +16,11 @@
 
 package de.hasait.clap.impl;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import de.hasait.clap.CLAP;
 
@@ -37,7 +39,22 @@ public abstract class AbstractCLAPNode {
 		_clap = pCLAP;
 	}
 
-	public abstract void collectOptionNodesForHelp(Map<CLAPHelpCategoryImpl, Set<CLAPOptionNode<?>>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory);
+	protected static final void addHelpNode(final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pOptionNodes, final CLAPHelpCategoryImpl pCurrentCategory, final CLAPHelpNode pNode) {
+		final CLAPHelpCategoryImpl currentCategory = pNode.getHelpCategory() != null ? pNode.getHelpCategory() : pCurrentCategory;
+		if (!pOptionNodes.containsKey(currentCategory)) {
+			pOptionNodes.put(currentCategory, new TreeSet<CLAPHelpNode>(new Comparator<CLAPHelpNode>() {
+
+				@Override
+				public int compare(final CLAPHelpNode pO1, final CLAPHelpNode pO2) {
+					return pO1.getHelpID().compareTo(pO2.getHelpID());
+				}
+
+			}));
+		}
+		pOptionNodes.get(currentCategory).add(pNode);
+	}
+
+	public abstract void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory);
 
 	public abstract void fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
 
@@ -57,8 +74,8 @@ public abstract class AbstractCLAPNode {
 
 	public abstract void printUsage(StringBuilder pResult);
 
-	public final void setHelpCategory(final int pOrder, final String pNLSKey) {
-		_helpCategory = new CLAPHelpCategoryImpl(pOrder, pNLSKey);
+	public final void setHelpCategory(final int pOrder, final String pTitleNLSKey) {
+		_helpCategory = new CLAPHelpCategoryImpl(pOrder, pTitleNLSKey);
 	}
 
 	public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
