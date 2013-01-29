@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by HasaIT (hasait at web dot de)
+ * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
