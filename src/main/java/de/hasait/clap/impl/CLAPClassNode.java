@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPDecision;
 import de.hasait.clap.CLAPDelegate;
@@ -40,6 +42,7 @@ import de.hasait.clap.CLAPHelpCategory;
 import de.hasait.clap.CLAPKeyword;
 import de.hasait.clap.CLAPKeywords;
 import de.hasait.clap.CLAPOption;
+import de.hasait.clap.CLAPUsageCategory;
 import de.hasait.clap.CLAPValue;
 
 /**
@@ -79,6 +82,11 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 		final CLAPHelpCategory helpCategory = findAnnotation(pClass, CLAPHelpCategory.class);
 		if (helpCategory != null) {
 			setHelpCategory(helpCategory.order(), helpCategory.titleNLSKey());
+		}
+
+		final CLAPUsageCategory usageCategory = findAnnotation(pClass, CLAPUsageCategory.class);
+		if (usageCategory != null) {
+			setUsageCategory(usageCategory.order(), usageCategory.titleNLSKey());
 		}
 
 		for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
@@ -207,8 +215,13 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 	}
 
 	@Override
-	public void printUsage(final StringBuilder pResult) {
-		internalPrintUsage(pResult, " "); //$NON-NLS-1$
+	public void printUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
+		final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+		if (pair != null) {
+			final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
+			final StringBuilder result = pair.getRight();
+			internalPrintUsage(pCategories, currentCategory, result, " "); //$NON-NLS-1$
+		}
 	}
 
 	@Override

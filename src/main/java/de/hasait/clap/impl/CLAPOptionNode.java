@@ -322,7 +322,6 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		return new HashCodeBuilder().append(_shortKey).append(_longKey).append(_required).append(_argCount).toHashCode();
 	}
 
-	@Override
 	public boolean isRequired() {
 		return _required;
 	}
@@ -340,55 +339,55 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
-	public void printUsage(final StringBuilder result) {
+	public void printUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
 		if (_required) {
 			if (_shortKey != null && _longKey != null) {
-				result.append('{');
+				pResult.append('{');
 			}
 		} else {
-			result.append('[');
+			pResult.append('[');
 		}
 		if (_shortKey != null) {
-			result.append(getCLAP().getShortOptPrefix());
-			result.append(_shortKey);
+			pResult.append(getCLAP().getShortOptPrefix());
+			pResult.append(_shortKey);
 			if (_longKey != null) {
-				result.append('|');
+				pResult.append('|');
 			}
 		}
 		if (_longKey != null) {
-			result.append(getCLAP().getLongOptPrefix());
-			result.append(_longKey);
+			pResult.append(getCLAP().getLongOptPrefix());
+			pResult.append(_longKey);
 		}
 		if (_argCount != 0) {
 			final int count = _argCount == UNLIMITED_ARG_COUNT ? 2 : _argCount;
 			for (int i = 0; i < count; i++) {
 				if (_multiArgSplit != null) {
 					if (i == 0) {
-						result.append(getCLAP().getLongOptEquals());
+						pResult.append(getCLAP().getLongOptEquals());
 					} else {
-						result.append(_multiArgSplit);
+						pResult.append(_multiArgSplit);
 					}
 				} else {
-					result.append(' ');
+					pResult.append(' ');
 				}
 				if (_argCount == UNLIMITED_ARG_COUNT && i == count - 1) {
-					result.append("..."); //$NON-NLS-1$
+					pResult.append("..."); //$NON-NLS-1$
 				} else {
-					result.append('<');
-					result.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
+					pResult.append('<');
+					pResult.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
 					if (count > 1 + (_argCount == UNLIMITED_ARG_COUNT ? 1 : 0)) {
-						result.append(i + 1);
+						pResult.append(i + 1);
 					}
-					result.append('>');
+					pResult.append('>');
 				}
 			}
 		}
 		if (_required) {
 			if (_shortKey != null && _longKey != null) {
-				result.append('}');
+				pResult.append('}');
 			}
 		} else {
-			result.append(']');
+			pResult.append(']');
 		}
 	}
 

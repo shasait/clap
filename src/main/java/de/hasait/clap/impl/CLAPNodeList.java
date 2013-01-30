@@ -17,6 +17,9 @@
 package de.hasait.clap.impl;
 
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPNode;
@@ -89,8 +92,13 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public void printUsage(final StringBuilder pResult) {
-		internalPrintUsage(pResult, " "); //$NON-NLS-1$
+	public void printUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
+		final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+		if (pair != null) {
+			final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
+			final StringBuilder result = pair.getRight();
+			internalPrintUsage(pCategories, currentCategory, result, " "); //$NON-NLS-1$
+		}
 	}
 
 	@Override

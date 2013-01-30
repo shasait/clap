@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import de.hasait.clap.CLAP;
 
 /**
@@ -30,6 +32,8 @@ import de.hasait.clap.CLAP;
 public abstract class AbstractCLAPNode {
 
 	private final CLAP _clap;
+
+	private CLAPUsageCategoryImpl _usageCategory;
 
 	private CLAPHelpCategoryImpl _helpCategory;
 
@@ -66,18 +70,46 @@ public abstract class AbstractCLAPNode {
 		return _helpCategory;
 	}
 
+	public CLAPUsageCategoryImpl getUsageCategory() {
+		return _usageCategory;
+	}
+
 	public final String nls(final String pKey) {
 		return _clap.nls(pKey);
 	}
 
 	public abstract CLAPParseContext[] parse(CLAPParseContext pContext);
 
-	public abstract void printUsage(StringBuilder pResult);
+	public abstract void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult);
 
 	public final void setHelpCategory(final int pOrder, final String pTitleNLSKey) {
 		_helpCategory = new CLAPHelpCategoryImpl(pOrder, pTitleNLSKey);
 	}
 
+	public final void setUsageCategory(final int pOrder, final String pTitleNLSKey) {
+		_usageCategory = new CLAPUsageCategoryImpl(pOrder, pTitleNLSKey);
+	}
+
 	public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
+
+	protected final Pair<CLAPUsageCategoryImpl, StringBuilder> handleUsageCategory(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories,
+			final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
+		final CLAPUsageCategoryImpl currentCategory = getUsageCategory() != null ? getUsageCategory() : pCurrentCategory;
+		StringBuilder result;
+		if (!currentCategory.equals(pCurrentCategory)) {
+			if (pResult != null) {
+				pResult.append(nls(currentCategory.getTitleNLSKey()));
+			}
+			if (pCategories.containsKey(currentCategory)) {
+				return null;
+			} else {
+				result = new StringBuilder();
+				pCategories.put(currentCategory, result);
+			}
+		} else {
+			result = pResult;
+		}
+		return Pair.of(currentCategory, result);
+	}
 
 }

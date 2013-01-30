@@ -16,11 +16,11 @@
 
 package de.hasait.clap;
 
-import de.hasait.clap.CLAPOption;
 
 /**
  * Class used by {@link CLAPTest}.
  */
+@CLAPUsageCategory(order = 1, titleNLSKey = "typeBKey")
 public class CLAPTypeB {
 
 	private Boolean _boolean;

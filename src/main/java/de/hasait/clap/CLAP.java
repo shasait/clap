@@ -47,6 +47,7 @@ import de.hasait.clap.impl.CLAPNodeList;
 import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
 import de.hasait.clap.impl.CLAPResultImpl;
+import de.hasait.clap.impl.CLAPUsageCategoryImpl;
 import de.hasait.clap.impl.ConsoleReadPasswordCallback;
 import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
 
@@ -55,10 +56,9 @@ import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
  */
 public final class CLAP implements CLAPNode {
 
-	private static final String NLSKEY_CLAP_OPTIONAL = "clap.optional"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_REQUIRED = "clap.required"; //$NON-NLS-1$
 	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory"; //$NON-NLS-1$
+	private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory"; //$NON-NLS-1$
 
 	private final ResourceBundle _nls;
 
@@ -84,6 +84,7 @@ public final class CLAP implements CLAPNode {
 
 		_root = new CLAPNodeList(this);
 		_root.setHelpCategory(1000, NLSKEY_DEFAULT_HELP_CATEGORY);
+		_root.setUsageCategory(1000, NLSKEY_DEFAULT_USAGE_CATEGORY);
 
 		if (System.console() != null) {
 			_readPasswordCallback = new ConsoleReadPasswordCallback();
@@ -138,12 +139,6 @@ public final class CLAP implements CLAPNode {
 	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
 			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
-	}
-
-	public String buildUsage() {
-		final StringBuilder result = new StringBuilder();
-		_root.printUsage(result);
-		return result.toString();
 	}
 
 	public String getLongOptEquals() {
@@ -296,28 +291,34 @@ public final class CLAP implements CLAPNode {
 				}
 			}
 		}
-		maxLength += 4; // space to description
+		maxLength += 6; // space to description
 
 		for (final Entry<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> entry : nodes.entrySet()) {
 			pPrintStream.println();
 			pPrintStream.println(nls(entry.getKey().getTitleNLSKey()));
 			for (final CLAPHelpNode node : entry.getValue()) {
-				pPrintStream.print(StringUtils.rightPad(node.getHelpID(), maxLength));
+				pPrintStream.println();
+				pPrintStream.print("  "); //$NON-NLS-1$
+				pPrintStream.print(StringUtils.rightPad(node.getHelpID(), maxLength - 2));
 				final String descriptionNLSKey = node.getDescriptionNLSKey();
 				if (descriptionNLSKey != null) {
 					pPrintStream.println(nls(descriptionNLSKey));
-					pPrintStream.print(StringUtils.repeat(' ', maxLength));
+				} else {
+					pPrintStream.println();
 				}
-				pPrintStream.print('(');
-				pPrintStream.print(nls(node.isRequired() ? NLSKEY_CLAP_REQUIRED : NLSKEY_CLAP_OPTIONAL));
-				pPrintStream.print(')');
-				pPrintStream.println();
 			}
 		}
 	}
 
 	public void printUsage(final PrintStream pPrintStream) {
-		pPrintStream.println(buildUsage());
+		final Map<CLAPUsageCategoryImpl, StringBuilder> categories = new TreeMap<CLAPUsageCategoryImpl, StringBuilder>();
+		_root.printUsage(categories, null, null);
+		for (final Entry<CLAPUsageCategoryImpl, StringBuilder> entry : categories.entrySet()) {
+			pPrintStream.print(nls(entry.getKey().getTitleNLSKey()));
+			pPrintStream.print(": ");
+			pPrintStream.print(entry.getValue().toString());
+			pPrintStream.println();
+		}
 	}
 
 	@Override
@@ -330,6 +331,11 @@ public final class CLAP implements CLAPNode {
 			throw new IllegalArgumentException();
 		}
 		_readPasswordCallback = pReadPasswordCallback;
+	}
+
+	@Override
+	public void setUsageCategory(final int pOrder, final String pTitleNLSKey) {
+		_root.setUsageCategory(pOrder, pTitleNLSKey);
 	}
 
 	@Override

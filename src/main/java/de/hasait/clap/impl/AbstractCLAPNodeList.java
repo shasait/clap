@@ -129,7 +129,8 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return null;
 	}
 
-	protected final void internalPrintUsage(final StringBuilder pResult, final String pSeparator) {
+	protected final void internalPrintUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult,
+			final String pSeparator) {
 		boolean first = true;
 		for (final AbstractCLAPNode node : _list) {
 			if (first) {
@@ -137,7 +138,7 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 			} else {
 				pResult.append(pSeparator);
 			}
-			node.printUsage(pResult);
+			node.printUsage(pCategories, pCurrentCategory, pResult);
 		}
 	}
 

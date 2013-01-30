@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a setter as target for an CLAP option.
+ * Annotation to set help category.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({

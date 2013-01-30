@@ -17,6 +17,9 @@
 package de.hasait.clap.impl;
 
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import de.hasait.clap.CLAP;
 
@@ -49,13 +52,18 @@ public abstract class AbstractCLAPDecision extends AbstractCLAPNodeList {
 	}
 
 	@Override
-	public final void printUsage(final StringBuilder pResult) {
-		if (list().size() > 1) {
-			pResult.append("{ "); //$NON-NLS-1$
-		}
-		internalPrintUsage(pResult, " | "); //$NON-NLS-1$
-		if (list().size() > 1) {
-			pResult.append(" }"); //$NON-NLS-1$
+	public final void printUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
+		final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+		if (pair != null) {
+			final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
+			final StringBuilder result = pair.getRight();
+			if (list().size() > 1) {
+				result.append("{ "); //$NON-NLS-1$
+			}
+			internalPrintUsage(pCategories, currentCategory, result, " | "); //$NON-NLS-1$
+			if (list().size() > 1) {
+				result.append(" }"); //$NON-NLS-1$
+			}
 		}
 	}
 

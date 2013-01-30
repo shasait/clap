@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 
+ * Annotation to set usage category.
  */
-public interface CLAPHelpNode {
+@Retention(RetentionPolicy.RUNTIME)
+@Target({
+	ElementType.TYPE
+})
+public @interface CLAPUsageCategory {
 
-	String getDescriptionNLSKey();
+	public abstract int order() default 0;
 
-	CLAPHelpCategoryImpl getHelpCategory();
-
-	String getHelpID();
+	public abstract String titleNLSKey() default "";
 
 }
