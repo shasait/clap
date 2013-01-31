@@ -48,7 +48,7 @@ limitations under the License.
 		<developer>
 			<name>Sebastian Hasait</name>
 			<id>shasait</id>
-			<email>hasait@web.de</email>
+			<email>sebastian@hasait.de</email>
 			<roles>
 				<role>Java Developer</role>
 			</roles>
@@ -114,10 +114,24 @@ limitations under the License.
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
-	<profiles>
+	<!-- profiles>
 		<profile>
 			<id>release-sign-artifacts</id>
 			<activation>
@@ -144,6 +158,6 @@ limitations under the License.
 				</plugins>
 			</build>
 		</profile>
-	</profiles>
+	</profiles-->
 
 </project>
