@@ -28,6 +28,8 @@ import de.hasait.clap.CLAP;
  */
 public class CLAPKeywordNode extends AbstractCLAPNode {
 
+	private static final String NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING = "clap.error.keywordIsMissing"; //$NON-NLS-1$
+
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
 	private final String _keyword;
@@ -84,7 +86,7 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 	@Override
 	public void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
 		if (pContext.getNodeCount(this) == 0) {
-			pErrorMessages.add(this + " is missing"); //$NON-NLS-1$
+			pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING, _keyword));
 		}
 	}
 

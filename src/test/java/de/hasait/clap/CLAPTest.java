@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -122,13 +123,18 @@ public class CLAPTest {
 		assertNull(typeD.getBoolean());
 	}
 
-	@Test(expected = CLAPException.class)
+	@Test
 	public void testAnnotationWorks06() {
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addClass(CLAPTypeD.class);
 
-		clap.parse("-v", "-vh", "--dstring=Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+		try {
+			clap.parse("-v", "-vh", "--dstring=Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.validationFailed clap.error.keywordIsMissing Hallo", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -147,7 +153,7 @@ public class CLAPTest {
 		assertNull(typeB.getBoolean());
 	}
 
-	@Test(expected = CLAPException.class)
+	@Test
 	public void testDecision01() {
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -160,7 +166,12 @@ public class CLAPTest {
 		httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		clap.parse("-vh"); //$NON-NLS-1$
+		try {
+			clap.parse("-vh"); //$NON-NLS-1$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.validationFailed clap.error.optionIsMissing --ftp-serverclap.error.errorMessageSplitclap.error.optionIsMissing --http-server", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -223,6 +234,48 @@ public class CLAPTest {
 		final CLAPResult result = clap.parse("-vh", "-v", "-h", "--to", "target"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ 
 		assertEquals(2, result.getCount(verboseOption));
 		assertEquals(2, result.getCount(helpOption));
+	}
+
+	@Test
+	public void testDecision05() {
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPNode ftpHttpDecision = clap.addDecision();
+		final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+		ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+		httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		try {
+			clap.parse("-x"); //$NON-NLS-1$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.invalidTokenList -x", e.getMessage()); //$NON-NLS-1$
+		}
+	}
+
+	@Test
+	public void testDecision06() {
+		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPNode ftpHttpDecision = clap.addDecision();
+		final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+		ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+		httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+		try {
+			clap.parse("-p", "10", "-x"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.invalidTokenList -x", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -303,12 +356,17 @@ public class CLAPTest {
 		assertEquals(3, result.getCount(verboseOption));
 	}
 
-	@Test(expected = CLAPException.class)
+	@Test
 	public void testKeywordWorks02() {
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addKeyword("Hallo"); //$NON-NLS-1$
 
-		clap.parse("-vv", "-v"); //$NON-NLS-1$ //$NON-NLS-2$
+		try {
+			clap.parse("-vv", "-v"); //$NON-NLS-1$ //$NON-NLS-2$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.validationFailed clap.error.keywordIsMissing Hallo", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -337,13 +395,18 @@ public class CLAPTest {
 		assertEquals(Integer.valueOf(22), result.getValue(portOption));
 	}
 
-	@Test(expected = CLAPException.class)
+	@Test
 	public void testLongKeyWithArg03() {
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		clap.parse("-vv", "--port=22", "-vh", "--port", "22"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		try {
+			clap.parse("-vv", "--port=22", "-vh", "--port", "22"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.validationFailed clap.error.incorrectNumberOfArguments -p, --port 1 2", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test
@@ -414,14 +477,19 @@ public class CLAPTest {
 				"user1", "user2"}, result.getValue(usersOption)); //$NON-NLS-1$ //$NON-NLS-2$ 
 	}
 
-	@Test(expected = CLAPException.class)
+	@Test
 	public void testLongKeyWithArg08() {
 		clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		clap.addOption(String[].class, 'u', "users", false, 2, null, "udkey", "uukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			fail(CLAPException.class + " expected"); //$NON-NLS-1$
+		} catch (final CLAPException e) {
+			assertEquals("clap.error.invalidTokenList --users=user1;user2", e.getMessage()); //$NON-NLS-1$
+		}
 	}
 
 	@Test

@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +57,10 @@ import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
  */
 public final class CLAP implements CLAPNode {
 
+	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_VALIDATION_FAILED = "clap.error.validationFailed"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList"; //$NON-NLS-1$
 	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory"; //$NON-NLS-1$
@@ -230,7 +235,7 @@ public final class CLAP implements CLAPNode {
 		if (pattern == null) {
 			pattern = pKey != null ? pKey : ""; //$NON-NLS-1$
 			for (int i = 0; i < pArguments.length; i++) {
-				pattern += "{" + i + "}"; //$NON-NLS-1$ //$NON-NLS-2$
+				pattern += " {" + i + "}"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		try {
@@ -241,6 +246,7 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public CLAPResult parse(final String... pArgs) {
+		final Set<CLAPParseContext> contextsWithInvalidToken = new HashSet<CLAPParseContext>();
 		final List<CLAPParseContext> parsedContexts = new ArrayList<CLAPParseContext>();
 		final LinkedList<CLAPParseContext> activeContexts = new LinkedList<CLAPParseContext>();
 		activeContexts.add(new CLAPParseContext(this, pArgs));
@@ -252,15 +258,22 @@ public final class CLAP implements CLAPNode {
 					for (final CLAPParseContext nextContext : result) {
 						activeContexts.add(nextContext);
 					}
+				} else {
+					contextsWithInvalidToken.add(context);
 				}
 			} else {
 				parsedContexts.add(context);
 			}
 		}
 		if (parsedContexts.isEmpty()) {
-			throw new CLAPException();
+			final Set<String> invalidTokens = new HashSet<String>();
+			for (final CLAPParseContext context : contextsWithInvalidToken) {
+				invalidTokens.add(context.currentArg());
+			}
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST, StringUtils.join(invalidTokens, ", "))); //$NON-NLS-1$
 		}
 
+		final Map<CLAPParseContext, List<String>> contextErrorMessages = new HashMap<CLAPParseContext, List<String>>();
 		final Set<CLAPResultImpl> validatedResults = new LinkedHashSet<CLAPResultImpl>();
 		for (final CLAPParseContext context : parsedContexts) {
 			final List<String> errorMessages = new ArrayList<String>();
@@ -269,10 +282,16 @@ public final class CLAP implements CLAPNode {
 				final CLAPResultImpl result = new CLAPResultImpl();
 				_root.fillResult(context, result);
 				validatedResults.add(result);
+			} else {
+				contextErrorMessages.put(context, errorMessages);
 			}
 		}
 		if (validatedResults.size() != 1) {
-			throw new CLAPException();
+			final List<String> errorMessages = new ArrayList<String>();
+			for (final Entry<CLAPParseContext, List<String>> entry : contextErrorMessages.entrySet()) {
+				errorMessages.add(StringUtils.join(entry.getValue(), nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT)));
+			}
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_VALIDATION_FAILED, StringUtils.join(errorMessages, nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT))));
 		}
 
 		return validatedResults.iterator().next();
@@ -315,7 +334,7 @@ public final class CLAP implements CLAPNode {
 		_root.printUsage(categories, null, null);
 		for (final Entry<CLAPUsageCategoryImpl, StringBuilder> entry : categories.entrySet()) {
 			pPrintStream.print(nls(entry.getKey().getTitleNLSKey()));
-			pPrintStream.print(": ");
+			pPrintStream.print(": "); //$NON-NLS-1$
 			pPrintStream.print(entry.getValue().toString());
 			pPrintStream.println();
 		}

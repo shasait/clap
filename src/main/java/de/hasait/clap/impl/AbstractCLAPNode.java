@@ -74,8 +74,8 @@ public abstract class AbstractCLAPNode {
 		return _usageCategory;
 	}
 
-	public final String nls(final String pKey) {
-		return _clap.nls(pKey);
+	public final String nls(final String pKey, final Object... pArguments) {
+		return _clap.nls(pKey, pArguments);
 	}
 
 	public abstract CLAPParseContext[] parse(CLAPParseContext pContext);

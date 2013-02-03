@@ -23,4 +23,8 @@ public class CLAPException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
+	public CLAPException(final String pMessage) {
+		super(pMessage);
+	}
+
 }

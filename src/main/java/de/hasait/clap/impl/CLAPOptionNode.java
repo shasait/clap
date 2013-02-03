@@ -37,6 +37,8 @@ import de.hasait.clap.CLAPValue;
  */
 public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T>, CLAPHelpNode {
 
+	private static final String NLSKEY_CLAP_ERROR_OPTION_IS_MISSING = "clap.error.optionIsMissing"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
@@ -400,10 +402,10 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	public void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
 		if (pContext.getNodeCount(this) == 0) {
 			if (_required) {
-				pErrorMessages.add(this + " is missing"); //$NON-NLS-1$
+				pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, getHelpID()));
 			}
 		} else if (_argCount != UNLIMITED_ARG_COUNT && _argCount != pContext.getArgCount(this)) {
-			pErrorMessages.add(this + " has incorrect number of arguments"); //$NON-NLS-1$
+			pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, getHelpID(), _argCount, pContext.getArgCount(this)));
 		}
 	}
 
