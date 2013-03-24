@@ -400,10 +400,8 @@ public final class CLAP implements CLAPNode {
 			public R convert(final String pInput) {
 				try {
 					return (R) parseMethod.invoke(null, pInput);
-				} catch (final InvocationTargetException e) {
-					throw new RuntimeException(e.getTargetException());
 				} catch (final Exception e) {
-					throw new RuntimeException(e);
+					throw runtimeException(e);
 				}
 			}
 
@@ -420,10 +418,8 @@ public final class CLAP implements CLAPNode {
 			public R convert(final String pInput) {
 				try {
 					return constructor.newInstance(pInput);
-				} catch (final InvocationTargetException e) {
-					throw new RuntimeException(e.getTargetException());
 				} catch (final Exception e) {
-					throw new RuntimeException(e);
+					throw runtimeException(e);
 				}
 			}
 
@@ -498,6 +494,16 @@ public final class CLAP implements CLAPNode {
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private RuntimeException runtimeException(final Throwable pThrowable) {
+		if (pThrowable instanceof InvocationTargetException) {
+			return runtimeException(((InvocationTargetException) pThrowable).getTargetException());
+		}
+		if (pThrowable instanceof RuntimeException) {
+			return (RuntimeException) pThrowable;
+		}
+		return new RuntimeException(pThrowable);
 	}
 
 }

@@ -186,7 +186,7 @@ public class CLAPTest {
 		assertEquals(-123, typeD.getInt());
 	}
 
-	@Test
+	@Test(expected = NumberFormatException.class)
 	public void testAnnotationWorks10() {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
