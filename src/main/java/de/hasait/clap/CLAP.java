@@ -20,6 +20,8 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javassist.util.proxy.MethodFilter;
@@ -71,6 +74,8 @@ public final class CLAP implements CLAPNode {
 	private final String _longOptPrefix;
 	private final String _longOptEquals;
 
+	private final Map<Class<?>, CLAPConverter<?>> _converters;
+
 	private final CLAPNodeList _root;
 
 	private CLAPReadPasswordCallback _readPasswordCallback;
@@ -87,6 +92,9 @@ public final class CLAP implements CLAPNode {
 		_longOptPrefix = "--"; //$NON-NLS-1$
 		_longOptEquals = "="; //$NON-NLS-1$
 
+		_converters = new HashMap<Class<?>, CLAPConverter<?>>();
+		initDefaultConverters();
+
 		_root = new CLAPNodeList(this);
 		_root.setHelpCategory(1000, NLSKEY_DEFAULT_HELP_CATEGORY);
 		_root.setUsageCategory(1000, NLSKEY_DEFAULT_USAGE_CATEGORY);
@@ -101,6 +109,16 @@ public final class CLAP implements CLAPNode {
 	@Override
 	public <V> CLAPValue<V> addClass(final Class<V> pClass) {
 		return _root.addClass(pClass);
+	}
+
+	public <R> void addConverter(final Class<R> pResultClass, final CLAPConverter<? extends R> pConverter) {
+		Class<? super R> currentClass = pResultClass;
+		while (currentClass != null) {
+			if (pResultClass.equals(currentClass) || !_converters.containsKey(currentClass)) {
+				_converters.put(currentClass, pConverter);
+			}
+			currentClass = currentClass.getSuperclass();
+		}
 	}
 
 	@Override
@@ -144,6 +162,18 @@ public final class CLAP implements CLAPNode {
 	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
 			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	public <R> CLAPConverter<? extends R> getConverter(final Class<R> pResultClass) {
+		if (!_converters.containsKey(pResultClass)) {
+			try {
+				addStringConstructorConverter(pResultClass);
+			} catch (final Exception e) {
+				throw new RuntimeException(MessageFormat.format("No converter for {0} found", pResultClass), e);
+			}
+		}
+
+		return (CLAPConverter<? extends R>) _converters.get(pResultClass);
 	}
 
 	public String getLongOptEquals() {
@@ -360,6 +390,114 @@ public final class CLAP implements CLAPNode {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ":" + _root; //$NON-NLS-1$
+	}
+
+	private <R> void addPrimitiveConverter(final Class<?> pWrapperClass, final Class<R> pPrimitiveClass) throws Exception {
+		final Method parseMethod = pWrapperClass.getMethod("parse" + StringUtils.capitalize(pPrimitiveClass.getSimpleName()), String.class);
+		final CLAPConverter<R> methodConverter = new CLAPConverter<R>() {
+
+			@Override
+			public R convert(final String pInput) {
+				try {
+					return (R) parseMethod.invoke(null, pInput);
+				} catch (final InvocationTargetException e) {
+					throw new RuntimeException(e.getTargetException());
+				} catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+		};
+		addConverter(pPrimitiveClass, methodConverter);
+	}
+
+	private <R> void addStringConstructorConverter(final Class<R> pStringConstructorClass) throws Exception {
+		final Constructor<R> constructor = pStringConstructorClass.getConstructor(String.class);
+
+		final CLAPConverter<R> constructorConverter = new CLAPConverter<R>() {
+
+			@Override
+			public R convert(final String pInput) {
+				try {
+					return constructor.newInstance(pInput);
+				} catch (final InvocationTargetException e) {
+					throw new RuntimeException(e.getTargetException());
+				} catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+		};
+
+		addConverter(pStringConstructorClass, constructorConverter);
+	}
+
+	private void initDefaultConverters() {
+		try {
+			final CLAPConverter<String> stringConverter = new CLAPConverter<String>() {
+
+				@Override
+				public String convert(final String pInput) {
+					return pInput;
+				}
+
+			};
+			addConverter(String.class, stringConverter);
+
+			final CLAPConverter<Boolean> booleanConverter = new CLAPConverter<Boolean>() {
+
+				@Override
+				public Boolean convert(final String pInput) {
+					if (pInput.equalsIgnoreCase("true")) {
+						return true;
+					}
+					if (pInput.equalsIgnoreCase("false")) {
+						return false;
+					}
+					if (pInput.equalsIgnoreCase("yes")) {
+						return true;
+					}
+					if (pInput.equalsIgnoreCase("no")) {
+						return false;
+					}
+					if (pInput.equalsIgnoreCase("on")) {
+						return true;
+					}
+					if (pInput.equalsIgnoreCase("off")) {
+						return false;
+					}
+					if (pInput.equalsIgnoreCase("enable")) {
+						return true;
+					}
+					if (pInput.equalsIgnoreCase("disable")) {
+						return false;
+					}
+					throw new RuntimeException(pInput);
+				}
+
+			};
+			addConverter(Boolean.class, booleanConverter);
+			addConverter(Boolean.TYPE, booleanConverter);
+
+			final Class<?>[] someWrapperClasses = new Class<?>[] {
+					Byte.class,
+					Short.class,
+					Integer.class,
+					Long.class,
+					Float.class,
+					Double.class
+			};
+			for (int i = 0; i < someWrapperClasses.length; i++) {
+				final Class<?> wrapperClass = someWrapperClasses[i];
+				addStringConstructorConverter(wrapperClass);
+				final Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(wrapperClass);
+				if (primitiveClass != null) {
+					addPrimitiveConverter(wrapperClass, primitiveClass);
+				}
+			}
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

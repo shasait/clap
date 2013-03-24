@@ -28,8 +28,14 @@ public class CLAPTypeD {
 
 	private String _string;
 
+	private int _int = 1000;
+
 	public Boolean getBoolean() {
 		return _boolean;
+	}
+
+	public int getInt() {
+		return _int;
 	}
 
 	public String getString() {
@@ -41,9 +47,13 @@ public class CLAPTypeD {
 		_boolean = pBoolean;
 	}
 
+	@CLAPOption(longKey = "dint", order = 3)
+	public void setInt(final int pInt) {
+		_int = pInt;
+	}
+
 	@CLAPOption(longKey = "dstring", argCount = 1, order = 2)
 	public void setString(final String pString) {
 		_string = pString;
 	}
-
 }

@@ -121,6 +121,7 @@ public class CLAPTest {
 		assertNotNull(typeD);
 		assertEquals("Hallo", typeD.getString()); //$NON-NLS-1$
 		assertNull(typeD.getBoolean());
+		assertEquals(1000, typeD.getInt());
 	}
 
 	@Test
@@ -151,6 +152,54 @@ public class CLAPTest {
 		final CLAPTypeB typeB = (CLAPTypeB) object;
 		assertEquals("Hallo", typeB.getString()); //$NON-NLS-1$
 		assertNull(typeB.getBoolean());
+	}
+
+	@Test
+	public void testAnnotationWorks08() {
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("-v", "-vh", "--dstring=Hallo", "--dint=245", "Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		assertEquals(2, result.getCount(verboseOption));
+		assertEquals(1, result.getCount(helpOption));
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertEquals("Hallo", typeD.getString()); //$NON-NLS-1$
+		assertNull(typeD.getBoolean());
+		assertEquals(245, typeD.getInt());
+	}
+
+	@Test
+	public void testAnnotationWorks09() {
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("-v", "-vh", "--dstring=Hallo", "--dint=-123", "Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		assertEquals(2, result.getCount(verboseOption));
+		assertEquals(1, result.getCount(helpOption));
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertEquals("Hallo", typeD.getString()); //$NON-NLS-1$
+		assertNull(typeD.getBoolean());
+		assertEquals(-123, typeD.getInt());
+	}
+
+	@Test
+	public void testAnnotationWorks10() {
+		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey", "vukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", "hukey"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
+
+		final CLAPResult result = clap.parse("-v", "-vh", "--dstring=Hallo", "--dint=-1f23", "Hallo"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		assertEquals(2, result.getCount(verboseOption));
+		assertEquals(1, result.getCount(helpOption));
+		final CLAPTypeD typeD = result.getValue(typeDClass);
+		assertNotNull(typeD);
+		assertEquals("Hallo", typeD.getString()); //$NON-NLS-1$
+		assertNull(typeD.getBoolean());
+		assertEquals(-123, typeD.getInt());
 	}
 
 	@Test

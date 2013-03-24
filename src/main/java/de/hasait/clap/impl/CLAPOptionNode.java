@@ -17,7 +17,6 @@
 package de.hasait.clap.impl;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import de.hasait.clap.CLAP;
+import de.hasait.clap.CLAPConverter;
 import de.hasait.clap.CLAPValue;
 
 /**
@@ -109,95 +109,38 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
 		if (pResultClass.isArray()) {
 			final Class<?> componentType = pResultClass.getComponentType();
-			if (componentType.equals(String.class)) {
-				_mapper = (Mapper<T>) new Mapper<String[]>() {
-
-					@Override
-					public String[] transform(final String[] pStringValues) {
-						return pStringValues;
-					}
-
-				};
-			} else {
-				final Constructor<?> constructor;
-				try {
-					constructor = componentType.getConstructor(String.class);
-				} catch (final Exception e) {
-					throw new RuntimeException(e);
-				}
-				_mapper = new Mapper<T>() {
-
-					@Override
-					public T transform(final String[] pStringValues) {
-						final T result = (T) Array.newInstance(componentType, pStringValues.length);
-						for (int i = 0; i < pStringValues.length; i++) {
-							try {
-								Array.set(result, i, constructor.newInstance(pStringValues[i]));
-							} catch (final Exception e) {
-								throw new RuntimeException(e);
-							}
-						}
-						return result;
-					}
-
-				};
-			}
-		} else if (Collection.class.isAssignableFrom(pResultClass)) {
-			_mapper = null;
-		} else if (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE)) {
-			_mapper = (Mapper<T>) new Mapper<Boolean>() {
+			final CLAPConverter<?> converter = pCLAP.getConverter(componentType);
+			_mapper = new Mapper<T>() {
 
 				@Override
-				public Boolean transform(final String[] pStringValues) {
-					if (pStringValues.length == 0) {
-						return true;
-					}
-					if (pStringValues[0].equalsIgnoreCase("true")) {
-						return true;
-					}
-					if (pStringValues[0].equalsIgnoreCase("yes")) {
-						return true;
-					}
-					if (pStringValues[0].equalsIgnoreCase("on")) {
-						return true;
-					}
-					if (pStringValues[0].equalsIgnoreCase("enable")) {
-						return true;
-					}
-					return false;
-				}
-
-			};
-		} else {
-			if (pResultClass.equals(String.class)) {
-				_mapper = (Mapper<T>) new Mapper<String>() {
-
-					@Override
-					public String transform(final String[] pStringValues) {
-						return pStringValues[0];
-					}
-
-				};
-			} else {
-				final Constructor<T> constructor;
-				try {
-					constructor = pResultClass.getConstructor(String.class);
-				} catch (final Exception e) {
-					throw new RuntimeException(e);
-				}
-				_mapper = new Mapper<T>() {
-
-					@Override
-					public T transform(final String[] pStringValues) {
+				public T transform(final String[] pStringValues) {
+					final T result = (T) Array.newInstance(componentType, pStringValues.length);
+					for (int i = 0; i < pStringValues.length; i++) {
 						try {
-							return constructor.newInstance(pStringValues[0]);
+							Array.set(result, i, converter.convert(pStringValues[i]));
 						} catch (final Exception e) {
 							throw new RuntimeException(e);
 						}
 					}
+					return result;
+				}
 
-				};
-			}
+			};
+		} else if (Collection.class.isAssignableFrom(pResultClass)) {
+			_mapper = null;
+		} else {
+			final CLAPConverter<? extends T> converter = pCLAP.getConverter(pResultClass);
+			_mapper = new Mapper<T>() {
+
+				@Override
+				public T transform(final String[] pStringValues) {
+					if (pStringValues.length == 0 && (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE))) {
+						return (T) Boolean.TRUE;
+					}
+					return converter.convert(pStringValues[0]);
+				}
+
+			};
 		}
 
 		_shortKey = pShortKey;
@@ -207,7 +150,6 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		_descriptionNLSKey = pDescriptionNLSKey;
 		_argUsageNLSKey = pArgUsageNLSKey;
 		_resultClass = pResultClass;
-
 	}
 
 	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
