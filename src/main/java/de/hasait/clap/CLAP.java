@@ -63,6 +63,7 @@ public final class CLAP implements CLAPNode {
 	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_ERROR_VALIDATION_FAILED = "clap.error.validationFailed"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_AMBIGUOUS_RESULT = "clap.error.ambiguousResult"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList"; //$NON-NLS-1$
 	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory"; //$NON-NLS-1$
@@ -219,17 +220,17 @@ public final class CLAP implements CLAPNode {
 			});
 			final MethodHandler handler = new MethodHandler() {
 				@Override
-				public Object invoke(final Object self, final Method m, final Method proceed, final Object[] args) throws Throwable {
-					final String result = (String) m.invoke(pObject, args); // execute the original method.
+				public Object invoke(final Object pSelf, final Method pMethod, final Method pProceed, final Object[] pArgs) throws Throwable {
+					final String result = (String) pMethod.invoke(pObject, pArgs); // execute the original method.
 					if (result == null) {
-						final String description = readMethodToDescriptionMap.get(m);
+						final String description = readMethodToDescriptionMap.get(pMethod);
 						final String prompt = nls(NLSKEY_ENTER_PASSWORD, description);
 						final String newResult = _readPasswordCallback.readPassword(prompt);
 						if (newResult == null) {
 							throw new RuntimeException(nls(pCancelNLSKey));
 						}
 						if (pSetAfterRead) {
-							readMethodToWriteMethodMap.get(m).invoke(pObject, newResult);
+							readMethodToWriteMethodMap.get(pMethod).invoke(pObject, newResult);
 						}
 						return newResult;
 					}
@@ -296,35 +297,56 @@ public final class CLAP implements CLAPNode {
 			}
 		}
 		if (parsedContexts.isEmpty()) {
-			final Set<String> invalidTokens = new HashSet<String>();
+			int maxArgIndex = Integer.MIN_VALUE;
+			final Set<String> invalidTokensOfBestContexts = new HashSet<String>();
 			for (final CLAPParseContext context : contextsWithInvalidToken) {
-				invalidTokens.add(context.currentArg());
+				final int currentArgIndex = context.getCurrentArgIndex();
+				if (currentArgIndex > maxArgIndex) {
+					invalidTokensOfBestContexts.clear();
+				}
+				if (currentArgIndex >= maxArgIndex) {
+					maxArgIndex = currentArgIndex;
+					invalidTokensOfBestContexts.add(context.currentArg());
+				}
 			}
-			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST, StringUtils.join(invalidTokens, ", "))); //$NON-NLS-1$
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST, StringUtils.join(invalidTokensOfBestContexts, ", "))); //$NON-NLS-1$
 		}
 
 		final Map<CLAPParseContext, List<String>> contextErrorMessages = new HashMap<CLAPParseContext, List<String>>();
-		final Set<CLAPResultImpl> validatedResults = new LinkedHashSet<CLAPResultImpl>();
+		final Set<CLAPResultImpl> results = new LinkedHashSet<CLAPResultImpl>();
 		for (final CLAPParseContext context : parsedContexts) {
 			final List<String> errorMessages = new ArrayList<String>();
 			_root.validate(context, errorMessages);
 			if (errorMessages.isEmpty()) {
 				final CLAPResultImpl result = new CLAPResultImpl();
 				_root.fillResult(context, result);
-				validatedResults.add(result);
+				results.add(result);
 			} else {
 				contextErrorMessages.put(context, errorMessages);
 			}
 		}
-		if (validatedResults.size() != 1) {
-			final List<String> errorMessages = new ArrayList<String>();
+
+		if (results.isEmpty()) {
+			int minErrorMessages = Integer.MAX_VALUE;
+			final List<String> errorMessagesOfBestContexts = new ArrayList<String>();
 			for (final Entry<CLAPParseContext, List<String>> entry : contextErrorMessages.entrySet()) {
-				errorMessages.add(StringUtils.join(entry.getValue(), nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT)));
+				final int countErrorMessages = entry.getValue().size();
+				if (countErrorMessages < minErrorMessages) {
+					errorMessagesOfBestContexts.clear();
+				}
+				if (countErrorMessages <= minErrorMessages) {
+					minErrorMessages = countErrorMessages;
+					errorMessagesOfBestContexts.add(StringUtils.join(entry.getValue(), nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT)));
+				}
 			}
-			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_VALIDATION_FAILED, StringUtils.join(errorMessages, nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT))));
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_VALIDATION_FAILED, StringUtils.join(errorMessagesOfBestContexts, nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT))));
 		}
 
-		return validatedResults.iterator().next();
+		if (results.size() > 1) {
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_AMBIGUOUS_RESULT));
+		}
+
+		return results.iterator().next();
 	}
 
 	public void printHelp(final PrintStream pPrintStream) {

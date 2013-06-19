@@ -129,6 +129,10 @@ public class CLAPParseContext implements Cloneable {
 		return count;
 	}
 
+	public int getCurrentArgIndex() {
+		return _currentArgIndex;
+	}
+
 	public AbstractCLAPNode getDecision(final AbstractCLAPDecision pDecisionNode) {
 		AbstractCLAPNode lastBranchNode = null;
 		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
