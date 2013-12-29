@@ -18,9 +18,19 @@ package de.hasait.clap.impl;
 
 import java.io.Console;
 
-import de.hasait.clap.CLAPReadPasswordCallback;
+import de.hasait.clap.CLAPUICallback;
 
-public class ConsoleReadPasswordCallback implements CLAPReadPasswordCallback {
+/**
+ * Implementation of {@link CLAPUICallback} using {@link System#console()}.
+ */
+public class SystemConsoleUICallback implements CLAPUICallback {
+
+	@Override
+	public String readLine(final String pPrompt) {
+		final Console console = System.console();
+		final String line = console.readLine(pPrompt + ": "); //$NON-NLS-1$
+		return line;
+	}
 
 	@Override
 	public String readPassword(final String pPrompt) {

@@ -107,8 +107,8 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 
 	protected final <V> CLAPOptionNode<V> internalAddOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
 			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		final CLAPOptionNode<V> node = CLAPOptionNode.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, CLAPOptionNode.UNLIMITED_ARG_COUNT, pMultiArgSplit,
-				pDescriptionNLSKey, pArgUsageNLSKey);
+		final CLAPOptionNode<V> node = CLAPOptionNode.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, CLAP.UNLIMITED_ARG_COUNT, pMultiArgSplit, pDescriptionNLSKey,
+				pArgUsageNLSKey);
 		_list.add(node);
 		return node;
 	}

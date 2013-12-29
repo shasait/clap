@@ -41,7 +41,10 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
 
-	public static final int UNLIMITED_ARG_COUNT = -1;
+	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
+			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return new CLAPOptionNode<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
 
 	private final Character _shortKey;
 
@@ -75,14 +78,14 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		if (pArgCount == null) {
 			// autodetect using resultClass
 			if (pResultClass.isArray() || Collection.class.isAssignableFrom(pResultClass)) {
-				_argCount = CLAPOptionNode.UNLIMITED_ARG_COUNT;
+				_argCount = CLAP.UNLIMITED_ARG_COUNT;
 			} else if (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE)) {
 				_argCount = 0;
 			} else {
 				_argCount = 1;
 			}
 		} else {
-			if (pArgCount < 0 && pArgCount != UNLIMITED_ARG_COUNT) {
+			if (pArgCount < 0 && pArgCount != CLAP.UNLIMITED_ARG_COUNT) {
 				throw new IllegalArgumentException();
 			}
 
@@ -150,11 +153,6 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		_descriptionNLSKey = pDescriptionNLSKey;
 		_argUsageNLSKey = pArgUsageNLSKey;
 		_resultClass = pResultClass;
-	}
-
-	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return new CLAPOptionNode<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
@@ -303,7 +301,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			pResult.append(_longKey);
 		}
 		if (_argCount != 0) {
-			final int count = _argCount == UNLIMITED_ARG_COUNT ? 2 : _argCount;
+			final int count = _argCount == CLAP.UNLIMITED_ARG_COUNT ? 2 : _argCount;
 			for (int i = 0; i < count; i++) {
 				if (_multiArgSplit != null) {
 					if (i == 0) {
@@ -314,12 +312,12 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 				} else {
 					pResult.append(' ');
 				}
-				if (_argCount == UNLIMITED_ARG_COUNT && i == count - 1) {
+				if (_argCount == CLAP.UNLIMITED_ARG_COUNT && i == count - 1) {
 					pResult.append("..."); //$NON-NLS-1$
 				} else {
 					pResult.append('<');
 					pResult.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
-					if (count > 1 + (_argCount == UNLIMITED_ARG_COUNT ? 1 : 0)) {
+					if (count > 1 + (_argCount == CLAP.UNLIMITED_ARG_COUNT ? 1 : 0)) {
 						pResult.append(i + 1);
 					}
 					pResult.append('>');
@@ -346,14 +344,14 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			if (_required) {
 				pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, getHelpID()));
 			}
-		} else if (_argCount != UNLIMITED_ARG_COUNT && _argCount != pContext.getArgCount(this)) {
+		} else if (_argCount != CLAP.UNLIMITED_ARG_COUNT && _argCount != pContext.getArgCount(this)) {
 			pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, getHelpID(), _argCount, pContext.getArgCount(this)));
 		}
 	}
 
 	private List<String> handleArgCount(final CLAPParseContext pContext, final boolean pAllWithSplit) {
 		final List<String> args = new ArrayList<String>();
-		if (_argCount == UNLIMITED_ARG_COUNT) {
+		if (_argCount == CLAP.UNLIMITED_ARG_COUNT) {
 			if (pAllWithSplit) {
 				if (pContext.hasMoreTokens()) {
 					final String argsUnsplitted = pContext.consumeCurrent();

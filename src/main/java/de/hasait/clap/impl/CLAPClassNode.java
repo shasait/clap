@@ -50,9 +50,49 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<T> {
 
+	private static <A extends Annotation> A findAnnotation(final Class<?> pClass, final Class<A> pAnnotationClass) {
+		final LinkedList<Class<?>> queue = new LinkedList<Class<?>>();
+		queue.add(pClass);
+		while (!queue.isEmpty()) {
+			final Class<?> clazz = queue.removeFirst();
+			if (clazz != null) {
+				final A result = clazz.getAnnotation(pAnnotationClass);
+				if (result != null) {
+					return result;
+				}
+				queue.add(clazz.getSuperclass());
+				for (final Class<?> interfaze : clazz.getInterfaces()) {
+					queue.add(interfaze);
+				}
+			}
+		}
+		return null;
+	}
+
+	private static <T extends Annotation> T getAnnotation(final PropertyDescriptor pPropertyDescriptor, final Class<T> pAnnotationClass) {
+		final Method writeMethod = pPropertyDescriptor.getWriteMethod();
+		if (writeMethod != null) {
+			final T annotation = writeMethod.getAnnotation(pAnnotationClass);
+			if (annotation != null) {
+				return annotation;
+			}
+		}
+
+		final Method readMethod = pPropertyDescriptor.getReadMethod();
+		if (readMethod != null) {
+			final T annotation = readMethod.getAnnotation(pAnnotationClass);
+			if (annotation != null) {
+				return annotation;
+			}
+		}
+
+		return null;
+	}
+
 	private final Class<T> _class;
 
 	private final Map<CLAPValue<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
+
 	private final Set<CLAPKeywordNode> _keywordNodes;
 
 	public CLAPClassNode(final CLAP pCLAP, final Class<T> pClass) {
@@ -144,45 +184,6 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 
 	}
 
-	private static <A extends Annotation> A findAnnotation(final Class<?> pClass, final Class<A> pAnnotationClass) {
-		final LinkedList<Class<?>> queue = new LinkedList<Class<?>>();
-		queue.add(pClass);
-		while (!queue.isEmpty()) {
-			final Class<?> clazz = queue.removeFirst();
-			if (clazz != null) {
-				final A result = clazz.getAnnotation(pAnnotationClass);
-				if (result != null) {
-					return result;
-				}
-				queue.add(clazz.getSuperclass());
-				for (final Class<?> interfaze : clazz.getInterfaces()) {
-					queue.add(interfaze);
-				}
-			}
-		}
-		return null;
-	}
-
-	private static <T extends Annotation> T getAnnotation(final PropertyDescriptor pPropertyDescriptor, final Class<T> pAnnotationClass) {
-		final Method writeMethod = pPropertyDescriptor.getWriteMethod();
-		if (writeMethod != null) {
-			final T annotation = writeMethod.getAnnotation(pAnnotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
-		}
-
-		final Method readMethod = pPropertyDescriptor.getReadMethod();
-		if (readMethod != null) {
-			final T annotation = readMethod.getAnnotation(pAnnotationClass);
-			if (annotation != null) {
-				return annotation;
-			}
-		}
-
-		return null;
-	}
-
 	@Override
 	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		internalFillResult(pContext, pResult);
@@ -272,7 +273,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 		final Integer argCount;
 		final int argCountA = pClapOption.argCount();
 		if (argCountA == CLAPOption.UNLIMITED_ARG_COUNT) {
-			argCount = CLAPOptionNode.UNLIMITED_ARG_COUNT;
+			argCount = CLAP.UNLIMITED_ARG_COUNT;
 		} else if (argCountA == CLAPOption.AUTOMATIC_ARG_COUNT) {
 			argCount = null;
 		} else {

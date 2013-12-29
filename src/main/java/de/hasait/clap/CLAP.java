@@ -52,13 +52,15 @@ import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
 import de.hasait.clap.impl.CLAPResultImpl;
 import de.hasait.clap.impl.CLAPUsageCategoryImpl;
-import de.hasait.clap.impl.ConsoleReadPasswordCallback;
-import de.hasait.clap.impl.SwingDialogReadPasswordCallback;
+import de.hasait.clap.impl.SwingDialogUICallback;
+import de.hasait.clap.impl.SystemConsoleUICallback;
 
 /**
  * Entry point to CLAP library.
  */
 public final class CLAP implements CLAPNode {
+
+	public static final int UNLIMITED_ARG_COUNT = -1;
 
 	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit"; //$NON-NLS-1$
@@ -66,6 +68,7 @@ public final class CLAP implements CLAPNode {
 	private static final String NLSKEY_CLAP_ERROR_AMBIGUOUS_RESULT = "clap.error.ambiguousResult"; //$NON-NLS-1$
 	private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList"; //$NON-NLS-1$
 	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
+	private static final String NLSKEY_ENTER_LINE = "clap.enterline"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory"; //$NON-NLS-1$
 	private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory"; //$NON-NLS-1$
 
@@ -79,10 +82,10 @@ public final class CLAP implements CLAPNode {
 
 	private final CLAPNodeList _root;
 
-	private CLAPReadPasswordCallback _readPasswordCallback;
+	private CLAPUICallback _uiCallback;
 
 	/**
-	 * 
+	 * @param pNLS {@link ResourceBundle} used for messages.
 	 */
 	public CLAP(final ResourceBundle pNLS) {
 		super();
@@ -101,9 +104,9 @@ public final class CLAP implements CLAPNode {
 		_root.setUsageCategory(1000, NLSKEY_DEFAULT_USAGE_CATEGORY);
 
 		if (System.console() != null) {
-			_readPasswordCallback = new ConsoleReadPasswordCallback();
+			_uiCallback = new SystemConsoleUICallback();
 		} else {
-			_readPasswordCallback = new SwingDialogReadPasswordCallback();
+			_uiCallback = new SwingDialogUICallback(null);
 		}
 	}
 
@@ -170,11 +173,23 @@ public final class CLAP implements CLAPNode {
 			try {
 				addStringConstructorConverter(pResultClass);
 			} catch (final Exception e) {
-				throw new RuntimeException(MessageFormat.format("No converter for {0} found", pResultClass), e);
+				throw new RuntimeException(MessageFormat.format("No converter for {0} found", pResultClass), e); //$NON-NLS-1$
 			}
 		}
 
 		return (CLAPConverter<? extends R>) _converters.get(pResultClass);
+	}
+
+	public <T> T getLineOrReadInteractivly(final T pObject, final String pCancelNLSKey, final boolean pSetAfterRead) {
+		final GetOrReadInteractivlyLogic logic = new GetOrReadInteractivlyLogic() {
+
+			@Override
+			protected String readInteractivly(final String pPrompt) {
+				return _uiCallback.readLine(pPrompt);
+			}
+
+		};
+		return logic.getOrReadInteractivly(pObject, NLSKEY_ENTER_LINE, pCancelNLSKey, pSetAfterRead);
 	}
 
 	public String getLongOptEquals() {
@@ -190,68 +205,23 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public <T> T getPasswordOrReadInteractivly(final T pObject, final String pCancelNLSKey, final boolean pSetAfterRead) {
-		try {
-			final BeanInfo beanInfo = Introspector.getBeanInfo(pObject.getClass());
-			final Map<Method, String> readMethodToDescriptionMap = new HashMap<Method, String>();
-			final Map<Method, Method> readMethodToWriteMethodMap = new HashMap<Method, Method>();
-			for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-				final Method readMethod = propertyDescriptor.getReadMethod();
-				final Method writeMethod = propertyDescriptor.getWriteMethod();
-				if (readMethod != null && writeMethod != null && propertyDescriptor.getPropertyType().equals(String.class)) {
-					final String description;
-					final CLAPOption clapOption = writeMethod.getAnnotation(CLAPOption.class);
-					final String descriptionNLSKey = clapOption == null ? null : clapOption.descriptionNLSKey();
-					if (descriptionNLSKey != null && descriptionNLSKey.trim().length() != 0) {
-						description = nls(descriptionNLSKey);
-					} else {
-						description = propertyDescriptor.getDisplayName();
-					}
-					readMethodToDescriptionMap.put(readMethod, description);
-					readMethodToWriteMethodMap.put(readMethod, writeMethod);
-				}
-			}
-			final ProxyFactory proxyFactory = new ProxyFactory();
-			proxyFactory.setSuperclass(pObject.getClass());
-			proxyFactory.setFilter(new MethodFilter() {
-				@Override
-				public boolean isHandled(final Method m) {
-					return readMethodToDescriptionMap.containsKey(m);
-				}
-			});
-			final MethodHandler handler = new MethodHandler() {
-				@Override
-				public Object invoke(final Object pSelf, final Method pMethod, final Method pProceed, final Object[] pArgs) throws Throwable {
-					final String result = (String) pMethod.invoke(pObject, pArgs); // execute the original method.
-					if (result == null) {
-						final String description = readMethodToDescriptionMap.get(pMethod);
-						final String prompt = nls(NLSKEY_ENTER_PASSWORD, description);
-						final String newResult = _readPasswordCallback.readPassword(prompt);
-						if (newResult == null) {
-							throw new RuntimeException(nls(pCancelNLSKey));
-						}
-						if (pSetAfterRead) {
-							readMethodToWriteMethodMap.get(pMethod).invoke(pObject, newResult);
-						}
-						return newResult;
-					}
-					return result;
-				}
-			};
-			final Class<T> proxyClass = proxyFactory.createClass();
-			final T proxy = proxyClass.newInstance();
-			((Proxy) proxy).setHandler(handler);
-			return proxy;
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+		final GetOrReadInteractivlyLogic logic = new GetOrReadInteractivlyLogic() {
 
-	public CLAPReadPasswordCallback getReadPasswordCallback() {
-		return _readPasswordCallback;
+			@Override
+			protected String readInteractivly(final String pPrompt) {
+				return _uiCallback.readPassword(pPrompt);
+			}
+
+		};
+		return logic.getOrReadInteractivly(pObject, NLSKEY_ENTER_PASSWORD, pCancelNLSKey, pSetAfterRead);
 	}
 
 	public char getShortOptPrefix() {
 		return _shortOptPrefix;
+	}
+
+	public CLAPUICallback getUICallback() {
+		return _uiCallback;
 	}
 
 	public final String nls(final String pKey, final Object... pArguments) {
@@ -397,11 +367,11 @@ public final class CLAP implements CLAPNode {
 		_root.setHelpCategory(pOrder, pTitleNLSKey);
 	}
 
-	public void setReadPasswordCallback(final CLAPReadPasswordCallback pReadPasswordCallback) {
-		if (pReadPasswordCallback == null) {
+	public void setUICallback(final CLAPUICallback pUICallback) {
+		if (pUICallback == null) {
 			throw new IllegalArgumentException();
 		}
-		_readPasswordCallback = pReadPasswordCallback;
+		_uiCallback = pUICallback;
 	}
 
 	@Override
@@ -415,7 +385,7 @@ public final class CLAP implements CLAPNode {
 	}
 
 	private <R> void addPrimitiveConverter(final Class<?> pWrapperClass, final Class<R> pPrimitiveClass) throws Exception {
-		final Method parseMethod = pWrapperClass.getMethod("parse" + StringUtils.capitalize(pPrimitiveClass.getSimpleName()), String.class);
+		final Method parseMethod = pWrapperClass.getMethod("parse" + StringUtils.capitalize(pPrimitiveClass.getSimpleName()), String.class); //$NON-NLS-1$
 		final CLAPConverter<R> methodConverter = new CLAPConverter<R>() {
 
 			@Override
@@ -466,28 +436,28 @@ public final class CLAP implements CLAPNode {
 
 				@Override
 				public Boolean convert(final String pInput) {
-					if (pInput.equalsIgnoreCase("true")) {
+					if (pInput.equalsIgnoreCase("true")) { //$NON-NLS-1$
 						return true;
 					}
-					if (pInput.equalsIgnoreCase("false")) {
+					if (pInput.equalsIgnoreCase("false")) { //$NON-NLS-1$
 						return false;
 					}
-					if (pInput.equalsIgnoreCase("yes")) {
+					if (pInput.equalsIgnoreCase("yes")) { //$NON-NLS-1$
 						return true;
 					}
-					if (pInput.equalsIgnoreCase("no")) {
+					if (pInput.equalsIgnoreCase("no")) { //$NON-NLS-1$
 						return false;
 					}
-					if (pInput.equalsIgnoreCase("on")) {
+					if (pInput.equalsIgnoreCase("on")) { //$NON-NLS-1$
 						return true;
 					}
-					if (pInput.equalsIgnoreCase("off")) {
+					if (pInput.equalsIgnoreCase("off")) { //$NON-NLS-1$
 						return false;
 					}
-					if (pInput.equalsIgnoreCase("enable")) {
+					if (pInput.equalsIgnoreCase("enable")) { //$NON-NLS-1$
 						return true;
 					}
-					if (pInput.equalsIgnoreCase("disable")) {
+					if (pInput.equalsIgnoreCase("disable")) { //$NON-NLS-1$
 						return false;
 					}
 					throw new RuntimeException(pInput);
@@ -526,6 +496,69 @@ public final class CLAP implements CLAPNode {
 			return (RuntimeException) pThrowable;
 		}
 		return new RuntimeException(pThrowable);
+	}
+
+	private abstract class GetOrReadInteractivlyLogic {
+
+		public <T> T getOrReadInteractivly(final T pObject, final String pPromptNLSKey, final String pCancelNLSKey, final boolean pSetAfterRead) {
+			try {
+				final BeanInfo beanInfo = Introspector.getBeanInfo(pObject.getClass());
+				final Map<Method, String> readMethodToDescriptionMap = new HashMap<Method, String>();
+				final Map<Method, Method> readMethodToWriteMethodMap = new HashMap<Method, Method>();
+				for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
+					final Method readMethod = propertyDescriptor.getReadMethod();
+					final Method writeMethod = propertyDescriptor.getWriteMethod();
+					if (readMethod != null && writeMethod != null && propertyDescriptor.getPropertyType().equals(String.class)) {
+						final String description;
+						final CLAPOption clapOption = writeMethod.getAnnotation(CLAPOption.class);
+						final String descriptionNLSKey = clapOption == null ? null : clapOption.descriptionNLSKey();
+						if (descriptionNLSKey != null && descriptionNLSKey.trim().length() != 0) {
+							description = nls(descriptionNLSKey);
+						} else {
+							description = propertyDescriptor.getDisplayName();
+						}
+						readMethodToDescriptionMap.put(readMethod, description);
+						readMethodToWriteMethodMap.put(readMethod, writeMethod);
+					}
+				}
+				final ProxyFactory proxyFactory = new ProxyFactory();
+				proxyFactory.setSuperclass(pObject.getClass());
+				proxyFactory.setFilter(new MethodFilter() {
+					@Override
+					public boolean isHandled(final Method m) {
+						return readMethodToDescriptionMap.containsKey(m);
+					}
+				});
+				final MethodHandler handler = new MethodHandler() {
+					@Override
+					public Object invoke(final Object pSelf, final Method pMethod, final Method pProceed, final Object[] pArgs) throws Throwable {
+						final String result = (String) pMethod.invoke(pObject, pArgs); // execute the original method.
+						if (result == null) {
+							final String description = readMethodToDescriptionMap.get(pMethod);
+							final String prompt = nls(pPromptNLSKey, description);
+							final String newResult = readInteractivly(prompt);
+							if (newResult == null) {
+								throw new RuntimeException(nls(pCancelNLSKey));
+							}
+							if (pSetAfterRead) {
+								readMethodToWriteMethodMap.get(pMethod).invoke(pObject, newResult);
+							}
+							return newResult;
+						}
+						return result;
+					}
+				};
+				final Class<T> proxyClass = proxyFactory.createClass();
+				final T proxy = proxyClass.newInstance();
+				((Proxy) proxy).setHandler(handler);
+				return proxy;
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		protected abstract String readInteractivly(String pPrompt);
+
 	}
 
 }

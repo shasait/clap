@@ -380,7 +380,12 @@ public class CLAPTest {
 		assertNull(typeD.getString());
 		assertNull(typeD.getBoolean());
 
-		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+		clap.setUICallback(new CLAPUICallback() {
+
+			@Override
+			public String readLine(final String pPrompt) {
+				throw new UnsupportedOperationException();
+			}
 
 			@Override
 			public String readPassword(final String pPrompt) {
@@ -403,7 +408,12 @@ public class CLAPTest {
 		assertEquals("foobar", typeD.getString()); //$NON-NLS-1$
 		assertNull(typeD.getBoolean());
 
-		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+		clap.setUICallback(new CLAPUICallback() {
+
+			@Override
+			public String readLine(final String pPrompt) {
+				throw new UnsupportedOperationException();
+			}
 
 			@Override
 			public String readPassword(final String pPrompt) {
@@ -426,7 +436,12 @@ public class CLAPTest {
 		assertNull(typeD.getString());
 		assertNull(typeD.getBoolean());
 
-		clap.setReadPasswordCallback(new CLAPReadPasswordCallback() {
+		clap.setUICallback(new CLAPUICallback() {
+
+			@Override
+			public String readLine(final String pPrompt) {
+				throw new UnsupportedOperationException();
+			}
 
 			@Override
 			public String readPassword(final String pPrompt) {

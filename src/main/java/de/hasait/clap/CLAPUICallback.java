@@ -16,7 +16,12 @@
 
 package de.hasait.clap;
 
-public interface CLAPReadPasswordCallback {
+/**
+ * Callback used for user interaction.
+ */
+public interface CLAPUICallback {
+
+	String readLine(String pPrompt);
 
 	String readPassword(String pPrompt);
 
