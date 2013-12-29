@@ -50,6 +50,11 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
 	}
 
 	@Override
+	public boolean contains(final CLAPValue<?> pNode) {
+		return getCount(pNode) > 0;
+	}
+
+	@Override
 	public boolean equals(final Object pOther) {
 		if (pOther == this) {
 			return true;

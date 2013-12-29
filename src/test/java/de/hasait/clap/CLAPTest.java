@@ -576,8 +576,10 @@ public class CLAPTest {
 
 		final CLAPResult result = clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 		assertEquals(3, result.getCount(verboseOption));
+		assertTrue(result.contains(verboseOption));
 		assertEquals(1, result.getCount(helpOption));
 		assertEquals(1, result.getCount(portOption));
+		assertTrue(result.contains(portOption));
 		assertEquals(1, result.getCount(usersOption));
 		assertEquals(Integer.valueOf(22), result.getValue(portOption));
 		assertArrayEquals(new String[] {
@@ -666,8 +668,10 @@ public class CLAPTest {
 
 		final CLAPResult result = clap.parse("-vp", "22", "-h"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 		assertEquals(1, result.getCount(verboseOption));
+		assertTrue(result.contains(verboseOption));
 		assertEquals(1, result.getCount(helpOption));
 		assertEquals(1, result.getCount(portOption));
+		assertTrue(result.contains(portOption));
 		assertEquals(Integer.valueOf(22), result.getValue(portOption));
 	}
 
@@ -679,8 +683,10 @@ public class CLAPTest {
 
 		final CLAPResult result = clap.parse("-vv", "-p", "22", "-vh"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
 		assertEquals(3, result.getCount(verboseOption));
+		assertTrue(result.contains(verboseOption));
 		assertEquals(1, result.getCount(helpOption));
 		assertEquals(1, result.getCount(portOption));
+		assertTrue(result.contains(portOption));
 		assertEquals(Integer.valueOf(22), result.getValue(portOption));
 	}
 
@@ -692,6 +698,7 @@ public class CLAPTest {
 
 		final CLAPResult result = clap.parse("-vv", "-n1;2;3;4", "-vh", "-n", "5", "6"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 		assertEquals(3, result.getCount(verboseOption));
+		assertTrue(result.contains(verboseOption));
 		assertEquals(1, result.getCount(helpOption));
 		assertEquals(2, result.getCount(numbersOption));
 		assertArrayEquals(new Integer[] {

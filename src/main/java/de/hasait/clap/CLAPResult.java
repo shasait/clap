@@ -21,6 +21,8 @@ package de.hasait.clap;
  */
 public interface CLAPResult {
 
+	boolean contains(CLAPValue<?> pNode);
+
 	int getCount(CLAPValue<?> pNode);
 
 	<T> T getValue(CLAPValue<T> pNode);
