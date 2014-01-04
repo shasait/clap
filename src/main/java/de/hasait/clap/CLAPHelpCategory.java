@@ -22,7 +22,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to set help category.
+ * <p>
+ * Annotation to set help category. Can be used to group options in the help screen.
+ * </p>
+ * <p>
+ * For example &quot;Server Options&quot; is a separate help category with one option:
+ * 
+ * <pre>
+ * Common Options
+ * 
+ *   -h, --help         Display this message
+ * 
+ *   -v, --verbose      Verbosity level, use multiple times to increase
+ * 
+ * Server Options
+ * 
+ *   -i, --interface    The interface, where the server is listening
+ * 
+ *   -p, --port         The port, where the server is listening
+ * </pre>
+ * 
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
@@ -31,6 +51,9 @@ import java.lang.annotation.Target;
 })
 public @interface CLAPHelpCategory {
 
+	/**
+	 * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
+	 */
 	public abstract int order() default 0;
 
 	public abstract String titleNLSKey() default "";

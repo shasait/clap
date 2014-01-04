@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to set usage category.
+ * Annotation to set usage category. Can be used to group options in the usage.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
@@ -31,6 +31,9 @@ import java.lang.annotation.Target;
 })
 public @interface CLAPUsageCategory {
 
+	/**
+	 * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
+	 */
 	public abstract int order() default 0;
 
 	public abstract String titleNLSKey() default "";

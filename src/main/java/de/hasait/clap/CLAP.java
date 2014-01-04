@@ -48,7 +48,6 @@ import javassist.util.proxy.ProxyFactory;
 import de.hasait.clap.impl.CLAPHelpCategoryImpl;
 import de.hasait.clap.impl.CLAPHelpNode;
 import de.hasait.clap.impl.CLAPNodeList;
-import de.hasait.clap.impl.CLAPOptionNode;
 import de.hasait.clap.impl.CLAPParseContext;
 import de.hasait.clap.impl.CLAPResultImpl;
 import de.hasait.clap.impl.CLAPUsageCategoryImpl;
@@ -136,8 +135,8 @@ public final class CLAP implements CLAPNode {
 	}
 
 	@Override
-	public CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return _root.addFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+	public CLAPValue<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey) {
+		return _root.addFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey);
 	}
 
 	@Override

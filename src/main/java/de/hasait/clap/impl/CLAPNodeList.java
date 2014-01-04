@@ -49,8 +49,8 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+	public CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey) {
+		return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey);
 	}
 
 	@Override

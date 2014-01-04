@@ -16,8 +16,6 @@
 
 package de.hasait.clap;
 
-import de.hasait.clap.impl.CLAPOptionNode;
-
 /**
  * Node of the parse tree used for parsing arguments in {@link CLAP#parse(String...)}.
  */
@@ -76,10 +74,9 @@ public interface CLAPNode {
 	 *            required, e.g. one branch with an option and another branch with a required flag and an option, so the
 	 *            existence of the flag decides which branch is active.
 	 * @param pDescriptionNLSKey NLSkey for the description
-	 * @param pArgUsageNLSKey NLSkey for the usage
 	 * @return The node.
 	 */
-	CLAPOptionNode<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
+	CLAPValue<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey);
 
 	/**
 	 * Add a keyword.
@@ -121,8 +118,36 @@ public interface CLAPNode {
 	<V> CLAPValue<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey,
 			String pArgUsageNLSKey);
 
+	/**
+	 * <p>
+	 * Can be used to group options in the help screen.
+	 * </p>
+	 * <p>
+	 * For example &quot;Server Options&quot; is a separate help category with one option:
+	 * 
+	 * <pre>
+	 * Common Options
+	 * 
+	 *   -h, --help         Display this message
+	 * 
+	 *   -v, --verbose      Verbosity level, use multiple times to increase
+	 * 
+	 * Server Options
+	 * 
+	 *   -i, --interface    The interface, where the server is listening
+	 * 
+	 *   -p, --port         The port, where the server is listening
+	 * </pre>
+	 * 
+	 * </p>
+	 * 
+	 * @param pOrder Initially set to <code>1000</code>.
+	 */
 	void setHelpCategory(int pOrder, String pTitleNLSKey);
 
+	/**
+	 * @param pOrder Initially set to <code>1000</code>.
+	 */
 	void setUsageCategory(int pOrder, String pTitleNLSKey);
 
 }

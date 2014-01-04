@@ -71,9 +71,8 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return node;
 	}
 
-	protected final CLAPOptionNode<Boolean> internalAddFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
-			final String pArgUsageNLSKey) {
-		final CLAPOptionNode<Boolean> node = CLAPOptionNode.create(getCLAP(), Boolean.class, pShortKey, pLongKey, pRequired, 0, null, pDescriptionNLSKey, pArgUsageNLSKey);
+	protected final CLAPOptionNode<Boolean> internalAddFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey) {
+		final CLAPOptionNode<Boolean> node = CLAPOptionNode.create(getCLAP(), Boolean.class, pShortKey, pLongKey, pRequired, 0, null, pDescriptionNLSKey, null);
 		_list.add(node);
 		return node;
 	}
