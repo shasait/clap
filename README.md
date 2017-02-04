@@ -1,6 +1,8 @@
 clap
 ====
 
+[![Maven Central](https://img.shields.io/maven-central/v/de.hasait/clap.svg?label=Maven%20Central)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.hasait%22%20AND%20a%3A%22clap%22)
+
 Command Line Arguments Parser for Java
 
 * Licensed under the Apache License, Version 2.0
