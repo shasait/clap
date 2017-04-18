@@ -31,3 +31,7 @@ Command Line Arguments Parser for Java
     <version>1.2.0</version>
 </dependency>
 ```
+
+## Examples
+
+Please have a look at the various [tests](https://github.com/shasait/clap/tree/master/src/test/java/de/hasait/clap).
