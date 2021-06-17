@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,27 +26,27 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-	ElementType.METHOD
+		ElementType.METHOD
 })
 public @interface CLAPOption {
 
-	public static final int UNLIMITED_ARG_COUNT = -1;
-	public static final int AUTOMATIC_ARG_COUNT = -2;
+	int UNLIMITED_ARG_COUNT = -1;
+	int AUTOMATIC_ARG_COUNT = -2;
 
-	public abstract int argCount() default AUTOMATIC_ARG_COUNT;
+	int argCount() default AUTOMATIC_ARG_COUNT;
 
-	public abstract String argUsageNLSKey() default "";
+	String argUsageNLSKey() default "";
 
-	public abstract String descriptionNLSKey() default "";
+	String descriptionNLSKey() default "";
 
-	public abstract String longKey() default "";
+	String longKey() default "";
 
-	public abstract char multiArgSplit() default ' ';
+	char multiArgSplit() default ' ';
 
-	public abstract int order() default 1000;
+	int order() default 1000;
 
-	public abstract boolean required() default false;
+	boolean required() default false;
 
-	public abstract char shortKey() default ' ';
+	char shortKey() default ' ';
 
 }

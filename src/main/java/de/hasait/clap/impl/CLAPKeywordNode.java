@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ import de.hasait.clap.CLAP;
  */
 public class CLAPKeywordNode extends AbstractCLAPNode {
 
-	private static final String NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING = "clap.error.keywordIsMissing"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING = "clap.error.keywordIsMissing";
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
@@ -66,8 +66,8 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 		if (_keyword.equals(pContext.currentArg())) {
 			pContext.consumeCurrent();
 			pContext.addKeyword(this);
-			return new CLAPParseContext[] {
-				pContext
+			return new CLAPParseContext[]{
+					pContext
 			};
 		}
 		return null;
@@ -80,7 +80,7 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0}[\"{1}\"]", getClass().getSimpleName(), _keyword); //$NON-NLS-1$ 
+		return MessageFormat.format("{0}[\"{1}\"]", getClass().getSimpleName(), _keyword);
 	}
 
 	@Override

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2014 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,18 +31,20 @@ import de.hasait.clap.CLAPValue;
 public class Example1 {
 
 	private static final int DEFAULT_PORT = 1234;
-	private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg"); //$NON-NLS-1$
+	private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg");
 
 	public static void main(final String[] pArgs) {
 		final CLAP clap = new CLAP(NLS);
 
-		final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description"); //$NON-NLS-1$ //$NON-NLS-2$ 
-		final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description"); //$NON-NLS-1$ //$NON-NLS-2$
+		final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description");
+		final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description");
 		final CLAPNode listenOptionsNode = clap.addNodeList();
-		listenOptionsNode.setUsageCategory(1001, "usage_category.listen"); //$NON-NLS-1$
-		listenOptionsNode.setHelpCategory(1001, "help_category.listen"); //$NON-NLS-1$
-		final CLAPValue<Integer> portOption = listenOptionsNode.addOption1(Integer.class, 'p', "port", true, "option.port.description", "option.port.usage"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final CLAPValue<String> interfaceOption = listenOptionsNode.addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		listenOptionsNode.setUsageCategory(1001, "usage_category.listen");
+		listenOptionsNode.setHelpCategory(1001, "help_category.listen");
+		final CLAPValue<Integer> portOption = listenOptionsNode
+				.addOption1(Integer.class, 'p', "port", true, "option.port.description", "option.port.usage");
+		final CLAPValue<String> interfaceOption = listenOptionsNode
+				.addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage");
 
 		final CLAPResult clapResult;
 		try {
@@ -89,12 +91,12 @@ public class Example1 {
 	}
 
 	private void run() {
-		System.out.println(NLS.getString("msg.starting")); //$NON-NLS-1$
+		System.out.println(NLS.getString("msg.starting"));
 		if (_verboseLevel > 0) {
-			System.out.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port)); //$NON-NLS-1$
+			System.out.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port));
 		}
 		// your logic here
-		System.out.println(NLS.getString("msg.started")); //$NON-NLS-1$
+		System.out.println(NLS.getString("msg.started"));
 	}
 
 }

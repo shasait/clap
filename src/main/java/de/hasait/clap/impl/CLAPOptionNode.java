@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package de.hasait.clap.impl;
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,13 +38,14 @@ import de.hasait.clap.CLAPValue;
  */
 public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T>, CLAPHelpNode {
 
-	private static final String NLSKEY_CLAP_ERROR_OPTION_IS_MISSING = "clap.error.optionIsMissing"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_OPTION_IS_MISSING = "clap.error.optionIsMissing";
+	private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments";
+	private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg";
 
-	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return new CLAPOptionNode<V>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	public static <V> CLAPOptionNode<V> create(final CLAP pCLAP, final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return new CLAPOptionNode<>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
+									pArgUsageNLSKey
+		);
 	}
 
 	private final Character _shortKey;
@@ -64,8 +66,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
 	private final Mapper<T> _mapper;
 
-	private CLAPOptionNode(final CLAP pCLAP, final Class<T> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
-			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	private CLAPOptionNode(final CLAP pCLAP, final Class<T> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		super(pCLAP);
 
 		if (pShortKey != null && pShortKey == getCLAP().getShortOptPrefix()) {
@@ -113,36 +114,26 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		if (pResultClass.isArray()) {
 			final Class<?> componentType = pResultClass.getComponentType();
 			final CLAPConverter<?> converter = pCLAP.getConverter(componentType);
-			_mapper = new Mapper<T>() {
-
-				@Override
-				public T transform(final String[] pStringValues) {
-					final T result = (T) Array.newInstance(componentType, pStringValues.length);
-					for (int i = 0; i < pStringValues.length; i++) {
-						try {
-							Array.set(result, i, converter.convert(pStringValues[i]));
-						} catch (final Exception e) {
-							throw new RuntimeException(e);
-						}
+			_mapper = pStringValues -> {
+				final T result = (T) Array.newInstance(componentType, pStringValues.length);
+				for (int i = 0; i < pStringValues.length; i++) {
+					try {
+						Array.set(result, i, converter.convert(pStringValues[i]));
+					} catch (final Exception e) {
+						throw new RuntimeException(e);
 					}
-					return result;
 				}
-
+				return result;
 			};
 		} else if (Collection.class.isAssignableFrom(pResultClass)) {
 			_mapper = null;
 		} else {
 			final CLAPConverter<? extends T> converter = pCLAP.getConverter(pResultClass);
-			_mapper = new Mapper<T>() {
-
-				@Override
-				public T transform(final String[] pStringValues) {
-					if (pStringValues.length == 0 && (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE))) {
-						return (T) Boolean.TRUE;
-					}
-					return converter.convert(pStringValues[0]);
+			_mapper = pStringValues -> {
+				if (pStringValues.length == 0 && (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE))) {
+					return (T) Boolean.TRUE;
 				}
-
+				return converter.convert(pStringValues[0]);
 			};
 		}
 
@@ -238,7 +229,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		if (_shortKey != null) {
 			helpIDSB.append(getCLAP().getShortOptPrefix()).append(_shortKey);
 			if (_longKey != null) {
-				helpIDSB.append(", "); //$NON-NLS-1$
+				helpIDSB.append(", ");
 			}
 		}
 		if (_longKey != null) {
@@ -275,8 +266,8 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			return null;
 		}
 		pContext.addOption(this, args);
-		return new CLAPParseContext[] {
-			pContext
+		return new CLAPParseContext[]{
+				pContext
 		};
 	}
 
@@ -313,7 +304,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 					pResult.append(' ');
 				}
 				if (_argCount == CLAP.UNLIMITED_ARG_COUNT && i == count - 1) {
-					pResult.append("..."); //$NON-NLS-1$
+					pResult.append("...");
 				} else {
 					pResult.append('<');
 					pResult.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
@@ -335,7 +326,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0}[''{1}'', \"{2}\"]", getClass().getSimpleName(), _shortKey, _longKey); //$NON-NLS-1$ 
+		return MessageFormat.format("{0}[''{1}'', \"{2}\"]", getClass().getSimpleName(), _shortKey, _longKey);
 	}
 
 	@Override
@@ -350,14 +341,12 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	private List<String> handleArgCount(final CLAPParseContext pContext, final boolean pAllWithSplit) {
-		final List<String> args = new ArrayList<String>();
+		final List<String> args = new ArrayList<>();
 		if (_argCount == CLAP.UNLIMITED_ARG_COUNT) {
 			if (pAllWithSplit) {
 				if (pContext.hasMoreTokens()) {
 					final String argsUnsplitted = pContext.consumeCurrent();
-					for (final String arg : argsUnsplitted.split(_multiArgSplit.toString())) {
-						args.add(arg);
-					}
+					args.addAll(Arrays.asList(argsUnsplitted.split(_multiArgSplit.toString())));
 				}
 			} else {
 				while (pContext.hasMoreTokens()) {
@@ -368,9 +357,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 			if (pAllWithSplit && _argCount != 0 && _argCount != 1) {
 				if (pContext.hasMoreTokens()) {
 					final String argsUnsplitted = pContext.consumeCurrent();
-					for (final String arg : argsUnsplitted.split(_multiArgSplit.toString())) {
-						args.add(arg);
-					}
+					args.addAll(Arrays.asList(argsUnsplitted.split(_multiArgSplit.toString())));
 				}
 			} else {
 				int i = 0;
@@ -398,7 +385,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 		}
 	}
 
-	public static interface Mapper<T> {
+	public interface Mapper<T> {
 
 		T transform(String[] pStringValues);
 

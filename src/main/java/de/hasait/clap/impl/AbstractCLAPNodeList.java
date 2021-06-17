@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import de.hasait.clap.CLAP;
  */
 public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 
-	private final List<AbstractCLAPNode> _list = new ArrayList<AbstractCLAPNode>();
+	private final List<AbstractCLAPNode> _list = new ArrayList<>();
 	private final List<AbstractCLAPNode> _ulist = Collections.unmodifiableList(_list);
 
 	protected AbstractCLAPNodeList(final CLAP pCLAP) {
@@ -47,11 +47,11 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 
 	@Override
 	public final String toString() {
-		return MessageFormat.format("{0}[{1}]", getClass().getSimpleName(), internalToString(", ")); //$NON-NLS-1$ //$NON-NLS-2$
+		return MessageFormat.format("{0}[{1}]", getClass().getSimpleName(), internalToString(", "));
 	}
 
 	protected final <V> CLAPClassNode<V> internalAddClass(final Class<V> pClass) {
-		final CLAPClassNode<V> node = new CLAPClassNode<V>(getCLAP(), pClass);
+		final CLAPClassNode<V> node = new CLAPClassNode<>(getCLAP(), pClass);
 		_list.add(node);
 		return node;
 	}
@@ -63,7 +63,7 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 	}
 
 	protected final <V> CLAPTypedDecisionNode<V> internalAddDecision(@SuppressWarnings("unused") final Class<V> pResultClass, final Class<? extends V>... pBranchClasses) {
-		final CLAPTypedDecisionNode<V> node = new CLAPTypedDecisionNode<V>(getCLAP());
+		final CLAPTypedDecisionNode<V> node = new CLAPTypedDecisionNode<>(getCLAP());
 		_list.add(node);
 		for (final Class<? extends V> branchClass : pBranchClasses) {
 			node.addClass(branchClass);
@@ -72,7 +72,8 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 	}
 
 	protected final CLAPOptionNode<Boolean> internalAddFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey) {
-		final CLAPOptionNode<Boolean> node = CLAPOptionNode.create(getCLAP(), Boolean.class, pShortKey, pLongKey, pRequired, 0, null, pDescriptionNLSKey, null);
+		final CLAPOptionNode<Boolean> node = CLAPOptionNode
+				.create(getCLAP(), Boolean.class, pShortKey, pLongKey, pRequired, 0, null, pDescriptionNLSKey, null);
 		_list.add(node);
 		return node;
 	}
@@ -89,25 +90,27 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return list;
 	}
 
-	protected final <V> CLAPOptionNode<V> internalAddOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		final CLAPOptionNode<V> node = CLAPOptionNode.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
-				pArgUsageNLSKey);
+	protected final <V> CLAPOptionNode<V> internalAddOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		final CLAPOptionNode<V> node = CLAPOptionNode
+				.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
+						pArgUsageNLSKey
+				);
 		_list.add(node);
 		return node;
 	}
 
-	protected final <V> CLAPOptionNode<V> internalAddOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		final CLAPOptionNode<V> node = CLAPOptionNode.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, 1, null, pDescriptionNLSKey, pArgUsageNLSKey);
+	protected final <V> CLAPOptionNode<V> internalAddOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		final CLAPOptionNode<V> node = CLAPOptionNode
+				.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, 1, null, pDescriptionNLSKey, pArgUsageNLSKey);
 		_list.add(node);
 		return node;
 	}
 
-	protected final <V> CLAPOptionNode<V> internalAddOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired,
-			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		final CLAPOptionNode<V> node = CLAPOptionNode.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, CLAP.UNLIMITED_ARG_COUNT, pMultiArgSplit, pDescriptionNLSKey,
-				pArgUsageNLSKey);
+	protected final <V> CLAPOptionNode<V> internalAddOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		final CLAPOptionNode<V> node = CLAPOptionNode
+				.create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, CLAP.UNLIMITED_ARG_COUNT, pMultiArgSplit,
+						pDescriptionNLSKey, pArgUsageNLSKey
+				);
 		_list.add(node);
 		return node;
 	}
@@ -128,8 +131,7 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return null;
 	}
 
-	protected final void internalPrintUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult,
-			final String pSeparator) {
+	protected final void internalPrintUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult, final String pSeparator) {
 		boolean first = true;
 		for (final AbstractCLAPNode node : _list) {
 			if (first) {

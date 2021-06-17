@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,8 @@ public class SwingDialogUICallback implements CLAPUICallback {
 	@Override
 	public String readLine(final String pPrompt) {
 		final JTextField field = new JTextField(40);
-		final int result = JOptionPane.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		final int result = JOptionPane
+				.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (result != JOptionPane.OK_OPTION) {
 			return null;
 		}
@@ -52,7 +53,8 @@ public class SwingDialogUICallback implements CLAPUICallback {
 	@Override
 	public String readPassword(final String pPrompt) {
 		final JPasswordField field = new JPasswordField(40);
-		final int result = JOptionPane.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		final int result = JOptionPane
+				.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (result != JOptionPane.OK_OPTION) {
 			return null;
 		}

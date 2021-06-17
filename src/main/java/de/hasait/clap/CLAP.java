@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -37,13 +38,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyFactory;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import de.hasait.clap.impl.CLAPHelpCategoryImpl;
 import de.hasait.clap.impl.CLAPHelpNode;
@@ -61,15 +60,15 @@ public final class CLAP implements CLAPNode {
 
 	public static final int UNLIMITED_ARG_COUNT = -1;
 
-	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_ERROR_VALIDATION_FAILED = "clap.error.validationFailed"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_ERROR_AMBIGUOUS_RESULT = "clap.error.ambiguousResult"; //$NON-NLS-1$
-	private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList"; //$NON-NLS-1$
-	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword"; //$NON-NLS-1$
-	private static final String NLSKEY_ENTER_LINE = "clap.enterline"; //$NON-NLS-1$
-	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory"; //$NON-NLS-1$
-	private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory"; //$NON-NLS-1$
+	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit";
+	private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit";
+	private static final String NLSKEY_CLAP_ERROR_VALIDATION_FAILED = "clap.error.validationFailed";
+	private static final String NLSKEY_CLAP_ERROR_AMBIGUOUS_RESULT = "clap.error.ambiguousResult";
+	private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList";
+	private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword";
+	private static final String NLSKEY_ENTER_LINE = "clap.enterline";
+	private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory";
+	private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory";
 
 	private final ResourceBundle _nls;
 
@@ -84,6 +83,14 @@ public final class CLAP implements CLAPNode {
 	private CLAPUICallback _uiCallback;
 
 	/**
+	 * Default constructor to use the default resource bundle.
+	 * All NLS keys for options should be plain messages.
+	 */
+	public CLAP() {
+		this(ResourceBundle.getBundle("clap-msg"));
+	}
+
+	/**
 	 * @param pNLS {@link ResourceBundle} used for messages.
 	 */
 	public CLAP(final ResourceBundle pNLS) {
@@ -92,10 +99,10 @@ public final class CLAP implements CLAPNode {
 		_nls = pNLS;
 
 		_shortOptPrefix = '-';
-		_longOptPrefix = "--"; //$NON-NLS-1$
-		_longOptEquals = "="; //$NON-NLS-1$
+		_longOptPrefix = "--";
+		_longOptEquals = "=";
 
-		_converters = new HashMap<Class<?>, CLAPConverter<?>>();
+		_converters = new HashMap<>();
 		initDefaultConverters();
 
 		_root = new CLAPNodeList(this);
@@ -150,20 +157,18 @@ public final class CLAP implements CLAPNode {
 	}
 
 	@Override
-	public <V> CLAPValue<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount,
-			final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return _root.addOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	public <V> CLAPValue<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return _root
+				.addOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public <V> CLAPValue<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey,
-			final String pArgUsageNLSKey) {
+	public <V> CLAPValue<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override
-	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit,
-			final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
@@ -172,7 +177,7 @@ public final class CLAP implements CLAPNode {
 			try {
 				addStringConstructorConverter(pResultClass);
 			} catch (final Exception e) {
-				throw new RuntimeException(MessageFormat.format("No converter for {0} found", pResultClass), e); //$NON-NLS-1$
+				throw new RuntimeException(MessageFormat.format("No converter for {0} found", pResultClass), e);
 			}
 		}
 
@@ -229,35 +234,38 @@ public final class CLAP implements CLAPNode {
 			try {
 				pattern = _nls.getString(pKey);
 			} catch (final MissingResourceException e) {
-				pattern = null;
+				// ignore
 			}
 		}
 		if (pattern == null) {
-			pattern = pKey != null ? pKey : ""; //$NON-NLS-1$
+			pattern = pKey != null ? pKey : "";
+			StringBuilder appendPatternVars = new StringBuilder();
 			for (int i = 0; i < pArguments.length; i++) {
-				pattern += " {" + i + "}"; //$NON-NLS-1$ //$NON-NLS-2$
+				String patternVar = "{" + i + "}";
+				if (!pattern.contains(patternVar)) {
+					appendPatternVars.append(' ').append(patternVar);
+				}
 			}
+			pattern += appendPatternVars.toString();
 		}
 		try {
 			return MessageFormat.format(pattern, pArguments);
 		} catch (final Exception e) {
-			return pattern + "!" + StringUtils.join(pArguments, ", ") + "!"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return pattern + "!" + StringUtils.join(pArguments, ", ") + "!";
 		}
 	}
 
 	public CLAPResult parse(final String... pArgs) {
-		final Set<CLAPParseContext> contextsWithInvalidToken = new HashSet<CLAPParseContext>();
-		final List<CLAPParseContext> parsedContexts = new ArrayList<CLAPParseContext>();
-		final LinkedList<CLAPParseContext> activeContexts = new LinkedList<CLAPParseContext>();
+		final Set<CLAPParseContext> contextsWithInvalidToken = new HashSet<>();
+		final List<CLAPParseContext> parsedContexts = new ArrayList<>();
+		final LinkedList<CLAPParseContext> activeContexts = new LinkedList<>();
 		activeContexts.add(new CLAPParseContext(this, pArgs));
 		while (!activeContexts.isEmpty()) {
 			final CLAPParseContext context = activeContexts.removeFirst();
 			if (context.hasMoreTokens()) {
 				final CLAPParseContext[] result = _root.parse(context);
 				if (result != null) {
-					for (final CLAPParseContext nextContext : result) {
-						activeContexts.add(nextContext);
-					}
+					activeContexts.addAll(Arrays.asList(result));
 				} else {
 					contextsWithInvalidToken.add(context);
 				}
@@ -267,7 +275,7 @@ public final class CLAP implements CLAPNode {
 		}
 		if (parsedContexts.isEmpty()) {
 			int maxArgIndex = Integer.MIN_VALUE;
-			final Set<String> invalidTokensOfBestContexts = new HashSet<String>();
+			final Set<String> invalidTokensOfBestContexts = new HashSet<>();
 			for (final CLAPParseContext context : contextsWithInvalidToken) {
 				final int currentArgIndex = context.getCurrentArgIndex();
 				if (currentArgIndex > maxArgIndex) {
@@ -278,13 +286,13 @@ public final class CLAP implements CLAPNode {
 					invalidTokensOfBestContexts.add(context.currentArg());
 				}
 			}
-			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST, StringUtils.join(invalidTokensOfBestContexts, ", "))); //$NON-NLS-1$
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST, StringUtils.join(invalidTokensOfBestContexts, ", ")));
 		}
 
-		final Map<CLAPParseContext, List<String>> contextErrorMessages = new HashMap<CLAPParseContext, List<String>>();
-		final Set<CLAPResultImpl> results = new LinkedHashSet<CLAPResultImpl>();
+		final Map<CLAPParseContext, List<String>> contextErrorMessages = new HashMap<>();
+		final Set<CLAPResultImpl> results = new LinkedHashSet<>();
 		for (final CLAPParseContext context : parsedContexts) {
-			final List<String> errorMessages = new ArrayList<String>();
+			final List<String> errorMessages = new ArrayList<>();
 			_root.validate(context, errorMessages);
 			if (errorMessages.isEmpty()) {
 				final CLAPResultImpl result = new CLAPResultImpl();
@@ -297,7 +305,7 @@ public final class CLAP implements CLAPNode {
 
 		if (results.isEmpty()) {
 			int minErrorMessages = Integer.MAX_VALUE;
-			final List<String> errorMessagesOfBestContexts = new ArrayList<String>();
+			final List<String> errorMessagesOfBestContexts = new ArrayList<>();
 			for (final Entry<CLAPParseContext, List<String>> entry : contextErrorMessages.entrySet()) {
 				final int countErrorMessages = entry.getValue().size();
 				if (countErrorMessages < minErrorMessages) {
@@ -308,7 +316,9 @@ public final class CLAP implements CLAPNode {
 					errorMessagesOfBestContexts.add(StringUtils.join(entry.getValue(), nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT)));
 				}
 			}
-			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_VALIDATION_FAILED, StringUtils.join(errorMessagesOfBestContexts, nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT))));
+			throw new CLAPException(nls(NLSKEY_CLAP_ERROR_VALIDATION_FAILED,
+										StringUtils.join(errorMessagesOfBestContexts, nls(NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT))
+			));
 		}
 
 		if (results.size() > 1) {
@@ -319,7 +329,7 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public void printHelp(final PrintStream pPrintStream) {
-		final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes = new TreeMap<CLAPHelpCategoryImpl, Set<CLAPHelpNode>>();
+		final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes = new TreeMap<>();
 		_root.collectHelpNodes(nodes, null);
 
 		int maxLength = 0;
@@ -338,7 +348,7 @@ public final class CLAP implements CLAPNode {
 			pPrintStream.println(nls(entry.getKey().getTitleNLSKey()));
 			for (final CLAPHelpNode node : entry.getValue()) {
 				pPrintStream.println();
-				pPrintStream.print("  "); //$NON-NLS-1$
+				pPrintStream.print("  ");
 				pPrintStream.print(StringUtils.rightPad(node.getHelpID(), maxLength - 2));
 				final String descriptionNLSKey = node.getDescriptionNLSKey();
 				if (descriptionNLSKey != null) {
@@ -351,11 +361,11 @@ public final class CLAP implements CLAPNode {
 	}
 
 	public void printUsage(final PrintStream pPrintStream) {
-		final Map<CLAPUsageCategoryImpl, StringBuilder> categories = new TreeMap<CLAPUsageCategoryImpl, StringBuilder>();
+		final Map<CLAPUsageCategoryImpl, StringBuilder> categories = new TreeMap<>();
 		_root.printUsage(categories, null, null);
 		for (final Entry<CLAPUsageCategoryImpl, StringBuilder> entry : categories.entrySet()) {
 			pPrintStream.print(nls(entry.getKey().getTitleNLSKey()));
-			pPrintStream.print(": "); //$NON-NLS-1$
+			pPrintStream.print(": ");
 			pPrintStream.print(entry.getValue().toString());
 			pPrintStream.println();
 		}
@@ -380,22 +390,17 @@ public final class CLAP implements CLAPNode {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":" + _root; //$NON-NLS-1$
+		return getClass().getSimpleName() + ":" + _root;
 	}
 
 	private <R> void addPrimitiveConverter(final Class<?> pWrapperClass, final Class<R> pPrimitiveClass) throws Exception {
-		final Method parseMethod = pWrapperClass.getMethod("parse" + StringUtils.capitalize(pPrimitiveClass.getSimpleName()), String.class); //$NON-NLS-1$
-		final CLAPConverter<R> methodConverter = new CLAPConverter<R>() {
-
-			@Override
-			public R convert(final String pInput) {
-				try {
-					return (R) parseMethod.invoke(null, pInput);
-				} catch (final Exception e) {
-					throw runtimeException(e);
-				}
+		final Method parseMethod = pWrapperClass.getMethod("parse" + StringUtils.capitalize(pPrimitiveClass.getSimpleName()), String.class);
+		final CLAPConverter<R> methodConverter = pInput -> {
+			try {
+				return (R) parseMethod.invoke(null, pInput);
+			} catch (final Exception e) {
+				throw runtimeException(e);
 			}
-
 		};
 		addConverter(pPrimitiveClass, methodConverter);
 	}
@@ -403,17 +408,12 @@ public final class CLAP implements CLAPNode {
 	private <R> void addStringConstructorConverter(final Class<R> pStringConstructorClass) throws Exception {
 		final Constructor<R> constructor = pStringConstructorClass.getConstructor(String.class);
 
-		final CLAPConverter<R> constructorConverter = new CLAPConverter<R>() {
-
-			@Override
-			public R convert(final String pInput) {
-				try {
-					return constructor.newInstance(pInput);
-				} catch (final Exception e) {
-					throw runtimeException(e);
-				}
+		final CLAPConverter<R> constructorConverter = pInput -> {
+			try {
+				return constructor.newInstance(pInput);
+			} catch (final Exception e) {
+				throw runtimeException(e);
 			}
-
 		};
 
 		addConverter(pStringConstructorClass, constructorConverter);
@@ -421,52 +421,40 @@ public final class CLAP implements CLAPNode {
 
 	private void initDefaultConverters() {
 		try {
-			final CLAPConverter<String> stringConverter = new CLAPConverter<String>() {
-
-				@Override
-				public String convert(final String pInput) {
-					return pInput;
-				}
-
-			};
+			final CLAPConverter<String> stringConverter = pInput -> pInput;
 			addConverter(String.class, stringConverter);
 
-			final CLAPConverter<Boolean> booleanConverter = new CLAPConverter<Boolean>() {
-
-				@Override
-				public Boolean convert(final String pInput) {
-					if (pInput.equalsIgnoreCase("true")) { //$NON-NLS-1$
-						return true;
-					}
-					if (pInput.equalsIgnoreCase("false")) { //$NON-NLS-1$
-						return false;
-					}
-					if (pInput.equalsIgnoreCase("yes")) { //$NON-NLS-1$
-						return true;
-					}
-					if (pInput.equalsIgnoreCase("no")) { //$NON-NLS-1$
-						return false;
-					}
-					if (pInput.equalsIgnoreCase("on")) { //$NON-NLS-1$
-						return true;
-					}
-					if (pInput.equalsIgnoreCase("off")) { //$NON-NLS-1$
-						return false;
-					}
-					if (pInput.equalsIgnoreCase("enable")) { //$NON-NLS-1$
-						return true;
-					}
-					if (pInput.equalsIgnoreCase("disable")) { //$NON-NLS-1$
-						return false;
-					}
-					throw new RuntimeException(pInput);
+			final CLAPConverter<Boolean> booleanConverter = pInput -> {
+				if (pInput.equalsIgnoreCase("true")) {
+					return true;
 				}
-
+				if (pInput.equalsIgnoreCase("false")) {
+					return false;
+				}
+				if (pInput.equalsIgnoreCase("yes")) {
+					return true;
+				}
+				if (pInput.equalsIgnoreCase("no")) {
+					return false;
+				}
+				if (pInput.equalsIgnoreCase("on")) {
+					return true;
+				}
+				if (pInput.equalsIgnoreCase("off")) {
+					return false;
+				}
+				if (pInput.equalsIgnoreCase("enable")) {
+					return true;
+				}
+				if (pInput.equalsIgnoreCase("disable")) {
+					return false;
+				}
+				throw new RuntimeException(pInput);
 			};
 			addConverter(Boolean.class, booleanConverter);
 			addConverter(Boolean.TYPE, booleanConverter);
 
-			final Class<?>[] someWrapperClasses = new Class<?>[] {
+			final Class<?>[] someWrapperClasses = new Class<?>[]{
 					Byte.class,
 					Short.class,
 					Integer.class,
@@ -474,8 +462,7 @@ public final class CLAP implements CLAPNode {
 					Float.class,
 					Double.class
 			};
-			for (int i = 0; i < someWrapperClasses.length; i++) {
-				final Class<?> wrapperClass = someWrapperClasses[i];
+			for (final Class<?> wrapperClass : someWrapperClasses) {
 				addStringConstructorConverter(wrapperClass);
 				final Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(wrapperClass);
 				if (primitiveClass != null) {
@@ -502,8 +489,8 @@ public final class CLAP implements CLAPNode {
 		public <T> T getOrReadInteractivly(final T pObject, final String pPromptNLSKey, final String pCancelNLSKey, final boolean pSetAfterRead) {
 			try {
 				final BeanInfo beanInfo = Introspector.getBeanInfo(pObject.getClass());
-				final Map<Method, String> readMethodToDescriptionMap = new HashMap<Method, String>();
-				final Map<Method, Method> readMethodToWriteMethodMap = new HashMap<Method, Method>();
+				final Map<Method, String> readMethodToDescriptionMap = new HashMap<>();
+				final Map<Method, Method> readMethodToWriteMethodMap = new HashMap<>();
 				for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
 					final Method readMethod = propertyDescriptor.getReadMethod();
 					final Method writeMethod = propertyDescriptor.getWriteMethod();
@@ -522,30 +509,22 @@ public final class CLAP implements CLAPNode {
 				}
 				final ProxyFactory proxyFactory = new ProxyFactory();
 				proxyFactory.setSuperclass(pObject.getClass());
-				proxyFactory.setFilter(new MethodFilter() {
-					@Override
-					public boolean isHandled(final Method m) {
-						return readMethodToDescriptionMap.containsKey(m);
-					}
-				});
-				final MethodHandler handler = new MethodHandler() {
-					@Override
-					public Object invoke(final Object pSelf, final Method pMethod, final Method pProceed, final Object[] pArgs) throws Throwable {
-						final String result = (String) pMethod.invoke(pObject, pArgs); // execute the original method.
-						if (result == null) {
-							final String description = readMethodToDescriptionMap.get(pMethod);
-							final String prompt = nls(pPromptNLSKey, description);
-							final String newResult = readInteractivly(prompt);
-							if (newResult == null) {
-								throw new RuntimeException(nls(pCancelNLSKey));
-							}
-							if (pSetAfterRead) {
-								readMethodToWriteMethodMap.get(pMethod).invoke(pObject, newResult);
-							}
-							return newResult;
+				proxyFactory.setFilter(readMethodToDescriptionMap::containsKey);
+				final MethodHandler handler = (pSelf, pMethod, pProceed, pArgs) -> {
+					final String result = (String) pMethod.invoke(pObject, pArgs); // execute the original method.
+					if (result == null) {
+						final String description = readMethodToDescriptionMap.get(pMethod);
+						final String prompt = nls(pPromptNLSKey, description);
+						final String newResult = readInteractivly(prompt);
+						if (newResult == null) {
+							throw new RuntimeException(nls(pCancelNLSKey));
 						}
-						return result;
+						if (pSetAfterRead) {
+							readMethodToWriteMethodMap.get(pMethod).invoke(pObject, newResult);
+						}
+						return newResult;
 					}
+					return result;
 				};
 				final Class<T> proxyClass = proxyFactory.createClass();
 				final T proxy = proxyClass.newInstance();

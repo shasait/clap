@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ import de.hasait.clap.CLAP;
 public class CLAPParseContext implements Cloneable {
 
 	private final CLAP _clap;
-	private final List<Pair<? extends AbstractCLAPNode, ? extends Object>> _nodeContextMap;
+	private final List<Pair<? extends AbstractCLAPNode, ?>> _nodeContextMap;
 	private final String[] _args;
 	private int _currentArgIndex;
 	private String _currentArg;
@@ -41,7 +41,7 @@ public class CLAPParseContext implements Cloneable {
 
 		_args = pArgs.clone();
 
-		_nodeContextMap = new ArrayList<Pair<? extends AbstractCLAPNode, ? extends Object>>();
+		_nodeContextMap = new ArrayList<>();
 
 		_currentArgIndex = -1;
 		_currentArg = null;
@@ -56,7 +56,7 @@ public class CLAPParseContext implements Cloneable {
 		// used read only - so can use reference
 		_args = pOther._args;
 
-		_nodeContextMap = new ArrayList<Pair<? extends AbstractCLAPNode, ? extends Object>>(pOther._nodeContextMap);
+		_nodeContextMap = new ArrayList<>(pOther._nodeContextMap);
 
 		_currentArgIndex = pOther._currentArgIndex;
 		_currentArg = pOther._currentArg;
@@ -105,7 +105,7 @@ public class CLAPParseContext implements Cloneable {
 			throw new IllegalStateException();
 		}
 		if (_currentArg.length() > 2) {
-			_currentArg = (pHasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2); //$NON-NLS-1$
+			_currentArg = (pHasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2);
 			return true;
 		} else {
 			consumeCurrent();
@@ -120,7 +120,7 @@ public class CLAPParseContext implements Cloneable {
 	public int getArgCount(final CLAPOptionNode<?> pOptionNode) {
 		int count = 0;
 
-		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
 			if (entry.getLeft().equals(pOptionNode)) {
 				count += ((List<String>) entry.getRight()).size();
 			}
@@ -135,7 +135,7 @@ public class CLAPParseContext implements Cloneable {
 
 	public AbstractCLAPNode getDecision(final AbstractCLAPDecision pDecisionNode) {
 		AbstractCLAPNode lastBranchNode = null;
-		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
 			if (entry.getLeft().equals(pDecisionNode)) {
 				lastBranchNode = (AbstractCLAPNode) entry.getRight();
 			}
@@ -146,7 +146,7 @@ public class CLAPParseContext implements Cloneable {
 	public int getNodeCount(final AbstractCLAPNode pNode) {
 		int result = 0;
 
-		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
 			if (entry.getLeft().equals(pNode)) {
 				result++;
 			}
@@ -156,29 +156,33 @@ public class CLAPParseContext implements Cloneable {
 	}
 
 	public String[] getOptionArgs(final CLAPOptionNode<?> pOptionNode) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		boolean anyFound = false;
-		for (final Pair<? extends AbstractCLAPNode, ? extends Object> entry : _nodeContextMap) {
+		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
 			if (entry.getLeft().equals(pOptionNode)) {
 				result.addAll((List<String>) entry.getRight());
 				anyFound = true;
 			}
 		}
-		return anyFound ? result.toArray(new String[result.size()]) : null;
+		return anyFound ? result.toArray(new String[0]) : null;
 	}
 
 	public boolean hasCurrentLongKey(final String pLongKey, final boolean pAllowEquals) {
 		if (pLongKey == null) {
-			throw new IllegalArgumentException("pLongKey == null"); //$NON-NLS-1$
+			throw new IllegalArgumentException("pLongKey == null");
 		}
 		if (_currentArg == null) {
 			return false;
 		}
-		return _currentArg.equals(_clap.getLongOptPrefix() + pLongKey) || pAllowEquals && _currentArg.startsWith(_clap.getLongOptPrefix() + pLongKey + _clap.getLongOptEquals());
+		return _currentArg.equals(_clap.getLongOptPrefix() + pLongKey) || pAllowEquals && _currentArg
+				.startsWith(_clap.getLongOptPrefix() + pLongKey + _clap.getLongOptEquals());
 	}
 
 	public boolean hasCurrentShortKey(final char pShortKey) {
-		return _currentArg != null && _currentArg.length() >= 2 && _currentArg.charAt(0) == _clap.getShortOptPrefix() && _currentArg.charAt(1) == pShortKey;
+		return _currentArg != null
+				&& _currentArg.length() >= 2
+				&& _currentArg.charAt(0) == _clap.getShortOptPrefix()
+				&& _currentArg.charAt(1) == pShortKey;
 	}
 
 	public boolean hasMoreTokens() {
@@ -187,7 +191,7 @@ public class CLAPParseContext implements Cloneable {
 
 	@Override
 	public String toString() {
-		return _currentArg + " " + _currentArgIndex; //$NON-NLS-1$
+		return _currentArg + " " + _currentArgIndex;
 	}
 
 }

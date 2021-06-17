@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,15 +33,15 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
 	public CLAPResultImpl() {
 		super();
 
-		_valueMap = new HashMap<CLAPValue<?>, Object>();
-		_countMap = new HashMap<CLAPValue<?>, Integer>();
+		_valueMap = new HashMap<>();
+		_countMap = new HashMap<>();
 	}
 
 	private CLAPResultImpl(final CLAPResultImpl pOther) {
 		super();
 
-		_valueMap = new HashMap<CLAPValue<?>, Object>(pOther._valueMap);
-		_countMap = new HashMap<CLAPValue<?>, Integer>(pOther._countMap);
+		_valueMap = new HashMap<>(pOther._valueMap);
+		_countMap = new HashMap<>(pOther._countMap);
 	}
 
 	@Override
@@ -74,11 +74,7 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
 			return false;
 		}
 
-		if (!_countMap.equals(other._countMap)) {
-			return false;
-		}
-
-		return true;
+		return _countMap.equals(other._countMap);
 	}
 
 	@Override

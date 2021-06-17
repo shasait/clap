@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 by Sebastian Hasait (sebastian at hasait dot de)
+ * Copyright (C) 2021 by Sebastian Hasait (sebastian at hasait dot de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ package de.hasait.clap.impl;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * 
+ *
  */
 public class CLAPUsageCategoryImpl implements Comparable<CLAPUsageCategoryImpl> {
 
@@ -40,17 +40,13 @@ public class CLAPUsageCategoryImpl implements Comparable<CLAPUsageCategoryImpl> 
 
 	@Override
 	public int compareTo(final CLAPUsageCategoryImpl pOther) {
-		final int orderResult = Integer.valueOf(_order).compareTo(Integer.valueOf(pOther._order));
+		final int orderResult = Integer.compare(_order, pOther._order);
 		if (orderResult != 0) {
 			return orderResult;
 		}
 
 		final int titleNLSKeyResult = _titleNLSKey.compareTo(pOther._titleNLSKey);
-		if (titleNLSKeyResult != 0) {
-			return titleNLSKeyResult;
-		}
-
-		return 0;
+		return titleNLSKeyResult;
 	}
 
 	@Override
@@ -73,11 +69,7 @@ public class CLAPUsageCategoryImpl implements Comparable<CLAPUsageCategoryImpl> 
 			return false;
 		}
 
-		if (!_titleNLSKey.equals(other._titleNLSKey)) {
-			return false;
-		}
-
-		return true;
+		return _titleNLSKey.equals(other._titleNLSKey);
 	}
 
 	public int getOrder() {
