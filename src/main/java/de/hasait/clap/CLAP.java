@@ -328,6 +328,11 @@ public final class CLAP implements CLAPNode {
 		return results.iterator().next();
 	}
 
+	public void printUsageAndHelp(final PrintStream pPrintStream) {
+		printUsage(pPrintStream);
+		printHelp(pPrintStream);
+	}
+
 	public void printHelp(final PrintStream pPrintStream) {
 		final Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes = new TreeMap<>();
 		_root.collectHelpNodes(nodes, null);

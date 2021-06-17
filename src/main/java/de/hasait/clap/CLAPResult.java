@@ -23,6 +23,8 @@ public interface CLAPResult {
 
 	boolean contains(CLAPValue<?> pNode);
 
+	boolean contains(CLAPNode pNode);
+
 	int getCount(CLAPValue<?> pNode);
 
 	<T> T getValue(CLAPValue<T> pNode);

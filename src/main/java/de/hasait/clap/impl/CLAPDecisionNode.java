@@ -79,6 +79,7 @@ public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
 	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final AbstractCLAPNode decision = pContext.getDecision(this);
 		if (decision != null) {
+			pResult.setCount(decision, 1);
 			decision.fillResult(pContext, pResult);
 		}
 	}

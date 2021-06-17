@@ -108,8 +108,14 @@ public interface CLAPNode {
 	 */
 	<V> CLAPValue<V> addOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
+	/**
+	 * Add option with single argument.
+	 */
 	<V> CLAPValue<V> addOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
+	/**
+	 * Add option with unlimited arguments.
+	 */
 	<V> CLAPValue<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
 	/**

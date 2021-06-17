@@ -19,6 +19,7 @@ package de.hasait.clap.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hasait.clap.CLAPNode;
 import de.hasait.clap.CLAPResult;
 import de.hasait.clap.CLAPValue;
 
@@ -28,7 +29,7 @@ import de.hasait.clap.CLAPValue;
 public class CLAPResultImpl implements Cloneable, CLAPResult {
 
 	private final Map<CLAPValue<?>, Object> _valueMap;
-	private final Map<CLAPValue<?>, Integer> _countMap;
+	private final Map<Object, Integer> _countMap;
 
 	public CLAPResultImpl() {
 		super();
@@ -52,6 +53,12 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
 	@Override
 	public boolean contains(final CLAPValue<?> pNode) {
 		return getCount(pNode) > 0;
+	}
+
+	@Override
+	public boolean contains(final CLAPNode pNode) {
+		final Integer count = _countMap.get(pNode);
+		return count != null && count > 0;
 	}
 
 	@Override
@@ -93,7 +100,7 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
 		return _valueMap.hashCode();
 	}
 
-	public void setCount(final CLAPValue<?> pNode, final int pCount) {
+	public void setCount(final Object pNode, final int pCount) {
 		_countMap.put(pNode, pCount);
 	}
 
