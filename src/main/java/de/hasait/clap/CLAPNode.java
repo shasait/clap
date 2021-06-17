@@ -22,12 +22,8 @@ package de.hasait.clap;
 public interface CLAPNode {
 
 	/**
-	 * <p>
-	 * Add annotated class.
-	 * </p>
-	 * <p>
-	 * Annotations:
-	 * <ul>
+	 * <p>Add annotated class.</p>
+	 * Annotations: <ul>
 	 * <li>{@link CLAPOption}</li>
 	 * <li>{@link CLAPKeyword}</li>
 	 * <li>{@link CLAPKeywords}</li>
@@ -36,7 +32,6 @@ public interface CLAPNode {
 	 * <li>{@link CLAPUsageCategory}</li>
 	 * <li>{@link CLAPDelegate}</li>
 	 * </ul>
-	 * </p>
 	 *
 	 * @param pClass The class.
 	 * @return The handle for getting the actual value after parsing.
@@ -84,15 +79,13 @@ public interface CLAPNode {
 	CLAPNode addNodeList();
 
 	/**
-	 * <p>
-	 * Add option. For most use cases the following methods can be used:
-	 * <ul>
+	 * <p>Add option.</p>
+	 * For most use cases the following methods can be used: <ul>
 	 * <li>Option without arguments: {@link #addFlag(Character, String, boolean, String)}</li>
 	 * <li>Option with single argument: {@link #addOption1(Class, Character, String, boolean, String, String)}</li>
 	 * <li>Option with unlimited arguments:
 	 * {@link #addOptionU(Class, Character, String, boolean, Character, String, String)}</li>
 	 * </ul>
-	 * </p>
 	 *
 	 * @param pResultClass       The value type, for custom types use {@link CLAP#addConverter(Class, CLAPConverter)}.
 	 * @param pShortKey          Short key or <code>null</code>.
@@ -119,12 +112,8 @@ public interface CLAPNode {
 	<V> CLAPValue<V> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey);
 
 	/**
-	 * <p>
-	 * Can be used to group options in the help screen.
-	 * </p>
-	 * <p>
+	 * <p>Can be used to group options in the help screen.</p>
 	 * For example &quot;Server Options&quot; is a separate help category with one option:
-	 *
 	 * <pre>
 	 * Common Options
 	 *
@@ -138,8 +127,6 @@ public interface CLAPNode {
 	 *
 	 *   -p, --port         The port, where the server is listening
 	 * </pre>
-	 *
-	 * </p>
 	 *
 	 * @param pOrder Initially set to <code>1000</code>.
 	 */

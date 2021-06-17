@@ -22,12 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>
- * Annotation to set help category. Can be used to group options in the help screen.
- * </p>
- * <p>
+ * <p>Annotation to set help category. Can be used to group options in the help screen.</p>
  * For example &quot;Server Options&quot; is a separate help category with one option:
- *
  * <pre>
  * Common Options
  *
@@ -41,8 +37,6 @@ import java.lang.annotation.Target;
  *
  *   -p, --port         The port, where the server is listening
  * </pre>
- *
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
