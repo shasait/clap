@@ -57,8 +57,8 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 	}
 
 	@Override
-	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
-		// none
+	public boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+		return false;
 	}
 
 	@Override

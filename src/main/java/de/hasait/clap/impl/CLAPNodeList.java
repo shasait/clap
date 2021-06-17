@@ -81,8 +81,8 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
-		internalFillResult(pContext, pResult);
+	public boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+		return internalFillResult(pContext, pResult);
 	}
 
 	@Override

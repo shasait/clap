@@ -33,10 +33,10 @@ public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CL
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	public final boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final AbstractCLAPNode decision = pContext.getDecision(this);
 		if (decision != null) {
-			decision.fillResult(pContext, pResult);
+			boolean result = decision.fillResult(pContext, pResult);
 			if (decision instanceof CLAPValue) {
 				@SuppressWarnings("unchecked") final CLAPValue<? extends T> decisionWithResult = (CLAPValue<? extends T>) decision;
 				final int count = pResult.getCount(decisionWithResult);
@@ -44,8 +44,12 @@ public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CL
 					pResult.setCount(this, count);
 					pResult.setValue(this, pResult.getValue(decisionWithResult));
 				}
+			} else if (result) {
+				pResult.setCount(decision, 1);
 			}
+			return result;
 		}
+		return false;
 	}
 
 }

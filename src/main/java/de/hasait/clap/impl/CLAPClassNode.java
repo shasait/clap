@@ -178,7 +178,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	public final boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		internalFillResult(pContext, pResult);
 
 		T value;
@@ -210,6 +210,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 			pResult.setCount(this, 1);
 			pResult.setValue(this, value);
 		}
+
+		return anySet;
 	}
 
 	@Override

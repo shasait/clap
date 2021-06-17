@@ -205,13 +205,15 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 	}
 
 	@Override
-	public void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	public boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final int optionCount = pContext.getNodeCount(this);
 		if (optionCount > 0) {
 			pResult.setCount(this, optionCount);
 			final String[] stringValues = pContext.getOptionArgs(this);
 			pResult.setValue(this, _mapper.transform(stringValues));
+			return true;
 		}
+		return false;
 	}
 
 	public String getArgUsageNLSKey() {

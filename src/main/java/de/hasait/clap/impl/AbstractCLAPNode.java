@@ -53,7 +53,7 @@ public abstract class AbstractCLAPNode {
 
 	public abstract void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory);
 
-	public abstract void fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
+	public abstract boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
 
 	public CLAP getCLAP() {
 		return _clap;

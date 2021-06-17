@@ -76,12 +76,15 @@ public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
 	}
 
 	@Override
-	public final void fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	public final boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
 		final AbstractCLAPNode decision = pContext.getDecision(this);
 		if (decision != null) {
-			pResult.setCount(decision, 1);
-			decision.fillResult(pContext, pResult);
+			if (decision.fillResult(pContext, pResult)) {
+				pResult.setCount(decision, 1);
+				return true;
+			}
 		}
+		return false;
 	}
 
 }

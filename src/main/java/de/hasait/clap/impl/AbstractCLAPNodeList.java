@@ -115,10 +115,14 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 		return node;
 	}
 
-	protected final void internalFillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+	protected final boolean internalFillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
+		boolean result = false;
 		for (final AbstractCLAPNode node : list()) {
-			node.fillResult(pContext, pResult);
+			if (node.fillResult(pContext, pResult)) {
+				result = true;
+			}
 		}
+		return result;
 	}
 
 	protected final CLAPParseContext[] internalParse(final CLAPParseContext pContext) {
