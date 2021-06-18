@@ -28,7 +28,7 @@ Command Line Arguments Parser for Java
 <dependency>
     <groupId>de.hasait</groupId>
     <artifactId>clap</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
