@@ -525,7 +525,7 @@ public class CLAPTest {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
-		final CLAPValue<String[]> usersOption = clap.addOptionU(String[].class, 'u', "users", false, ';', "pdkey", "pukey");
+		final CLAPValue<String[]> usersOption = clap.addOptionU(String.class, 'u', "users", false, ';', "pdkey", "pukey");
 
 		final CLAPResult result = clap.parse("-vv", "--port=22", "--users", "user1", "user2", "-vh");
 		assertEquals(2, result.getCount(verboseOption));
@@ -545,7 +545,7 @@ public class CLAPTest {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
 		final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
-		final CLAPValue<String[]> usersOption = clap.addOptionU(String[].class, 'u', "users", false, ';', "udkey", "uukey");
+		final CLAPValue<String[]> usersOption = clap.addOptionU(String.class, 'u', "users", false, ';', "udkey", "uukey");
 
 		final CLAPResult result = clap.parse("-vv", "--port=22", "--users=user1;user2", "-vh");
 		assertEquals(3, result.getCount(verboseOption));
@@ -707,7 +707,7 @@ public class CLAPTest {
 	public void testShortKeyWithArg06() {
 		final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
 		final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
-		final CLAPValue<Integer[]> numbersOption = clap.addOptionU(Integer[].class, 'n', "numbers", false, ';', "ndkey", "nukey");
+		final CLAPValue<Integer[]> numbersOption = clap.addOptionU(Integer.class, 'n', "numbers", false, ';', "ndkey", "nukey");
 
 		final CLAPResult result = clap.parse("-vv", "-n1;2;3;4", "-vh", "-n", "5", "6");
 		assertEquals(3, result.getCount(verboseOption));

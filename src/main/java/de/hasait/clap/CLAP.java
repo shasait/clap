@@ -168,8 +168,18 @@ public final class CLAP implements CLAPNode {
 	}
 
 	@Override
-	public <V> CLAPValue<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public <V> CLAPValue<V[]> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return _root.addOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	@Override
+	public <V> CLAPValue<V> addNameless1(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return _root.addNameless1(pResultClass, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	@Override
+	public <V> CLAPValue<V[]> addNamelessU(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return _root.addNamelessU(pResultClass, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	public <R> CLAPConverter<? extends R> getConverter(final Class<R> pResultClass) {

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPNode;
+import de.hasait.clap.CLAPValue;
 
 /**
  * A list of nodes.
@@ -76,8 +77,18 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
 	}
 
 	@Override
-	public <V> CLAPOptionNode<V> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+	public <V> CLAPOptionNode<V[]> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
 		return internalAddOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	@Override
+	public <V> CLAPValue<V> addNameless1(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return internalAddOption1(pResultClass, null, null, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+	}
+
+	@Override
+	public <V> CLAPValue<V[]> addNamelessU(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
+		return internalAddOptionU(pResultClass, null, null ,pRequired, null,pDescriptionNLSKey, pArgUsageNLSKey);
 	}
 
 	@Override

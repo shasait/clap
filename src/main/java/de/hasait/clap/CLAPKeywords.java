@@ -22,14 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a setter as target for an CLAP option.
+ * Annotation for adding keywords before options, e.g. command names.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-		ElementType.TYPE
+        ElementType.TYPE
 })
 public @interface CLAPKeywords {
 
-	CLAPKeyword[] value();
+    CLAPKeyword[] value();
 
 }
