@@ -49,4 +49,9 @@ public @interface CLAPOption {
 
 	char shortKey() default ' ';
 
+	/**
+	 * Short key as String, especially for Groovy.
+	 */
+	String sshortKey() default "";
+
 }
