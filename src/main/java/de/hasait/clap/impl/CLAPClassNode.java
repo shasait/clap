@@ -22,12 +22,13 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,35 +51,36 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<T> {
 
-    private static <A extends Annotation> A findAnnotation(Class<?> pClass, Class<A> pAnnotationClass) {
-        final LinkedList<Class<?>> queue = new LinkedList<>();
-        queue.add(pClass);
+    private static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> annotationClass) {
+        final Deque<Class<?>> queue = new ArrayDeque<>();
+        queue.add(clazz);
         while (!queue.isEmpty()) {
-            final Class<?> clazz = queue.removeFirst();
-            if (clazz != null) {
-                final A result = clazz.getAnnotation(pAnnotationClass);
-                if (result != null) {
-                    return result;
-                }
-                queue.add(clazz.getSuperclass());
-                queue.addAll(Arrays.asList(clazz.getInterfaces()));
+            final Class<?> currentClass = queue.removeFirst();
+            final A result = currentClass.getAnnotation(annotationClass);
+            if (result != null) {
+                return result;
             }
+            Class<?> superclass = currentClass.getSuperclass();
+            if (superclass != null) {
+                queue.add(superclass);
+            }
+            queue.addAll(Arrays.asList(currentClass.getInterfaces()));
         }
         return null;
     }
 
-    private static <T extends Annotation> T getAnnotation(PropertyDescriptor pPropertyDescriptor, Class<T> pAnnotationClass) {
-        final Method writeMethod = pPropertyDescriptor.getWriteMethod();
+    private static <T extends Annotation> T getAnnotation(PropertyDescriptor propertyDescriptor, Class<T> annotationClass) {
+        final Method writeMethod = propertyDescriptor.getWriteMethod();
         if (writeMethod != null) {
-            final T annotation = writeMethod.getAnnotation(pAnnotationClass);
+            final T annotation = writeMethod.getAnnotation(annotationClass);
             if (annotation != null) {
                 return annotation;
             }
         }
 
-        final Method readMethod = pPropertyDescriptor.getReadMethod();
+        final Method readMethod = propertyDescriptor.getReadMethod();
         if (readMethod != null) {
-            final T annotation = readMethod.getAnnotation(pAnnotationClass);
+            final T annotation = readMethod.getAnnotation(annotationClass);
             return annotation;
         }
 
@@ -91,36 +93,36 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 
     private final Set<CLAPKeywordNode> _keywordNodes;
 
-    public CLAPClassNode(CLAP pCLAP, Class<T> pClass) {
-        super(pCLAP);
+    public CLAPClassNode(CLAP clap, Class<T> clazz) {
+        super(clap);
 
-        _class = pClass;
+        _class = clazz;
 
         _propertyDescriptorByOptionMap = new HashMap<>();
         _keywordNodes = new HashSet<>();
 
         BeanInfo beanInfo;
         try {
-            beanInfo = Introspector.getBeanInfo(pClass);
+            beanInfo = Introspector.getBeanInfo(clazz);
         } catch (IntrospectionException e) {
             throw new RuntimeException(e);
         }
 
         final List<Item> annotations = new ArrayList<>();
 
-        final CLAPKeywords classKeywords = findAnnotation(pClass, CLAPKeywords.class);
+        final CLAPKeywords classKeywords = findAnnotation(clazz, CLAPKeywords.class);
         if (classKeywords != null) {
             for (CLAPKeyword classKeyword : classKeywords.value()) {
                 annotations.add(new Item(classKeyword.order(), classKeyword, null, null, null));
             }
         }
 
-        final CLAPHelpCategory classHelpCategory = findAnnotation(pClass, CLAPHelpCategory.class);
+        final CLAPHelpCategory classHelpCategory = findAnnotation(clazz, CLAPHelpCategory.class);
         if (classHelpCategory != null) {
             setHelpCategory(classHelpCategory.order(), classHelpCategory.titleNLSKey());
         }
 
-        final CLAPUsageCategory classUsageCategory = findAnnotation(pClass, CLAPUsageCategory.class);
+        final CLAPUsageCategory classUsageCategory = findAnnotation(clazz, CLAPUsageCategory.class);
         if (classUsageCategory != null) {
             setUsageCategory(classUsageCategory.order(), classUsageCategory.titleNLSKey());
         }
@@ -132,7 +134,14 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             final CLAPHelpCategory pdHelpCategory = getAnnotation(propertyDescriptor, CLAPHelpCategory.class);
             final CLAPUsageCategory pdUsageCategory = getAnnotation(propertyDescriptor, CLAPUsageCategory.class);
             if ((pdOption != null ? 1 : 0) + (pdDelegate != null ? 1 : 0) + (pdDecision != null ? 1 : 0) > 1) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Cannot mix annotations "
+                                                           + CLAPOption.class.getSimpleName()
+                                                           + ", "
+                                                           + CLAPDelegate.class.getSimpleName()
+                                                           + ", "
+                                                           + CLAPDecision.class.getSimpleName()
+                                                           + " on a property: "
+                                                           + propertyDescriptor);
             }
             if (pdOption != null) {
                 annotations.add(new Item(pdOption.order(), pdOption, propertyDescriptor, pdHelpCategory, pdUsageCategory));
@@ -145,7 +154,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             }
         }
 
-        annotations.sort(Comparator.comparing(pPO -> pPO._order));
+        annotations.sort(Comparator.comparing(a -> a._order));
 
         for (Item entry : annotations) {
             final Object annotation = entry._annotation;
@@ -178,8 +187,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
     }
 
     @Override
-    public final boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
-        internalFillResult(pContext, pResult);
+    public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
+        internalFillResult(context, result);
 
         T value;
         try {
@@ -190,10 +199,10 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         boolean anySet = false;
         for (Entry<CLAPValue<?>, PropertyDescriptor> entry : _propertyDescriptorByOptionMap.entrySet()) {
             final CLAPValue<?> node = entry.getKey();
-            if (pResult.getCount(node) > 0) {
+            if (result.getCount(node) > 0) {
                 anySet = true;
                 final PropertyDescriptor propertyDescriptor = entry.getValue();
-                final Object nodeValue = pResult.getValue(node);
+                final Object nodeValue = result.getValue(node);
                 try {
                     propertyDescriptor.getWriteMethod().invoke(value, nodeValue);
                 } catch (Exception e) {
@@ -202,87 +211,87 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             }
         }
         for (CLAPKeywordNode node : _keywordNodes) {
-            if (pContext.getNodeCount(node) > 0) {
+            if (context.getNodeCount(node) > 0) {
                 anySet = true;
             }
         }
         if (anySet) {
-            pResult.setCount(this, 1);
-            pResult.setValue(this, value);
+            result.setCount(this, 1);
+            result.setValue(this, value);
         }
 
         return anySet;
     }
 
     @Override
-    public final CLAPParseContext[] parse(CLAPParseContext pContext) {
-        return internalParse(pContext);
+    public final CLAPParseContext[] parse(CLAPParseContext context) {
+        return internalParse(context);
     }
 
     @Override
-    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
-        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
+        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(categories, currentCategory, result);
         if (pair != null) {
-            final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
-            final StringBuilder result = pair.getRight();
-            internalPrintUsage(pCategories, currentCategory, result, " ");
+            final CLAPUsageCategoryImpl nodeCategory = pair.getLeft();
+            final StringBuilder nodeResult = pair.getRight();
+            internalPrintUsage(categories, nodeCategory, nodeResult, " ");
         }
     }
 
     @Override
-    public final void validate(CLAPParseContext pContext, List<String> pErrorMessages) {
-        internalValidate(pContext, pErrorMessages);
+    public final void validate(CLAPParseContext context, List<String> errorMessages) {
+        internalValidate(context, errorMessages);
     }
 
-    private <V> CLAPTypedDecisionNode<V> processCLAPDecision(Class<V> pPropertyType, PropertyDescriptor pPropertyDescriptor, CLAPDecision pClapDecision) {
-        final CLAPTypedDecisionNode<V> decisionNode = internalAddDecision(pPropertyType);
-        final Class<?>[] branchClasses = pClapDecision.branches();
+    private <V> CLAPTypedDecisionNode<V> processCLAPDecision(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPDecision clapDecision) {
+        final CLAPTypedDecisionNode<V> decisionNode = internalAddDecision(propertyType);
+        final Class<?>[] branchClasses = clapDecision.branches();
         for (Class<?> branchClassUncasted : branchClasses) {
-            if (!pPropertyType.isAssignableFrom(branchClassUncasted)) {
+            if (!propertyType.isAssignableFrom(branchClassUncasted)) {
                 throw new IllegalArgumentException(
-                        "Type of decisionBranch is not assignable to decisionProperty: " + pPropertyType + " vs. " + branchClassUncasted);
+                        "Type of decisionBranch is not assignable to decisionProperty: " + propertyType + " vs. " + branchClassUncasted);
             }
             @SuppressWarnings("unchecked") final Class<? extends V> branchClass = (Class<? extends V>) branchClassUncasted;
             decisionNode.addClass(branchClass);
-            _propertyDescriptorByOptionMap.put(decisionNode, pPropertyDescriptor);
+            _propertyDescriptorByOptionMap.put(decisionNode, propertyDescriptor);
         }
         return decisionNode;
     }
 
-    private <V> CLAPClassNode<V> processCLAPDelegate(Class<V> pPropertyType, PropertyDescriptor pPropertyDescriptor, CLAPDelegate pClapDelegate) {
-        final CLAPClassNode<V> classNode = internalAddClass(pPropertyType);
-        _propertyDescriptorByOptionMap.put(classNode, pPropertyDescriptor);
+    private <V> CLAPClassNode<V> processCLAPDelegate(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPDelegate clapDelegate) {
+        final CLAPClassNode<V> classNode = internalAddClass(propertyType);
+        _propertyDescriptorByOptionMap.put(classNode, propertyDescriptor);
         return classNode;
     }
 
-    private CLAPKeywordNode processCLAPKeyword(CLAPKeyword pClapKeyword) {
-        final CLAPKeywordNode keywordNode = internalAddKeyword(pClapKeyword.value());
+    private CLAPKeywordNode processCLAPKeyword(CLAPKeyword clapKeyword) {
+        final CLAPKeywordNode keywordNode = internalAddKeyword(clapKeyword.value());
         _keywordNodes.add(keywordNode);
         return keywordNode;
     }
 
-    private <V> CLAPOptionNode<V> processCLAPOption(Class<V> pPropertyType, PropertyDescriptor pPropertyDescriptor, CLAPOption pClapOption) {
-        int sslength = pClapOption.sshortKey().length();
+    private <V> CLAPOptionNode<V> processCLAPOption(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPOption clapOption) {
+        int sslength = clapOption.sshortKey().length();
         final Character shortKey;
-        if (pClapOption.shortKey() == ' ') {
+        if (clapOption.shortKey() == ' ') {
             if (sslength == 0) {
                 shortKey = null;
             } else if (sslength == 1) {
-                shortKey = pClapOption.sshortKey().charAt(0);
+                shortKey = clapOption.sshortKey().charAt(0);
             } else {
-                throw new IllegalArgumentException("sshortKey.length > 1: " + pPropertyDescriptor);
+                throw new IllegalArgumentException("sshortKey.length > 1: " + propertyDescriptor);
             }
         } else {
             if (sslength == 0) {
-                shortKey = pClapOption.shortKey();
+                shortKey = clapOption.shortKey();
             } else {
-                throw new IllegalArgumentException("Cannot use both shortKey and sshortKey: " + pPropertyDescriptor);
+                throw new IllegalArgumentException("Cannot use both shortKey and sshortKey: " + propertyDescriptor);
             }
         }
-        final String longKey = pClapOption.longKey().length() == 0 ? null : pClapOption.longKey();
-        final boolean required = pClapOption.required();
+        final String longKey = clapOption.longKey().length() == 0 ? null : clapOption.longKey();
+        final boolean required = clapOption.required();
         final Integer argCount;
-        final int argCountA = pClapOption.argCount();
+        final int argCountA = clapOption.argCount();
         if (argCountA == CLAPOption.UNLIMITED_ARG_COUNT) {
             argCount = CLAP.UNLIMITED_ARG_COUNT;
         } else if (argCountA == CLAPOption.AUTOMATIC_ARG_COUNT) {
@@ -290,14 +299,14 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         } else {
             argCount = argCountA;
         }
-        final Character multiArgSplit = pClapOption.multiArgSplit() == ' ' ? null : pClapOption.multiArgSplit();
-        final String descriptionNLSKey = pClapOption.descriptionNLSKey().length() == 0 ? null : pClapOption.descriptionNLSKey();
-        final String argUsageNLSKey = pClapOption.argUsageNLSKey().length() == 0 ? null : pClapOption.argUsageNLSKey();
+        final Character multiArgSplit = clapOption.multiArgSplit() == ' ' ? null : clapOption.multiArgSplit();
+        final String descriptionNLSKey = clapOption.descriptionNLSKey().length() == 0 ? null : clapOption.descriptionNLSKey();
+        final String argUsageNLSKey = clapOption.argUsageNLSKey().length() == 0 ? null : clapOption.argUsageNLSKey();
 
-        final CLAPOptionNode<V> optionNode = internalAddOption(pPropertyType, shortKey, longKey, required, argCount, multiArgSplit,
+        final CLAPOptionNode<V> optionNode = internalAddOption(propertyType, shortKey, longKey, required, argCount, multiArgSplit,
                                                                descriptionNLSKey, argUsageNLSKey
         );
-        _propertyDescriptorByOptionMap.put(optionNode, pPropertyDescriptor);
+        _propertyDescriptorByOptionMap.put(optionNode, propertyDescriptor);
         return optionNode;
     }
 
@@ -309,13 +318,13 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         public final CLAPHelpCategory _helpCategory;
         public final CLAPUsageCategory _usageCategory;
 
-        public Item(int pOrder, Annotation pAnnotation, PropertyDescriptor pPropertyDescriptor, CLAPHelpCategory pHelpCategory, CLAPUsageCategory pUsageCategory) {
+        public Item(int order, Annotation annotation, PropertyDescriptor propertyDescriptor, CLAPHelpCategory helpCategory, CLAPUsageCategory usageCategory) {
             super();
-            _order = pOrder;
-            _annotation = pAnnotation;
-            _propertyDescriptor = pPropertyDescriptor;
-            _helpCategory = pHelpCategory;
-            _usageCategory = pUsageCategory;
+            _order = order;
+            _annotation = annotation;
+            _propertyDescriptor = propertyDescriptor;
+            _helpCategory = helpCategory;
+            _usageCategory = usageCategory;
         }
 
     }

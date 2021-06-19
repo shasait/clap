@@ -28,54 +28,54 @@ import de.hasait.clap.CLAP;
  */
 public abstract class AbstractCLAPDecision extends AbstractCLAPNodeList {
 
-    protected AbstractCLAPDecision(CLAP pCLAP) {
-        super(pCLAP);
+    protected AbstractCLAPDecision(CLAP clap) {
+        super(clap);
     }
 
     @Override
-    public final CLAPParseContext[] parse(CLAPParseContext pContext) {
+    public final CLAPParseContext[] parse(CLAPParseContext context) {
         if (list().isEmpty()) {
             return null;
         }
 
-        final AbstractCLAPNode decision = pContext.getDecision(this);
+        final AbstractCLAPNode decision = context.getDecision(this);
         if (decision == null) {
             final CLAPParseContext[] result = new CLAPParseContext[list().size()];
             for (int i = 0; i < list().size(); i++) {
-                result[i] = pContext.clone();
+                result[i] = context.clone();
                 result[i].addDecision(this, list().get(i));
             }
             return result;
         } else {
-            return decision.parse(pContext);
+            return decision.parse(context);
         }
     }
 
     @Override
-    public final void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
-        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+    public final void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
+        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(categories, currentCategory, result);
         if (pair != null) {
-            final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
-            final StringBuilder result = pair.getRight();
+            final CLAPUsageCategoryImpl nodeCategory = pair.getLeft();
+            final StringBuilder nodeResult = pair.getRight();
             if (list().size() > 1) {
-                result.append("{ ");
+                nodeResult.append("{ ");
             }
-            internalPrintUsage(pCategories, currentCategory, result, " | ");
+            internalPrintUsage(categories, nodeCategory, nodeResult, " | ");
             if (list().size() > 1) {
-                result.append(" }");
+                nodeResult.append(" }");
             }
         }
     }
 
     @Override
-    public final void validate(CLAPParseContext pContext, List<String> pErrorMessages) {
-        final AbstractCLAPNode decision = pContext.getDecision(this);
+    public final void validate(CLAPParseContext context, List<String> errorMessages) {
+        final AbstractCLAPNode decision = context.getDecision(this);
         if (decision == null) {
             for (int i = 0; i < list().size(); i++) {
-                list().get(i).validate(pContext, pErrorMessages);
+                list().get(i).validate(context, errorMessages);
             }
         } else {
-            decision.validate(pContext, pErrorMessages);
+            decision.validate(context, errorMessages);
         }
     }
 

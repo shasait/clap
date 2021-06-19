@@ -387,12 +387,12 @@ public class CLAPTest {
         clap.setUICallback(new CLAPUICallback() {
 
             @Override
-            public String readLine(String pPrompt) {
+            public String readLine(String prompt) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public String readPassword(String pPrompt) {
+            public String readPassword(String prompt) {
                 return "secret";
             }
 
@@ -415,12 +415,12 @@ public class CLAPTest {
         clap.setUICallback(new CLAPUICallback() {
 
             @Override
-            public String readLine(String pPrompt) {
+            public String readLine(String prompt) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public String readPassword(String pPrompt) {
+            public String readPassword(String prompt) {
                 return "secret";
             }
 
@@ -443,12 +443,12 @@ public class CLAPTest {
         clap.setUICallback(new CLAPUICallback() {
 
             @Override
-            public String readLine(String pPrompt) {
+            public String readLine(String prompt) {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public String readPassword(String pPrompt) {
+            public String readPassword(String prompt) {
                 return "secret";
             }
 

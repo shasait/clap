@@ -32,49 +32,49 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
 
     private final String _keyword;
 
-    public CLAPKeywordNode(CLAP pCLAP, String pKeyword) {
-        super(pCLAP);
+    public CLAPKeywordNode(CLAP clap, String keyword) {
+        super(clap);
 
-        if (pKeyword == null || pKeyword.length() == 0) {
+        if (keyword == null || keyword.length() == 0) {
             throw new IllegalArgumentException("Keyword cannot be null or empty");
         }
 
-        if (pKeyword.startsWith(Character.toString(getCLAP().getShortOptPrefix()))) {
+        if (keyword.startsWith(Character.toString(getCLAP().getShortOptPrefix()))) {
             throw new IllegalArgumentException(
-                    "Keyword cannot start with shortOptPrefix " + getCLAP().getShortOptPrefix() + ": " + pKeyword);
+                    "Keyword cannot start with shortOptPrefix " + getCLAP().getShortOptPrefix() + ": " + keyword);
         }
-        if (pKeyword.startsWith(getCLAP().getLongOptPrefix())) {
-            throw new IllegalArgumentException("Keyword cannot start with longOptPrefix " + getCLAP().getLongOptPrefix() + ": " + pKeyword);
+        if (keyword.startsWith(getCLAP().getLongOptPrefix())) {
+            throw new IllegalArgumentException("Keyword cannot start with longOptPrefix " + getCLAP().getLongOptPrefix() + ": " + keyword);
         }
 
-        _keyword = pKeyword;
+        _keyword = keyword;
     }
 
     @Override
-    public void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, CLAPHelpCategoryImpl pCurrentCategory) {
+    public void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes, CLAPHelpCategoryImpl currentCategory) {
         // none
     }
 
     @Override
-    public boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
+    public boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
         return false;
     }
 
     @Override
-    public CLAPParseContext[] parse(CLAPParseContext pContext) {
-        if (_keyword.equals(pContext.currentArg())) {
-            pContext.consumeCurrent();
-            pContext.addKeyword(this);
+    public CLAPParseContext[] parse(CLAPParseContext context) {
+        if (_keyword.equals(context.currentArg())) {
+            context.consumeCurrent();
+            context.addKeyword(this);
             return new CLAPParseContext[]{
-                    pContext
+                    context
             };
         }
         return null;
     }
 
     @Override
-    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
-        pResult.append(_keyword);
+    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
+        result.append(_keyword);
     }
 
     @Override
@@ -83,9 +83,9 @@ public class CLAPKeywordNode extends AbstractCLAPNode {
     }
 
     @Override
-    public void validate(CLAPParseContext pContext, List<String> pErrorMessages) {
-        if (pContext.getNodeCount(this) == 0) {
-            pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING, _keyword));
+    public void validate(CLAPParseContext context, List<String> errorMessages) {
+        if (context.getNodeCount(this) == 0) {
+            errorMessages.add(nls(NLSKEY_CLAP_ERROR_KEYWORD_IS_MISSING, _keyword));
         }
     }
 

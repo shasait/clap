@@ -27,49 +27,49 @@ public class CLAPHelpCategoryImpl implements Comparable<CLAPHelpCategoryImpl> {
 
     private final String _titleNLSKey;
 
-    public CLAPHelpCategoryImpl(int pOrder, String pTitleNLSKey) {
+    public CLAPHelpCategoryImpl(int order, String titleNLSKey) {
         super();
 
-        if (pTitleNLSKey == null) {
+        if (titleNLSKey == null) {
             throw new IllegalArgumentException("TitleNLSKey cannot be null");
         }
 
-        _order = pOrder;
-        _titleNLSKey = pTitleNLSKey;
+        _order = order;
+        _titleNLSKey = titleNLSKey;
     }
 
     @Override
-    public int compareTo(CLAPHelpCategoryImpl pOther) {
-        final int orderResult = Integer.compare(_order, pOther._order);
+    public int compareTo(CLAPHelpCategoryImpl other) {
+        final int orderResult = Integer.compare(_order, other._order);
         if (orderResult != 0) {
             return orderResult;
         }
 
-        final int titleNLSKeyResult = _titleNLSKey.compareTo(pOther._titleNLSKey);
+        final int titleNLSKeyResult = _titleNLSKey.compareTo(other._titleNLSKey);
         return titleNLSKeyResult;
     }
 
     @Override
-    public boolean equals(Object pOther) {
-        if (pOther == this) {
+    public boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
 
-        if (pOther == null) {
+        if (other == null) {
             return false;
         }
 
-        if (getClass() != pOther.getClass()) {
+        if (getClass() != other.getClass()) {
             return false;
         }
 
-        final CLAPHelpCategoryImpl other = (CLAPHelpCategoryImpl) pOther;
+        final CLAPHelpCategoryImpl casted = (CLAPHelpCategoryImpl) other;
 
-        if (_order != other._order) {
+        if (_order != casted._order) {
             return false;
         }
 
-        return _titleNLSKey.equals(other._titleNLSKey);
+        return _titleNLSKey.equals(casted._titleNLSKey);
     }
 
     public int getOrder() {

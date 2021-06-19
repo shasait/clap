@@ -38,11 +38,11 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
         _countMap = new HashMap<>();
     }
 
-    private CLAPResultImpl(CLAPResultImpl pOther) {
+    private CLAPResultImpl(CLAPResultImpl other) {
         super();
 
-        _valueMap = new HashMap<>(pOther._valueMap);
-        _countMap = new HashMap<>(pOther._countMap);
+        _valueMap = new HashMap<>(other._valueMap);
+        _countMap = new HashMap<>(other._countMap);
     }
 
     @Override
@@ -51,48 +51,48 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
     }
 
     @Override
-    public boolean contains(CLAPValue<?> pNode) {
-        return getCount(pNode) > 0;
+    public boolean contains(CLAPValue<?> node) {
+        return getCount(node) > 0;
     }
 
     @Override
-    public boolean contains(CLAPNode pNode) {
-        final Integer count = _countMap.get(pNode);
+    public boolean contains(CLAPNode node) {
+        final Integer count = _countMap.get(node);
         return count != null && count > 0;
     }
 
     @Override
-    public boolean equals(Object pOther) {
-        if (pOther == this) {
+    public boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
 
-        if (pOther == null) {
+        if (other == null) {
             return false;
         }
 
-        if (getClass() != pOther.getClass()) {
+        if (getClass() != other.getClass()) {
             return false;
         }
 
-        final CLAPResultImpl other = (CLAPResultImpl) pOther;
+        final CLAPResultImpl casted = (CLAPResultImpl) other;
 
-        if (!_valueMap.equals(other._valueMap)) {
+        if (!_valueMap.equals(casted._valueMap)) {
             return false;
         }
 
-        return _countMap.equals(other._countMap);
+        return _countMap.equals(casted._countMap);
     }
 
     @Override
-    public int getCount(CLAPValue<?> pNode) {
-        final Integer count = _countMap.get(pNode);
+    public int getCount(CLAPValue<?> node) {
+        final Integer count = _countMap.get(node);
         return count == null ? 0 : count;
     }
 
     @Override
-    public <T> T getValue(CLAPValue<T> pNode) {
-        return (T) _valueMap.get(pNode);
+    public <T> T getValue(CLAPValue<T> node) {
+        return (T) _valueMap.get(node);
     }
 
     @Override
@@ -100,12 +100,12 @@ public class CLAPResultImpl implements Cloneable, CLAPResult {
         return _valueMap.hashCode();
     }
 
-    public void setCount(Object pNode, int pCount) {
-        _countMap.put(pNode, pCount);
+    public void setCount(Object node, int count) {
+        _countMap.put(node, count);
     }
 
-    public <T> void setValue(CLAPValue<T> pNode, T pValue) {
-        _valueMap.put(pNode, pValue);
+    public <T> void setValue(CLAPValue<T> node, T value) {
+        _valueMap.put(node, value);
     }
 
 }

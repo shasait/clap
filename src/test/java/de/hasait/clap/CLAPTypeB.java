@@ -36,13 +36,13 @@ public class CLAPTypeB {
     }
 
     @CLAPOption(shortKey = 'b', longKey = "bboolean", order = 1)
-    public void setBoolean(Boolean pBoolean) {
-        _boolean = pBoolean;
+    public void setBoolean(Boolean value) {
+        _boolean = value;
     }
 
     @CLAPOption(longKey = "bstring", argCount = 1, order = 2)
-    public void setString(String pString) {
-        _string = pString;
+    public void setString(String string) {
+        _string = string;
     }
 
 }

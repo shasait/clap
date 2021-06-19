@@ -25,13 +25,13 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
 
-    public CLAPDecisionNode(CLAP pCLAP) {
-        super(pCLAP);
+    public CLAPDecisionNode(CLAP clap) {
+        super(clap);
     }
 
     @Override
-    public final <V> CLAPClassNode<V> addClass(Class<V> pClass) {
-        return internalAddClass(pClass);
+    public final <V> CLAPClassNode<V> addClass(Class<V> clazz) {
+        return internalAddClass(clazz);
     }
 
     @Override
@@ -40,18 +40,18 @@ public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
     }
 
     @Override
-    public final <V> CLAPTypedDecisionNode<V> addDecision(Class<V> pResultClass, Class<? extends V>... pBranchClasses) {
-        return internalAddDecision(pResultClass, pBranchClasses);
+    public final <V> CLAPTypedDecisionNode<V> addDecision(Class<V> resultClass, Class<? extends V>... branchClasses) {
+        return internalAddDecision(resultClass, branchClasses);
     }
 
     @Override
-    public final CLAPOptionNode<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey) {
-        return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey);
+    public final CLAPOptionNode<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
+        return internalAddFlag(shortKey, longKey, required, descriptionNLSKey);
     }
 
     @Override
-    public void addKeyword(String pKeyword) {
-        internalAddKeyword(pKeyword);
+    public void addKeyword(String keyword) {
+        internalAddKeyword(keyword);
     }
 
     @Override
@@ -60,38 +60,38 @@ public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
     }
 
     @Override
-    public final <V> CLAPOptionNode<V> addOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return internalAddOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
-                                 pArgUsageNLSKey
+    public final <V> CLAPOptionNode<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        return internalAddOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
+                                 argUsageNLSKey
         );
     }
 
     @Override
-    public final <V> CLAPOptionNode<V> addOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return internalAddOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+    public final <V> CLAPOptionNode<V> addOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return internalAddOption1(resultClass, shortKey, longKey, required, descriptionNLSKey, argUsageNLSKey);
     }
 
     @Override
-    public final <V> CLAPOptionNode<V[]> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return internalAddOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+    public final <V> CLAPOptionNode<V[]> addOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        return internalAddOptionU(resultClass, shortKey, longKey, required, multiArgSplit, descriptionNLSKey, argUsageNLSKey);
     }
 
     @Override
-    public <V> CLAPValue<V> addNameless1(Class<V> pResultClass, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return internalAddOption1(pResultClass, null, null, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+    public <V> CLAPValue<V> addNameless1(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return internalAddOption1(resultClass, null, null, required, descriptionNLSKey, argUsageNLSKey);
     }
 
     @Override
-    public <V> CLAPValue<V[]> addNamelessU(Class<V> pResultClass, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return internalAddOptionU(pResultClass, null, null, pRequired, null, pDescriptionNLSKey, pArgUsageNLSKey);
+    public <V> CLAPValue<V[]> addNamelessU(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return internalAddOptionU(resultClass, null, null, required, null, descriptionNLSKey, argUsageNLSKey);
     }
 
     @Override
-    public final boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
-        final AbstractCLAPNode decision = pContext.getDecision(this);
+    public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
+        final AbstractCLAPNode decision = context.getDecision(this);
         if (decision != null) {
-            if (decision.fillResult(pContext, pResult)) {
-                pResult.setCount(decision, 1);
+            if (decision.fillResult(context, result)) {
+                result.setCount(decision, 1);
                 return true;
             }
         }

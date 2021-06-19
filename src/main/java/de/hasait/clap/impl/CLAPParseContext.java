@@ -34,12 +34,12 @@ public class CLAPParseContext implements Cloneable {
     private int _currentArgIndex;
     private String _currentArg;
 
-    public CLAPParseContext(CLAP pCLAP, String[] pArgs) {
+    public CLAPParseContext(CLAP clap, String[] args) {
         super();
 
-        _clap = pCLAP;
+        _clap = clap;
 
-        _args = pArgs.clone();
+        _args = args.clone();
 
         _nodeContextMap = new ArrayList<>();
 
@@ -48,30 +48,30 @@ public class CLAPParseContext implements Cloneable {
         consumeCurrent();
     }
 
-    private CLAPParseContext(CLAPParseContext pOther) {
+    private CLAPParseContext(CLAPParseContext other) {
         super();
 
-        _clap = pOther._clap;
+        _clap = other._clap;
 
         // used read only - so can use reference
-        _args = pOther._args;
+        _args = other._args;
 
-        _nodeContextMap = new ArrayList<>(pOther._nodeContextMap);
+        _nodeContextMap = new ArrayList<>(other._nodeContextMap);
 
-        _currentArgIndex = pOther._currentArgIndex;
-        _currentArg = pOther._currentArg;
+        _currentArgIndex = other._currentArgIndex;
+        _currentArg = other._currentArg;
     }
 
-    public <T> void addDecision(AbstractCLAPDecision pDecisionNode, AbstractCLAPNode pBranchNode) {
-        _nodeContextMap.add(Pair.of(pDecisionNode, pBranchNode));
+    public <T> void addDecision(AbstractCLAPDecision decisionNode, AbstractCLAPNode branchNode) {
+        _nodeContextMap.add(Pair.of(decisionNode, branchNode));
     }
 
-    public void addKeyword(CLAPKeywordNode pKeywordNode) {
-        _nodeContextMap.add(Pair.of(pKeywordNode, null));
+    public void addKeyword(CLAPKeywordNode keywordNode) {
+        _nodeContextMap.add(Pair.of(keywordNode, null));
     }
 
-    public void addOption(CLAPOptionNode<?> pOption, List<String> pArgs) {
-        _nodeContextMap.add(Pair.of(pOption, pArgs));
+    public void addOption(CLAPOptionNode<?> option, List<String> args) {
+        _nodeContextMap.add(Pair.of(option, args));
     }
 
     @Override
@@ -86,12 +86,12 @@ public class CLAPParseContext implements Cloneable {
         return result;
     }
 
-    public boolean consumeCurrentLongKey(String pLongKey, boolean pAllowEquals) {
-        if (!hasCurrentLongKey(pLongKey, pAllowEquals)) {
+    public boolean consumeCurrentLongKey(String longKey, boolean allowEquals) {
+        if (!hasCurrentLongKey(longKey, allowEquals)) {
             throw new IllegalStateException();
         }
-        final String prefix = _clap.getLongOptPrefix() + pLongKey + _clap.getLongOptAssignment();
-        if (pAllowEquals && _currentArg.startsWith(prefix)) {
+        final String prefix = _clap.getLongOptPrefix() + longKey + _clap.getLongOptAssignment();
+        if (allowEquals && _currentArg.startsWith(prefix)) {
             _currentArg = _currentArg.substring(prefix.length());
             return true;
         } else {
@@ -100,12 +100,12 @@ public class CLAPParseContext implements Cloneable {
         }
     }
 
-    public boolean consumeCurrentShortKey(char pShortKey, boolean pHasArg) {
-        if (!hasCurrentShortKey(pShortKey)) {
+    public boolean consumeCurrentShortKey(char shortKey, boolean hasArg) {
+        if (!hasCurrentShortKey(shortKey)) {
             throw new IllegalStateException();
         }
         if (_currentArg.length() > 2) {
-            _currentArg = (pHasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2);
+            _currentArg = (hasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2);
             return true;
         } else {
             consumeCurrent();
@@ -117,11 +117,11 @@ public class CLAPParseContext implements Cloneable {
         return _currentArg;
     }
 
-    public int getArgCount(CLAPOptionNode<?> pOptionNode) {
+    public int getArgCount(CLAPOptionNode<?> optionNode) {
         int count = 0;
 
         for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-            if (entry.getLeft().equals(pOptionNode)) {
+            if (entry.getLeft().equals(optionNode)) {
                 count += ((List<String>) entry.getRight()).size();
             }
         }
@@ -133,21 +133,21 @@ public class CLAPParseContext implements Cloneable {
         return _currentArgIndex;
     }
 
-    public AbstractCLAPNode getDecision(AbstractCLAPDecision pDecisionNode) {
+    public AbstractCLAPNode getDecision(AbstractCLAPDecision decisionNode) {
         AbstractCLAPNode lastBranchNode = null;
         for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-            if (entry.getLeft().equals(pDecisionNode)) {
+            if (entry.getLeft().equals(decisionNode)) {
                 lastBranchNode = (AbstractCLAPNode) entry.getRight();
             }
         }
         return lastBranchNode;
     }
 
-    public int getNodeCount(AbstractCLAPNode pNode) {
+    public int getNodeCount(AbstractCLAPNode node) {
         int result = 0;
 
         for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-            if (entry.getLeft().equals(pNode)) {
+            if (entry.getLeft().equals(node)) {
                 result++;
             }
         }
@@ -155,11 +155,11 @@ public class CLAPParseContext implements Cloneable {
         return result;
     }
 
-    public String[] getOptionArgs(CLAPOptionNode<?> pOptionNode) {
+    public String[] getOptionArgs(CLAPOptionNode<?> optionNode) {
         final List<String> result = new ArrayList<>();
         boolean anyFound = false;
         for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-            if (entry.getLeft().equals(pOptionNode)) {
+            if (entry.getLeft().equals(optionNode)) {
                 result.addAll((List<String>) entry.getRight());
                 anyFound = true;
             }
@@ -167,22 +167,22 @@ public class CLAPParseContext implements Cloneable {
         return anyFound ? result.toArray(new String[0]) : null;
     }
 
-    public boolean hasCurrentLongKey(String pLongKey, boolean pAllowEquals) {
-        if (pLongKey == null) {
-            throw new IllegalArgumentException("pLongKey == null");
+    public boolean hasCurrentLongKey(String longKey, boolean allowEquals) {
+        if (longKey == null) {
+            throw new IllegalArgumentException("longKey == null");
         }
         if (_currentArg == null) {
             return false;
         }
-        return _currentArg.equals(_clap.getLongOptPrefix() + pLongKey) || pAllowEquals && _currentArg
-                .startsWith(_clap.getLongOptPrefix() + pLongKey + _clap.getLongOptAssignment());
+        return _currentArg.equals(_clap.getLongOptPrefix() + longKey) || allowEquals && _currentArg
+                .startsWith(_clap.getLongOptPrefix() + longKey + _clap.getLongOptAssignment());
     }
 
-    public boolean hasCurrentShortKey(char pShortKey) {
+    public boolean hasCurrentShortKey(char shortKey) {
         return _currentArg != null
                 && _currentArg.length() >= 2
                 && _currentArg.charAt(0) == _clap.getShortOptPrefix()
-                && _currentArg.charAt(1) == pShortKey;
+                && _currentArg.charAt(1) == shortKey;
     }
 
     public boolean hasMoreTokens() {

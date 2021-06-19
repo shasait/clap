@@ -33,7 +33,7 @@ public class Example1 {
     private static final int DEFAULT_PORT = 1234;
     private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg");
 
-    public static void main(String[] pArgs) {
+    public static void main(String[] args) {
         final CLAP clap = new CLAP(NLS);
 
         final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description");
@@ -46,28 +46,28 @@ public class Example1 {
         final CLAPValue<String> interfaceOption = listenOptionsNode
                 .addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage");
 
-        final CLAPResult clapResult;
+        final CLAPResult claresult;
         try {
-            clapResult = clap.parse(pArgs);
+            claresult = clap.parse(args);
         } catch (CLAPException e) {
             printUsageAndHelp(clap);
             throw e;
         }
 
-        if (clapResult.contains(helpFlag)) {
+        if (claresult.contains(helpFlag)) {
             printUsageAndHelp(clap);
             return;
         }
 
-        final int verbosityLevel = clapResult.getCount(verboseFlag);
+        final int verbosityLevel = claresult.getCount(verboseFlag);
 
         final int port;
-        if (clapResult.contains(portOption)) {
-            port = clapResult.getValue(portOption);
+        if (claresult.contains(portOption)) {
+            port = claresult.getValue(portOption);
         } else {
             port = DEFAULT_PORT;
         }
-        final String interfaceName = clapResult.getValue(interfaceOption);
+        final String interfaceName = claresult.getValue(interfaceOption);
 
         final Example1 example1 = new Example1(verbosityLevel, port, interfaceName);
         example1.run();
@@ -82,12 +82,12 @@ public class Example1 {
     private final int _port;
     private final String _interfaceName;
 
-    public Example1(int pVerboseLevel, int pPort, String pInterfaceName) {
+    public Example1(int verboseLevel, int port, String interfaceName) {
         super();
 
-        _verboseLevel = pVerboseLevel;
-        _port = pPort;
-        _interfaceName = pInterfaceName;
+        _verboseLevel = verboseLevel;
+        _port = port;
+        _interfaceName = interfaceName;
     }
 
     private void run() {

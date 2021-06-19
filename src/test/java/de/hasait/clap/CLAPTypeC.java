@@ -34,16 +34,16 @@ public class CLAPTypeC {
     }
 
     @CLAPOption(shortKey = 'c', longKey = "cboolean", order = 1)
-    public void setBoolean(Boolean pBoolean) {
-        _boolean = pBoolean;
+    public void setBoolean(Boolean value) {
+        _boolean = value;
     }
 
     @CLAPDecision(branches = {
             CLAPTypeA.class,
             CLAPTypeB.class
     })
-    public void setObject(Object pObject) {
-        _object = pObject;
+    public void setObject(Object object) {
+        _object = object;
     }
 
 }

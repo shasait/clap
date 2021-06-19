@@ -31,18 +31,18 @@ public class SwingDialogUICallback implements CLAPUICallback {
     private final JComponent _dialogParent;
 
     /**
-     * @param pDialogParent The parent for dialogs.
+     * @param dialogParent The parent for dialogs.
      */
-    public SwingDialogUICallback(JComponent pDialogParent) {
+    public SwingDialogUICallback(JComponent dialogParent) {
         super();
-        _dialogParent = pDialogParent;
+        _dialogParent = dialogParent;
     }
 
     @Override
-    public String readLine(String pPrompt) {
+    public String readLine(String prompt) {
         final JTextField field = new JTextField(40);
         final int result = JOptionPane
-                .showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                .showConfirmDialog(_dialogParent, field, prompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (result != JOptionPane.OK_OPTION) {
             return null;
         }
@@ -51,10 +51,10 @@ public class SwingDialogUICallback implements CLAPUICallback {
     }
 
     @Override
-    public String readPassword(String pPrompt) {
+    public String readPassword(String prompt) {
         final JPasswordField field = new JPasswordField(40);
         final int result = JOptionPane
-                .showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                .showConfirmDialog(_dialogParent, field, prompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (result != JOptionPane.OK_OPTION) {
             return null;
         }

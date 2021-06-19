@@ -42,9 +42,9 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments";
     private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg";
 
-    public static <V> CLAPOptionNode<V> create(CLAP pCLAP, Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        return new CLAPOptionNode<>(pCLAP, pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
-                                    pArgUsageNLSKey
+    public static <V> CLAPOptionNode<V> create(CLAP clap, Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        return new CLAPOptionNode<>(clap, resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
+                                    argUsageNLSKey
         );
     }
 
@@ -66,138 +66,138 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
     private final Mapper<T> _mapper;
 
-    private CLAPOptionNode(CLAP pCLAP, Class<T> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
-        super(pCLAP);
+    private CLAPOptionNode(CLAP clap, Class<T> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        super(clap);
 
-        if (pShortKey != null && pShortKey == getCLAP().getShortOptPrefix()) {
-            throw new IllegalArgumentException("ShortKey " + pShortKey + " cannot be shortOptPrefix " + getCLAP().getShortOptPrefix());
+        if (shortKey != null && shortKey == getCLAP().getShortOptPrefix()) {
+            throw new IllegalArgumentException("ShortKey " + shortKey + " cannot be shortOptPrefix " + getCLAP().getShortOptPrefix());
         }
-        if (pLongKey != null && pLongKey.contains(getCLAP().getLongOptAssignment())) {
+        if (longKey != null && longKey.contains(getCLAP().getLongOptAssignment())) {
             throw new IllegalArgumentException(
-                    "LongKey " + pLongKey + " cannot contain longOptAssignment " + getCLAP().getLongOptAssignment());
+                    "LongKey " + longKey + " cannot contain longOptAssignment " + getCLAP().getLongOptAssignment());
         }
 
-        if (pArgCount == null) {
+        if (argCount == null) {
             // autodetect using resultClass
-            if (pResultClass.isArray() || Collection.class.isAssignableFrom(pResultClass)) {
+            if (resultClass.isArray() || Collection.class.isAssignableFrom(resultClass)) {
                 _argCount = CLAP.UNLIMITED_ARG_COUNT;
-            } else if (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE)) {
+            } else if (resultClass.equals(Boolean.class) || resultClass.equals(Boolean.TYPE)) {
                 _argCount = 0;
             } else {
                 _argCount = 1;
             }
         } else {
-            if (pArgCount < 0 && pArgCount != CLAP.UNLIMITED_ARG_COUNT) {
-                throw new IllegalArgumentException("Invalid argCount: " + pArgCount);
+            if (argCount < 0 && argCount != CLAP.UNLIMITED_ARG_COUNT) {
+                throw new IllegalArgumentException("Invalid argCount: " + argCount);
             }
 
-            if (pResultClass.isArray() || Collection.class.isAssignableFrom(pResultClass)) {
-                if (pArgCount == 0) {
+            if (resultClass.isArray() || Collection.class.isAssignableFrom(resultClass)) {
+                if (argCount == 0) {
                     throw new IllegalArgumentException(
-                            "Invalid argCount for array or collection type: " + pArgCount + " vs. " + pResultClass);
+                            "Invalid argCount for array or collection type: " + argCount + " vs. " + resultClass);
                 }
-            } else if (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE)) {
-                if (pArgCount != 0 && pArgCount != 1) {
-                    throw new IllegalArgumentException("Invalid argCount for boolean: " + pArgCount);
+            } else if (resultClass.equals(Boolean.class) || resultClass.equals(Boolean.TYPE)) {
+                if (argCount != 0 && argCount != 1) {
+                    throw new IllegalArgumentException("Invalid argCount for boolean: " + argCount);
                 }
             } else {
-                if (pArgCount != 1) {
-                    throw new IllegalArgumentException("Expected argCount 1 for single value type: " + pArgCount + " vs. " + pResultClass);
+                if (argCount != 1) {
+                    throw new IllegalArgumentException("Expected argCount 1 for single value type: " + argCount + " vs. " + resultClass);
                 }
             }
 
-            _argCount = pArgCount;
+            _argCount = argCount;
         }
 
-        if (pShortKey == null && pLongKey == null && _argCount == 0) {
+        if (shortKey == null && longKey == null && _argCount == 0) {
             throw new IllegalArgumentException("Nameless options need an argCount > 0");
         }
 
-        if (pResultClass.isArray()) {
-            final Class<?> componentType = pResultClass.getComponentType();
-            final CLAPConverter<?> converter = pCLAP.getConverter(componentType);
-            _mapper = pStringValues -> {
-                final T result = (T) Array.newInstance(componentType, pStringValues.length);
-                for (int i = 0; i < pStringValues.length; i++) {
+        if (resultClass.isArray()) {
+            final Class<?> componentType = resultClass.getComponentType();
+            final CLAPConverter<?> converter = clap.getConverter(componentType);
+            _mapper = stringValues -> {
+                final T result = (T) Array.newInstance(componentType, stringValues.length);
+                for (int i = 0; i < stringValues.length; i++) {
                     try {
-                        Array.set(result, i, converter.convert(pStringValues[i]));
+                        Array.set(result, i, converter.convert(stringValues[i]));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
                 return result;
             };
-        } else if (Collection.class.isAssignableFrom(pResultClass)) {
+        } else if (Collection.class.isAssignableFrom(resultClass)) {
             _mapper = null;
         } else {
-            final CLAPConverter<? extends T> converter = pCLAP.getConverter(pResultClass);
-            _mapper = pStringValues -> {
-                if (pStringValues.length == 0 && (pResultClass.equals(Boolean.class) || pResultClass.equals(Boolean.TYPE))) {
+            final CLAPConverter<? extends T> converter = clap.getConverter(resultClass);
+            _mapper = stringValues -> {
+                if (stringValues.length == 0 && (resultClass.equals(Boolean.class) || resultClass.equals(Boolean.TYPE))) {
                     return (T) Boolean.TRUE;
                 }
-                return converter.convert(pStringValues[0]);
+                return converter.convert(stringValues[0]);
             };
         }
 
-        _shortKey = pShortKey;
-        _longKey = pLongKey;
-        _required = pRequired;
-        _multiArgSplit = pMultiArgSplit;
-        _descriptionNLSKey = pDescriptionNLSKey;
-        _argUsageNLSKey = pArgUsageNLSKey;
-        _resultClass = pResultClass;
+        _shortKey = shortKey;
+        _longKey = longKey;
+        _required = required;
+        _multiArgSplit = multiArgSplit;
+        _descriptionNLSKey = descriptionNLSKey;
+        _argUsageNLSKey = argUsageNLSKey;
+        _resultClass = resultClass;
     }
 
     @Override
-    public void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, CLAPHelpCategoryImpl pCurrentCategory) {
-        addHelpNode(pNodes, pCurrentCategory, this);
+    public void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes, CLAPHelpCategoryImpl currentCategory) {
+        addHelpNode(nodes, currentCategory, this);
     }
 
     @Override
-    public boolean equals(Object pOther) {
-        if (pOther == this) {
+    public boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
 
-        if (pOther == null) {
+        if (other == null) {
             return false;
         }
 
-        if (getClass() != pOther.getClass()) {
+        if (getClass() != other.getClass()) {
             return false;
         }
 
-        final CLAPOptionNode<?> other = (CLAPOptionNode<?>) pOther;
+        final CLAPOptionNode<?> casted = (CLAPOptionNode<?>) other;
 
-        if (_shortKey != other._shortKey) {
+        if (_shortKey != casted._shortKey) {
             return false;
         }
 
-        if (!StringUtils.equals(_longKey, other._longKey)) {
+        if (!StringUtils.equals(_longKey, casted._longKey)) {
             return false;
         }
 
-        if (_required != other._required) {
+        if (_required != casted._required) {
             return false;
         }
 
-        if (_argCount != other._argCount) {
+        if (_argCount != casted._argCount) {
             return false;
         }
 
-        if (!ObjectUtils.equals(_multiArgSplit, other._multiArgSplit)) {
+        if (!ObjectUtils.equals(_multiArgSplit, casted._multiArgSplit)) {
             return false;
         }
 
-        if (!StringUtils.equals(_descriptionNLSKey, other._descriptionNLSKey)) {
+        if (!StringUtils.equals(_descriptionNLSKey, casted._descriptionNLSKey)) {
             return false;
         }
 
-        if (!StringUtils.equals(_argUsageNLSKey, other._argUsageNLSKey)) {
+        if (!StringUtils.equals(_argUsageNLSKey, casted._argUsageNLSKey)) {
             return false;
         }
 
-        if (!ObjectUtils.equals(_resultClass, other._resultClass)) {
+        if (!ObjectUtils.equals(_resultClass, casted._resultClass)) {
             return false;
         }
 
@@ -207,12 +207,12 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     }
 
     @Override
-    public boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
-        final int optionCount = pContext.getNodeCount(this);
+    public boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
+        final int optionCount = context.getNodeCount(this);
         if (optionCount > 0) {
-            pResult.setCount(this, optionCount);
-            final String[] stringValues = pContext.getOptionArgs(this);
-            pResult.setValue(this, _mapper.transform(stringValues));
+            result.setCount(this, optionCount);
+            final String[] stringValues = context.getOptionArgs(this);
+            result.setValue(this, _mapper.transform(stringValues));
             return true;
         }
         return false;
@@ -264,67 +264,67 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     }
 
     @Override
-    public CLAPParseContext[] parse(CLAPParseContext pContext) {
-        final List<String> args = parseArgs(pContext);
+    public CLAPParseContext[] parse(CLAPParseContext context) {
+        final List<String> args = parseArgs(context);
         if (args == null) {
             return null;
         }
-        pContext.addOption(this, args);
+        context.addOption(this, args);
         return new CLAPParseContext[]{
-                pContext
+                context
         };
     }
 
     @Override
-    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
+    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
         if (_required) {
             if (_shortKey != null && _longKey != null) {
-                pResult.append('{');
+                result.append('{');
             }
         } else {
-            pResult.append('[');
+            result.append('[');
         }
         if (_shortKey != null) {
-            pResult.append(getCLAP().getShortOptPrefix());
-            pResult.append(_shortKey);
+            result.append(getCLAP().getShortOptPrefix());
+            result.append(_shortKey);
             if (_longKey != null) {
-                pResult.append('|');
+                result.append('|');
             }
         }
         if (_longKey != null) {
-            pResult.append(getCLAP().getLongOptPrefix());
-            pResult.append(_longKey);
+            result.append(getCLAP().getLongOptPrefix());
+            result.append(_longKey);
         }
         if (_argCount != 0) {
             final int count = _argCount == CLAP.UNLIMITED_ARG_COUNT ? 2 : _argCount;
             for (int i = 0; i < count; i++) {
                 if (_multiArgSplit != null) {
                     if (i == 0) {
-                        pResult.append(getCLAP().getLongOptAssignment());
+                        result.append(getCLAP().getLongOptAssignment());
                     } else {
-                        pResult.append(_multiArgSplit);
+                        result.append(_multiArgSplit);
                     }
                 } else {
-                    pResult.append(' ');
+                    result.append(' ');
                 }
                 if (_argCount == CLAP.UNLIMITED_ARG_COUNT && i == count - 1) {
-                    pResult.append("...");
+                    result.append("...");
                 } else {
-                    pResult.append('<');
-                    pResult.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
+                    result.append('<');
+                    result.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
                     if (count > 1 + (_argCount == CLAP.UNLIMITED_ARG_COUNT ? 1 : 0)) {
-                        pResult.append(i + 1);
+                        result.append(i + 1);
                     }
-                    pResult.append('>');
+                    result.append('>');
                 }
             }
         }
         if (_required) {
             if (_shortKey != null && _longKey != null) {
-                pResult.append('}');
+                result.append('}');
             }
         } else {
-            pResult.append(']');
+            result.append(']');
         }
     }
 
@@ -334,56 +334,56 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     }
 
     @Override
-    public void validate(CLAPParseContext pContext, List<String> pErrorMessages) {
-        if (pContext.getNodeCount(this) == 0) {
+    public void validate(CLAPParseContext context, List<String> errorMessages) {
+        if (context.getNodeCount(this) == 0) {
             if (_required) {
-                pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, getHelpID()));
+                errorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, getHelpID()));
             }
-        } else if (_argCount != CLAP.UNLIMITED_ARG_COUNT && _argCount != pContext.getArgCount(this)) {
-            pErrorMessages.add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, getHelpID(), _argCount, pContext.getArgCount(this)));
+        } else if (_argCount != CLAP.UNLIMITED_ARG_COUNT && _argCount != context.getArgCount(this)) {
+            errorMessages.add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, getHelpID(), _argCount, context.getArgCount(this)));
         }
     }
 
-    private List<String> handleArgCount(CLAPParseContext pContext, boolean pAllWithSplit) {
+    private List<String> handleArgCount(CLAPParseContext context, boolean allWithSplit) {
         final List<String> args = new ArrayList<>();
         if (_argCount == CLAP.UNLIMITED_ARG_COUNT) {
-            if (pAllWithSplit) {
-                if (pContext.hasMoreTokens()) {
-                    final String argsUnsplitted = pContext.consumeCurrent();
+            if (allWithSplit) {
+                if (context.hasMoreTokens()) {
+                    final String argsUnsplitted = context.consumeCurrent();
                     args.addAll(Arrays.asList(argsUnsplitted.split(_multiArgSplit.toString())));
                 }
             } else {
-                while (pContext.hasMoreTokens()) {
-                    args.add(pContext.consumeCurrent());
+                while (context.hasMoreTokens()) {
+                    args.add(context.consumeCurrent());
                 }
             }
         } else {
-            if (pAllWithSplit && _argCount != 0 && _argCount != 1) {
-                if (pContext.hasMoreTokens()) {
-                    final String argsUnsplitted = pContext.consumeCurrent();
+            if (allWithSplit && _argCount != 0 && _argCount != 1) {
+                if (context.hasMoreTokens()) {
+                    final String argsUnsplitted = context.consumeCurrent();
                     args.addAll(Arrays.asList(argsUnsplitted.split(_multiArgSplit.toString())));
                 }
             } else {
                 int i = 0;
                 while (i++ < _argCount) {
-                    args.add(pContext.consumeCurrent());
+                    args.add(context.consumeCurrent());
                 }
             }
         }
         return args;
     }
 
-    private List<String> parseArgs(CLAPParseContext pContext) {
+    private List<String> parseArgs(CLAPParseContext context) {
         final boolean hasArg = _argCount != 0;
         final boolean allowEqualsForLongOpt = _argCount == 1 || _multiArgSplit != null;
-        if (_shortKey != null && pContext.hasCurrentShortKey(_shortKey)) {
-            final boolean hasDirectFollower = pContext.consumeCurrentShortKey(_shortKey, hasArg);
-            return handleArgCount(pContext, hasDirectFollower);
-        } else if (_longKey != null && pContext.hasCurrentLongKey(_longKey, allowEqualsForLongOpt)) {
-            final boolean wasEquals = pContext.consumeCurrentLongKey(_longKey, allowEqualsForLongOpt);
-            return handleArgCount(pContext, wasEquals);
+        if (_shortKey != null && context.hasCurrentShortKey(_shortKey)) {
+            final boolean hasDirectFollower = context.consumeCurrentShortKey(_shortKey, hasArg);
+            return handleArgCount(context, hasDirectFollower);
+        } else if (_longKey != null && context.hasCurrentLongKey(_longKey, allowEqualsForLongOpt)) {
+            final boolean wasEquals = context.consumeCurrentLongKey(_longKey, allowEqualsForLongOpt);
+            return handleArgCount(context, wasEquals);
         } else if (_shortKey == null && _longKey == null) {
-            return handleArgCount(pContext, false);
+            return handleArgCount(context, false);
         } else {
             return null;
         }
@@ -391,7 +391,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
     public interface Mapper<T> {
 
-        T transform(String[] pStringValues);
+        T transform(String[] stringValues);
 
     }
 

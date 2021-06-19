@@ -24,30 +24,30 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CLAPValue<T> {
 
-    public CLAPTypedDecisionNode(CLAP pCLAP) {
-        super(pCLAP);
+    public CLAPTypedDecisionNode(CLAP clap) {
+        super(clap);
     }
 
-    public final <V extends T> CLAPClassNode<V> addClass(Class<V> pClass) {
-        return internalAddClass(pClass);
+    public final <V extends T> CLAPClassNode<V> addClass(Class<V> clazz) {
+        return internalAddClass(clazz);
     }
 
     @Override
-    public final boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
-        final AbstractCLAPNode decision = pContext.getDecision(this);
+    public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
+        final AbstractCLAPNode decision = context.getDecision(this);
         if (decision != null) {
-            boolean result = decision.fillResult(pContext, pResult);
+            boolean anyFilled = decision.fillResult(context, result);
             if (decision instanceof CLAPValue) {
                 @SuppressWarnings("unchecked") final CLAPValue<? extends T> decisionWithResult = (CLAPValue<? extends T>) decision;
-                final int count = pResult.getCount(decisionWithResult);
+                final int count = result.getCount(decisionWithResult);
                 if (count > 0) {
-                    pResult.setCount(this, count);
-                    pResult.setValue(this, pResult.getValue(decisionWithResult));
+                    result.setCount(this, count);
+                    result.setValue(this, result.getValue(decisionWithResult));
                 }
-            } else if (result) {
-                pResult.setCount(decision, 1);
+            } else if (anyFilled) {
+                result.setCount(decision, 1);
             }
-            return result;
+            return anyFilled;
         }
         return false;
     }

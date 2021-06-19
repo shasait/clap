@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a setter as target for a CLAP decision (XOR).
+ * Annotation for a property setter. The property will be receive an instance of the specified branch classes depending on the options (CLAP decision).
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({

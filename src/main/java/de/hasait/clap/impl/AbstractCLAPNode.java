@@ -37,23 +37,23 @@ public abstract class AbstractCLAPNode {
 
     private CLAPHelpCategoryImpl _helpCategory;
 
-    protected AbstractCLAPNode(CLAP pCLAP) {
+    protected AbstractCLAPNode(CLAP clap) {
         super();
 
-        _clap = pCLAP;
+        _clap = clap;
     }
 
-    protected static void addHelpNode(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory, CLAPHelpNode pNode) {
-        final CLAPHelpCategoryImpl currentCategory = pNode.getHelpCategory() != null ? pNode.getHelpCategory() : pCurrentCategory;
-        if (!pOptionNodes.containsKey(currentCategory)) {
-            pOptionNodes.put(currentCategory, new TreeSet<>(Comparator.comparing(CLAPHelpNode::getHelpID)));
+    protected static void addHelpNode(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> optionNodes, CLAPHelpCategoryImpl currentCategory, CLAPHelpNode node) {
+        final CLAPHelpCategoryImpl nodeCategory = node.getHelpCategory() != null ? node.getHelpCategory() : currentCategory;
+        if (!optionNodes.containsKey(nodeCategory)) {
+            optionNodes.put(nodeCategory, new TreeSet<>(Comparator.comparing(CLAPHelpNode::getHelpID)));
         }
-        pOptionNodes.get(currentCategory).add(pNode);
+        optionNodes.get(nodeCategory).add(node);
     }
 
-    public abstract void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pOptionNodes, CLAPHelpCategoryImpl pCurrentCategory);
+    public abstract void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> optionNodes, CLAPHelpCategoryImpl currentCategory);
 
-    public abstract boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult);
+    public abstract boolean fillResult(CLAPParseContext context, CLAPResultImpl result);
 
     public CLAP getCLAP() {
         return _clap;
@@ -67,41 +67,41 @@ public abstract class AbstractCLAPNode {
         return _usageCategory;
     }
 
-    public final String nls(String pKey, Object... pArguments) {
-        return _clap.nls(pKey, pArguments);
+    public final String nls(String key, Object... arguments) {
+        return _clap.nls(key, arguments);
     }
 
-    public abstract CLAPParseContext[] parse(CLAPParseContext pContext);
+    public abstract CLAPParseContext[] parse(CLAPParseContext context);
 
-    public abstract void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult);
+    public abstract void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result);
 
-    public final void setHelpCategory(int pOrder, String pTitleNLSKey) {
-        _helpCategory = new CLAPHelpCategoryImpl(pOrder, pTitleNLSKey);
+    public final void setHelpCategory(int order, String titleNLSKey) {
+        _helpCategory = new CLAPHelpCategoryImpl(order, titleNLSKey);
     }
 
-    public final void setUsageCategory(int pOrder, String pTitleNLSKey) {
-        _usageCategory = new CLAPUsageCategoryImpl(pOrder, pTitleNLSKey);
+    public final void setUsageCategory(int order, String titleNLSKey) {
+        _usageCategory = new CLAPUsageCategoryImpl(order, titleNLSKey);
     }
 
-    public abstract void validate(CLAPParseContext pContext, List<String> pErrorMessages);
+    public abstract void validate(CLAPParseContext context, List<String> errorMessages);
 
-    protected final Pair<CLAPUsageCategoryImpl, StringBuilder> handleUsageCategory(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
-        final CLAPUsageCategoryImpl currentCategory = getUsageCategory() != null ? getUsageCategory() : pCurrentCategory;
-        StringBuilder result;
-        if (!currentCategory.equals(pCurrentCategory)) {
-            if (pResult != null) {
-                pResult.append(nls(currentCategory.getTitleNLSKey()));
+    protected final Pair<CLAPUsageCategoryImpl, StringBuilder> handleUsageCategory(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
+        final CLAPUsageCategoryImpl nodeCategory = getUsageCategory() != null ? getUsageCategory() : currentCategory;
+        StringBuilder nodeResult;
+        if (!nodeCategory.equals(currentCategory)) {
+            if (result != null) {
+                result.append(nls(nodeCategory.getTitleNLSKey()));
             }
-            if (pCategories.containsKey(currentCategory)) {
+            if (categories.containsKey(nodeCategory)) {
                 return null;
             } else {
-                result = new StringBuilder();
-                pCategories.put(currentCategory, result);
+                nodeResult = new StringBuilder();
+                categories.put(nodeCategory, nodeResult);
             }
         } else {
-            result = pResult;
+            nodeResult = result;
         }
-        return Pair.of(currentCategory, result);
+        return Pair.of(nodeCategory, nodeResult);
     }
 
 }

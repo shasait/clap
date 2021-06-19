@@ -26,16 +26,16 @@ import de.hasait.clap.CLAPUICallback;
 public class SystemConsoleUICallback implements CLAPUICallback {
 
     @Override
-    public String readLine(String pPrompt) {
+    public String readLine(String prompt) {
         final Console console = System.console();
-        final String line = console.readLine(pPrompt + ": ");
+        final String line = console.readLine(prompt + ": ");
         return line;
     }
 
     @Override
-    public String readPassword(String pPrompt) {
+    public String readPassword(String prompt) {
         final Console console = System.console();
-        final char[] passwordRaw = console.readPassword(pPrompt + ": ");
+        final char[] passwordRaw = console.readPassword(prompt + ": ");
         return passwordRaw == null ? null : new String(passwordRaw);
     }
 

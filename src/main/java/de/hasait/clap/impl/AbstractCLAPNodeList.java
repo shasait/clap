@@ -39,15 +39,15 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
     private final List<AbstractCLAPNode> _list = new ArrayList<>();
     private final List<AbstractCLAPNode> _ulist = Collections.unmodifiableList(_list);
 
-    protected AbstractCLAPNodeList(CLAP pCLAP) {
-        super(pCLAP);
+    protected AbstractCLAPNodeList(CLAP clap) {
+        super(clap);
     }
 
     @Override
-    public final void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> pNodes, CLAPHelpCategoryImpl pCurrentCategory) {
-        final CLAPHelpCategoryImpl currentCategory = getHelpCategory() != null ? getHelpCategory() : pCurrentCategory;
+    public final void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes, CLAPHelpCategoryImpl currentCategory) {
+        final CLAPHelpCategoryImpl nodeCategory = getHelpCategory() != null ? getHelpCategory() : currentCategory;
         for (AbstractCLAPNode node : list()) {
-            node.collectHelpNodes(pNodes, currentCategory);
+            node.collectHelpNodes(nodes, nodeCategory);
         }
     }
 
@@ -56,8 +56,8 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return MessageFormat.format("{0}[{1}]", getClass().getSimpleName(), internalToString(", "));
     }
 
-    protected final <V> CLAPClassNode<V> internalAddClass(Class<V> pClass) {
-        final CLAPClassNode<V> node = new CLAPClassNode<>(getCLAP(), pClass);
+    protected final <V> CLAPClassNode<V> internalAddClass(Class<V> clazz) {
+        final CLAPClassNode<V> node = new CLAPClassNode<>(getCLAP(), clazz);
         _list.add(node);
         return node;
     }
@@ -68,24 +68,24 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return node;
     }
 
-    protected final <V> CLAPTypedDecisionNode<V> internalAddDecision(@SuppressWarnings("unused") final Class<V> pResultClass, Class<? extends V>... pBranchClasses) {
+    protected final <V> CLAPTypedDecisionNode<V> internalAddDecision(@SuppressWarnings("unused") final Class<V> resultClass, Class<? extends V>... branchClasses) {
         final CLAPTypedDecisionNode<V> node = new CLAPTypedDecisionNode<>(getCLAP());
         _list.add(node);
-        for (Class<? extends V> branchClass : pBranchClasses) {
+        for (Class<? extends V> branchClass : branchClasses) {
             node.addClass(branchClass);
         }
         return node;
     }
 
-    protected final CLAPOptionNode<Boolean> internalAddFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey) {
+    protected final CLAPOptionNode<Boolean> internalAddFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
         final CLAPOptionNode<Boolean> node = CLAPOptionNode
-                .create(getCLAP(), Boolean.class, pShortKey, pLongKey, pRequired, 0, null, pDescriptionNLSKey, null);
+                .create(getCLAP(), Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null);
         _list.add(node);
         return node;
     }
 
-    protected final CLAPKeywordNode internalAddKeyword(String pKeyword) {
-        final CLAPKeywordNode node = new CLAPKeywordNode(getCLAP(), pKeyword);
+    protected final CLAPKeywordNode internalAddKeyword(String keyword) {
+        final CLAPKeywordNode node = new CLAPKeywordNode(getCLAP(), keyword);
         _list.add(node);
         return node;
     }
@@ -96,44 +96,44 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return list;
     }
 
-    protected final <V> CLAPOptionNode<V> internalAddOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+    protected final <V> CLAPOptionNode<V> internalAddOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
         final CLAPOptionNode<V> node = CLAPOptionNode
-                .create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
-                        pArgUsageNLSKey
+                .create(getCLAP(), resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
+                        argUsageNLSKey
                 );
         _list.add(node);
         return node;
     }
 
-    protected final <V> CLAPOptionNode<V> internalAddOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+    protected final <V> CLAPOptionNode<V> internalAddOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
         final CLAPOptionNode<V> node = CLAPOptionNode
-                .create(getCLAP(), pResultClass, pShortKey, pLongKey, pRequired, 1, null, pDescriptionNLSKey, pArgUsageNLSKey);
+                .create(getCLAP(), resultClass, shortKey, longKey, required, 1, null, descriptionNLSKey, argUsageNLSKey);
         _list.add(node);
         return node;
     }
 
-    protected final <V> CLAPOptionNode<V[]> internalAddOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+    protected final <V> CLAPOptionNode<V[]> internalAddOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
         final CLAPOptionNode<V[]> node = CLAPOptionNode
-                .create(getCLAP(), asArrayClass(pResultClass), pShortKey, pLongKey, pRequired, CLAP.UNLIMITED_ARG_COUNT, pMultiArgSplit,
-                        pDescriptionNLSKey, pArgUsageNLSKey
+                .create(getCLAP(), asArrayClass(resultClass), shortKey, longKey, required, CLAP.UNLIMITED_ARG_COUNT, multiArgSplit,
+                        descriptionNLSKey, argUsageNLSKey
                 );
         _list.add(node);
         return node;
     }
 
-    protected final boolean internalFillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
-        boolean result = false;
+    protected final boolean internalFillResult(CLAPParseContext context, CLAPResultImpl result) {
+        boolean anyFilled = false;
         for (AbstractCLAPNode node : list()) {
-            if (node.fillResult(pContext, pResult)) {
-                result = true;
+            if (node.fillResult(context, result)) {
+                anyFilled = true;
             }
         }
-        return result;
+        return anyFilled;
     }
 
-    protected final CLAPParseContext[] internalParse(CLAPParseContext pContext) {
+    protected final CLAPParseContext[] internalParse(CLAPParseContext context) {
         for (AbstractCLAPNode node : list()) {
-            final CLAPParseContext[] result = node.parse(pContext);
+            final CLAPParseContext[] result = node.parse(context);
             if (result != null) {
                 return result;
             }
@@ -141,35 +141,35 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return null;
     }
 
-    protected final void internalPrintUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult, String pSeparator) {
+    protected final void internalPrintUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result, String separator) {
         boolean first = true;
         for (AbstractCLAPNode node : _list) {
             if (first) {
                 first = false;
             } else {
-                pResult.append(pSeparator);
+                result.append(separator);
             }
-            node.printUsage(pCategories, pCurrentCategory, pResult);
+            node.printUsage(categories, currentCategory, result);
         }
     }
 
-    protected final String internalToString(String pSeparator) {
+    protected final String internalToString(String separator) {
         final StringBuilder result = new StringBuilder();
         boolean first = true;
         for (AbstractCLAPNode node : _list) {
             if (first) {
                 first = false;
             } else {
-                result.append(pSeparator);
+                result.append(separator);
             }
             result.append(node);
         }
         return result.toString();
     }
 
-    protected final void internalValidate(CLAPParseContext pContext, List<String> pErrorMessages) {
+    protected final void internalValidate(CLAPParseContext context, List<String> errorMessages) {
         for (AbstractCLAPNode node : list()) {
-            node.validate(pContext, pErrorMessages);
+            node.validate(context, errorMessages);
         }
     }
 
