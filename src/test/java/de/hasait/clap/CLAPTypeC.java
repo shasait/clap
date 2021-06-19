@@ -21,29 +21,29 @@ package de.hasait.clap;
  */
 public class CLAPTypeC {
 
-	private Boolean _boolean;
+    private Boolean _boolean;
 
-	private Object _object;
+    private Object _object;
 
-	public Boolean getBoolean() {
-		return _boolean;
-	}
+    public Boolean getBoolean() {
+        return _boolean;
+    }
 
-	public Object getObject() {
-		return _object;
-	}
+    public Object getObject() {
+        return _object;
+    }
 
-	@CLAPOption(shortKey = 'c', longKey = "cboolean", order = 1)
-	public void setBoolean(final Boolean pBoolean) {
-		_boolean = pBoolean;
-	}
+    @CLAPOption(shortKey = 'c', longKey = "cboolean", order = 1)
+    public void setBoolean(Boolean pBoolean) {
+        _boolean = pBoolean;
+    }
 
-	@CLAPDecision(branches = {
-			CLAPTypeA.class,
-			CLAPTypeB.class
-	})
-	public void setObject(final Object pObject) {
-		_object = pObject;
-	}
+    @CLAPDecision(branches = {
+            CLAPTypeA.class,
+            CLAPTypeB.class
+    })
+    public void setObject(Object pObject) {
+        _object = pObject;
+    }
 
 }

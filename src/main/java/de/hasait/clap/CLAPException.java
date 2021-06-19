@@ -21,10 +21,10 @@ package de.hasait.clap;
  */
 public class CLAPException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public CLAPException(final String pMessage) {
-		super(pMessage);
-	}
+    public CLAPException(String pMessage) {
+        super(pMessage);
+    }
 
 }

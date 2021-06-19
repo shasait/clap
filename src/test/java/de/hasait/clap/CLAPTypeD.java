@@ -20,40 +20,40 @@ package de.hasait.clap;
  * Class used by {@link CLAPTest}.
  */
 @CLAPKeywords({
-		@CLAPKeyword("Hallo")
+        @CLAPKeyword("Hallo")
 })
 public class CLAPTypeD {
 
-	private Boolean _boolean;
+    private Boolean _boolean;
 
-	private String _string;
+    private String _string;
 
-	private int _int = 1000;
+    private int _int = 1000;
 
-	public Boolean getBoolean() {
-		return _boolean;
-	}
+    public Boolean getBoolean() {
+        return _boolean;
+    }
 
-	public int getInt() {
-		return _int;
-	}
+    public int getInt() {
+        return _int;
+    }
 
-	public String getString() {
-		return _string;
-	}
+    public String getString() {
+        return _string;
+    }
 
-	@CLAPOption(shortKey = 'b', longKey = "dboolean", order = 1)
-	public void setBoolean(final Boolean pBoolean) {
-		_boolean = pBoolean;
-	}
+    @CLAPOption(shortKey = 'b', longKey = "dboolean", order = 1)
+    public void setBoolean(Boolean pBoolean) {
+        _boolean = pBoolean;
+    }
 
-	@CLAPOption(longKey = "dint", order = 3)
-	public void setInt(final int pInt) {
-		_int = pInt;
-	}
+    @CLAPOption(longKey = "dint", order = 3)
+    public void setInt(int pInt) {
+        _int = pInt;
+    }
 
-	@CLAPOption(longKey = "dstring", argCount = 1, order = 2)
-	public void setString(final String pString) {
-		_string = pString;
-	}
+    @CLAPOption(longKey = "dstring", argCount = 1, order = 2)
+    public void setString(String pString) {
+        _string = pString;
+    }
 }

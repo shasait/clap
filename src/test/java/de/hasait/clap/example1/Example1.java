@@ -30,73 +30,73 @@ import de.hasait.clap.CLAPValue;
  */
 public class Example1 {
 
-	private static final int DEFAULT_PORT = 1234;
-	private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg");
+    private static final int DEFAULT_PORT = 1234;
+    private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg");
 
-	public static void main(final String[] pArgs) {
-		final CLAP clap = new CLAP(NLS);
+    public static void main(String[] pArgs) {
+        final CLAP clap = new CLAP(NLS);
 
-		final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description");
-		final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description");
-		final CLAPNode listenOptionsNode = clap.addNodeList();
-		listenOptionsNode.setUsageCategory(1001, "usage_category.listen");
-		listenOptionsNode.setHelpCategory(1001, "help_category.listen");
-		final CLAPValue<Integer> portOption = listenOptionsNode
-				.addOption1(Integer.class, 'p', "port", true, "option.port.description", "option.port.usage");
-		final CLAPValue<String> interfaceOption = listenOptionsNode
-				.addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage");
+        final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description");
+        final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description");
+        final CLAPNode listenOptionsNode = clap.addNodeList();
+        listenOptionsNode.setUsageCategory(1001, "usage_category.listen");
+        listenOptionsNode.setHelpCategory(1001, "help_category.listen");
+        final CLAPValue<Integer> portOption = listenOptionsNode
+                .addOption1(Integer.class, 'p', "port", true, "option.port.description", "option.port.usage");
+        final CLAPValue<String> interfaceOption = listenOptionsNode
+                .addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage");
 
-		final CLAPResult clapResult;
-		try {
-			clapResult = clap.parse(pArgs);
-		} catch (final CLAPException e) {
-			printUsageAndHelp(clap);
-			throw e;
-		}
+        final CLAPResult clapResult;
+        try {
+            clapResult = clap.parse(pArgs);
+        } catch (CLAPException e) {
+            printUsageAndHelp(clap);
+            throw e;
+        }
 
-		if (clapResult.contains(helpFlag)) {
-			printUsageAndHelp(clap);
-			return;
-		}
+        if (clapResult.contains(helpFlag)) {
+            printUsageAndHelp(clap);
+            return;
+        }
 
-		final int verbosityLevel = clapResult.getCount(verboseFlag);
+        final int verbosityLevel = clapResult.getCount(verboseFlag);
 
-		final int port;
-		if (clapResult.contains(portOption)) {
-			port = clapResult.getValue(portOption);
-		} else {
-			port = DEFAULT_PORT;
-		}
-		final String interfaceName = clapResult.getValue(interfaceOption);
+        final int port;
+        if (clapResult.contains(portOption)) {
+            port = clapResult.getValue(portOption);
+        } else {
+            port = DEFAULT_PORT;
+        }
+        final String interfaceName = clapResult.getValue(interfaceOption);
 
-		final Example1 example1 = new Example1(verbosityLevel, port, interfaceName);
-		example1.run();
-	}
+        final Example1 example1 = new Example1(verbosityLevel, port, interfaceName);
+        example1.run();
+    }
 
-	private static void printUsageAndHelp(final CLAP clap) {
-		clap.printUsage(System.out);
-		clap.printHelp(System.out);
-	}
+    private static void printUsageAndHelp(CLAP clap) {
+        clap.printUsage(System.out);
+        clap.printHelp(System.out);
+    }
 
-	private final int _verboseLevel;
-	private final int _port;
-	private final String _interfaceName;
+    private final int _verboseLevel;
+    private final int _port;
+    private final String _interfaceName;
 
-	public Example1(final int pVerboseLevel, final int pPort, final String pInterfaceName) {
-		super();
+    public Example1(int pVerboseLevel, int pPort, String pInterfaceName) {
+        super();
 
-		_verboseLevel = pVerboseLevel;
-		_port = pPort;
-		_interfaceName = pInterfaceName;
-	}
+        _verboseLevel = pVerboseLevel;
+        _port = pPort;
+        _interfaceName = pInterfaceName;
+    }
 
-	private void run() {
-		System.out.println(NLS.getString("msg.starting"));
-		if (_verboseLevel > 0) {
-			System.out.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port));
-		}
-		// your logic here
-		System.out.println(NLS.getString("msg.started"));
-	}
+    private void run() {
+        System.out.println(NLS.getString("msg.starting"));
+        if (_verboseLevel > 0) {
+            System.out.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port));
+        }
+        // your logic here
+        System.out.println(NLS.getString("msg.started"));
+    }
 
 }

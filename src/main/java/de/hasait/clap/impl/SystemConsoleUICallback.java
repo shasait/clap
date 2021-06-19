@@ -25,18 +25,18 @@ import de.hasait.clap.CLAPUICallback;
  */
 public class SystemConsoleUICallback implements CLAPUICallback {
 
-	@Override
-	public String readLine(final String pPrompt) {
-		final Console console = System.console();
-		final String line = console.readLine(pPrompt + ": ");
-		return line;
-	}
+    @Override
+    public String readLine(String pPrompt) {
+        final Console console = System.console();
+        final String line = console.readLine(pPrompt + ": ");
+        return line;
+    }
 
-	@Override
-	public String readPassword(final String pPrompt) {
-		final Console console = System.console();
-		final char[] passwordRaw = console.readPassword(pPrompt + ": ");
-		return passwordRaw == null ? null : new String(passwordRaw);
-	}
+    @Override
+    public String readPassword(String pPrompt) {
+        final Console console = System.console();
+        final char[] passwordRaw = console.readPassword(pPrompt + ": ");
+        return passwordRaw == null ? null : new String(passwordRaw);
+    }
 
 }

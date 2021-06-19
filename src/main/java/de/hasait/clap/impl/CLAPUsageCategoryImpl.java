@@ -23,66 +23,66 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class CLAPUsageCategoryImpl implements Comparable<CLAPUsageCategoryImpl> {
 
-	private final int _order;
+    private final int _order;
 
-	private final String _titleNLSKey;
+    private final String _titleNLSKey;
 
-	public CLAPUsageCategoryImpl(final int pOrder, final String pTitleNLSKey) {
-		super();
+    public CLAPUsageCategoryImpl(int pOrder, String pTitleNLSKey) {
+        super();
 
-		if (pTitleNLSKey == null) {
-			throw new IllegalArgumentException();
-		}
+        if (pTitleNLSKey == null) {
+            throw new IllegalArgumentException("TitleNLSKey cannot be null");
+        }
 
-		_order = pOrder;
-		_titleNLSKey = pTitleNLSKey;
-	}
+        _order = pOrder;
+        _titleNLSKey = pTitleNLSKey;
+    }
 
-	@Override
-	public int compareTo(final CLAPUsageCategoryImpl pOther) {
-		final int orderResult = Integer.compare(_order, pOther._order);
-		if (orderResult != 0) {
-			return orderResult;
-		}
+    @Override
+    public int compareTo(CLAPUsageCategoryImpl pOther) {
+        final int orderResult = Integer.compare(_order, pOther._order);
+        if (orderResult != 0) {
+            return orderResult;
+        }
 
-		final int titleNLSKeyResult = _titleNLSKey.compareTo(pOther._titleNLSKey);
-		return titleNLSKeyResult;
-	}
+        final int titleNLSKeyResult = _titleNLSKey.compareTo(pOther._titleNLSKey);
+        return titleNLSKeyResult;
+    }
 
-	@Override
-	public boolean equals(final Object pOther) {
-		if (pOther == this) {
-			return true;
-		}
+    @Override
+    public boolean equals(Object pOther) {
+        if (pOther == this) {
+            return true;
+        }
 
-		if (pOther == null) {
-			return false;
-		}
+        if (pOther == null) {
+            return false;
+        }
 
-		if (getClass() != pOther.getClass()) {
-			return false;
-		}
+        if (getClass() != pOther.getClass()) {
+            return false;
+        }
 
-		final CLAPUsageCategoryImpl other = (CLAPUsageCategoryImpl) pOther;
+        final CLAPUsageCategoryImpl other = (CLAPUsageCategoryImpl) pOther;
 
-		if (_order != other._order) {
-			return false;
-		}
+        if (_order != other._order) {
+            return false;
+        }
 
-		return _titleNLSKey.equals(other._titleNLSKey);
-	}
+        return _titleNLSKey.equals(other._titleNLSKey);
+    }
 
-	public int getOrder() {
-		return _order;
-	}
+    public int getOrder() {
+        return _order;
+    }
 
-	public String getTitleNLSKey() {
-		return _titleNLSKey;
-	}
+    public String getTitleNLSKey() {
+        return _titleNLSKey;
+    }
 
-	@Override
-	public int hashCode() {
-		return new HashCodeBuilder().append(_order).append(_titleNLSKey).toHashCode();
-	}
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(_order).append(_titleNLSKey).toHashCode();
+    }
 
 }

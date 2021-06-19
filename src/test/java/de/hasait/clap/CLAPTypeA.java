@@ -21,26 +21,26 @@ package de.hasait.clap;
  */
 public class CLAPTypeA {
 
-	private Boolean _boolean;
+    private Boolean _boolean;
 
-	private String _string;
+    private String _string;
 
-	public Boolean getBoolean() {
-		return _boolean;
-	}
+    public Boolean getBoolean() {
+        return _boolean;
+    }
 
-	public String getString() {
-		return _string;
-	}
+    public String getString() {
+        return _string;
+    }
 
-	@CLAPOption(shortKey = 'a', longKey = "aboolean", order = 1)
-	public void setBoolean(final Boolean pBoolean) {
-		_boolean = pBoolean;
-	}
+    @CLAPOption(shortKey = 'a', longKey = "aboolean", order = 1)
+    public void setBoolean(Boolean pBoolean) {
+        _boolean = pBoolean;
+    }
 
-	@CLAPOption(longKey = "astring", argCount = 1, order = 2)
-	public void setString(final String pString) {
-		_string = pString;
-	}
+    @CLAPOption(longKey = "astring", argCount = 1, order = 2)
+    public void setString(String pString) {
+        _string = pString;
+    }
 
 }

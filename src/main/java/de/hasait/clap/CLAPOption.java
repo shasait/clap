@@ -26,32 +26,32 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-		ElementType.METHOD
+        ElementType.METHOD
 })
 public @interface CLAPOption {
 
-	int UNLIMITED_ARG_COUNT = -1;
-	int AUTOMATIC_ARG_COUNT = -2;
+    int UNLIMITED_ARG_COUNT = -1;
+    int AUTOMATIC_ARG_COUNT = -2;
 
-	int argCount() default AUTOMATIC_ARG_COUNT;
+    int argCount() default AUTOMATIC_ARG_COUNT;
 
-	String argUsageNLSKey() default "";
+    String argUsageNLSKey() default "";
 
-	String descriptionNLSKey() default "";
+    String descriptionNLSKey() default "";
 
-	String longKey() default "";
+    String longKey() default "";
 
-	char multiArgSplit() default ' ';
+    char multiArgSplit() default ' ';
 
-	int order() default 1000;
+    int order() default 1000;
 
-	boolean required() default false;
+    boolean required() default false;
 
-	char shortKey() default ' ';
+    char shortKey() default ' ';
 
-	/**
-	 * Short key as String, especially for Groovy.
-	 */
-	String sshortKey() default "";
+    /**
+     * Short key as String, especially for Groovy.
+     */
+    String sshortKey() default "";
 
 }

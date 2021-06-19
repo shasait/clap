@@ -21,12 +21,12 @@ package de.hasait.clap;
  */
 public interface CLAPResult {
 
-	boolean contains(CLAPValue<?> pNode);
+    boolean contains(CLAPValue<?> pNode);
 
-	boolean contains(CLAPNode pNode);
+    boolean contains(CLAPNode pNode);
 
-	int getCount(CLAPValue<?> pNode);
+    int getCount(CLAPValue<?> pNode);
 
-	<T> T getValue(CLAPValue<T> pNode);
+    <T> T getValue(CLAPValue<T> pNode);
 
 }

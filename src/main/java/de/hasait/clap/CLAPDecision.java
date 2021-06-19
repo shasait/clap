@@ -26,12 +26,12 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-		ElementType.METHOD
+        ElementType.METHOD
 })
 public @interface CLAPDecision {
 
-	Class<?>[] branches();
+    Class<?>[] branches();
 
-	int order() default 1000;
+    int order() default 1000;
 
 }

@@ -18,40 +18,40 @@ package de.hasait.clap;
 
 public class Example2 {
 
-	public static void main(String[] args) {
-		CLAP clap = new CLAP();
-		CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "Increase verbosity level");
-		CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help");
-		CLAPNode decision = clap.addDecision();
-		CLAPNode clientBranch = decision.addNodeList();
-		clientBranch.setHelpCategory(2000, "Client");
-		CLAPValue<String> clientHost = clientBranch.addOption1(String.class, 'H', "host", true, "The host to connect to", "host");
-		CLAPValue<Integer> clientPort = clientBranch.addOption1(Integer.class, 'p', "port", true, "The port to connect to", "port");
+    public static void main(String[] args) {
+        CLAP clap = new CLAP();
+        CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "Increase verbosity level");
+        CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help");
+        CLAPNode decision = clap.addDecision();
+        CLAPNode clientBranch = decision.addNodeList();
+        clientBranch.setHelpCategory(2000, "Client");
+        CLAPValue<String> clientHost = clientBranch.addOption1(String.class, 'H', "host", true, "The host to connect to", "host");
+        CLAPValue<Integer> clientPort = clientBranch.addOption1(Integer.class, 'p', "port", true, "The port to connect to", "port");
 
-		CLAPNode serverBranch = decision.addNodeList();
-		serverBranch.setHelpCategory(2001, "Server");
-		CLAPValue<Integer> serverPort = serverBranch.addOption1(Integer.class, 'l', "listen", true, "The port to listen on", "port");
+        CLAPNode serverBranch = decision.addNodeList();
+        serverBranch.setHelpCategory(2001, "Server");
+        CLAPValue<Integer> serverPort = serverBranch.addOption1(Integer.class, 'l', "listen", true, "The port to listen on", "port");
 
-		CLAPResult result;
-		try {
-			result = clap.parse(args);
-		} catch (CLAPException e) {
-			clap.printUsageAndHelp(System.out);
-			throw e;
-		}
+        CLAPResult result;
+        try {
+            result = clap.parse(args);
+        } catch (CLAPException e) {
+            clap.printUsageAndHelp(System.out);
+            throw e;
+        }
 
-		if (result.contains(helpOption)) {
-			clap.printUsageAndHelp(System.out);
-		}
+        if (result.contains(helpOption)) {
+            clap.printUsageAndHelp(System.out);
+        }
 
-		int verbosityLevel = result.getCount(verboseOption);
-		System.out.println("verbosityLevel=" + verbosityLevel);
+        int verbosityLevel = result.getCount(verboseOption);
+        System.out.println("verbosityLevel=" + verbosityLevel);
 
-		if (result.contains(clientBranch)) {
-			System.out.println("Connecting to " + result.getValue(clientHost) + ":" + result.getValue(clientPort) + "...");
-		} else if (result.contains(serverBranch)) {
-			System.out.println("Listening on " + result.getValue(serverPort) + "...");
-		}
-	}
+        if (result.contains(clientBranch)) {
+            System.out.println("Connecting to " + result.getValue(clientHost) + ":" + result.getValue(clientPort) + "...");
+        } else if (result.contains(serverBranch)) {
+            System.out.println("Listening on " + result.getValue(serverPort) + "...");
+        }
+    }
 
 }

@@ -28,55 +28,55 @@ import de.hasait.clap.CLAP;
  */
 public abstract class AbstractCLAPDecision extends AbstractCLAPNodeList {
 
-	protected AbstractCLAPDecision(final CLAP pCLAP) {
-		super(pCLAP);
-	}
+    protected AbstractCLAPDecision(CLAP pCLAP) {
+        super(pCLAP);
+    }
 
-	@Override
-	public final CLAPParseContext[] parse(final CLAPParseContext pContext) {
-		if (list().isEmpty()) {
-			return null;
-		}
+    @Override
+    public final CLAPParseContext[] parse(CLAPParseContext pContext) {
+        if (list().isEmpty()) {
+            return null;
+        }
 
-		final AbstractCLAPNode decision = pContext.getDecision(this);
-		if (decision == null) {
-			final CLAPParseContext[] result = new CLAPParseContext[list().size()];
-			for (int i = 0; i < list().size(); i++) {
-				result[i] = pContext.clone();
-				result[i].addDecision(this, list().get(i));
-			}
-			return result;
-		} else {
-			return decision.parse(pContext);
-		}
-	}
+        final AbstractCLAPNode decision = pContext.getDecision(this);
+        if (decision == null) {
+            final CLAPParseContext[] result = new CLAPParseContext[list().size()];
+            for (int i = 0; i < list().size(); i++) {
+                result[i] = pContext.clone();
+                result[i].addDecision(this, list().get(i));
+            }
+            return result;
+        } else {
+            return decision.parse(pContext);
+        }
+    }
 
-	@Override
-	public final void printUsage(final Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, final CLAPUsageCategoryImpl pCurrentCategory, final StringBuilder pResult) {
-		final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
-		if (pair != null) {
-			final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
-			final StringBuilder result = pair.getRight();
-			if (list().size() > 1) {
-				result.append("{ ");
-			}
-			internalPrintUsage(pCategories, currentCategory, result, " | ");
-			if (list().size() > 1) {
-				result.append(" }");
-			}
-		}
-	}
+    @Override
+    public final void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> pCategories, CLAPUsageCategoryImpl pCurrentCategory, StringBuilder pResult) {
+        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(pCategories, pCurrentCategory, pResult);
+        if (pair != null) {
+            final CLAPUsageCategoryImpl currentCategory = pair.getLeft();
+            final StringBuilder result = pair.getRight();
+            if (list().size() > 1) {
+                result.append("{ ");
+            }
+            internalPrintUsage(pCategories, currentCategory, result, " | ");
+            if (list().size() > 1) {
+                result.append(" }");
+            }
+        }
+    }
 
-	@Override
-	public final void validate(final CLAPParseContext pContext, final List<String> pErrorMessages) {
-		final AbstractCLAPNode decision = pContext.getDecision(this);
-		if (decision == null) {
-			for (int i = 0; i < list().size(); i++) {
-				list().get(i).validate(pContext, pErrorMessages);
-			}
-		} else {
-			decision.validate(pContext, pErrorMessages);
-		}
-	}
+    @Override
+    public final void validate(CLAPParseContext pContext, List<String> pErrorMessages) {
+        final AbstractCLAPNode decision = pContext.getDecision(this);
+        if (decision == null) {
+            for (int i = 0; i < list().size(); i++) {
+                list().get(i).validate(pContext, pErrorMessages);
+            }
+        } else {
+            decision.validate(pContext, pErrorMessages);
+        }
+    }
 
 }

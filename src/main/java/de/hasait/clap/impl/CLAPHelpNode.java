@@ -21,10 +21,10 @@ package de.hasait.clap.impl;
  */
 public interface CLAPHelpNode {
 
-	String getDescriptionNLSKey();
+    String getDescriptionNLSKey();
 
-	CLAPHelpCategoryImpl getHelpCategory();
+    CLAPHelpCategoryImpl getHelpCategory();
 
-	String getHelpID();
+    String getHelpID();
 
 }

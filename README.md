@@ -107,5 +107,5 @@ public class ClientServerCLI {
 
 ### More examples
 
-Please have a look at the various [tests](https://github.com/shasait/clap/tree/master/src/test/java/de/hasait/clap).
-You will also find examples for annotation based parsing.
+Please have a look at the various [tests](https://github.com/shasait/clap/tree/master/src/test/java/de/hasait/clap). You will also find
+examples for annotation based parsing.

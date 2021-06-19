@@ -25,77 +25,77 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
 
-	public CLAPDecisionNode(final CLAP pCLAP) {
-		super(pCLAP);
-	}
+    public CLAPDecisionNode(CLAP pCLAP) {
+        super(pCLAP);
+    }
 
-	@Override
-	public final <V> CLAPClassNode<V> addClass(final Class<V> pClass) {
-		return internalAddClass(pClass);
-	}
+    @Override
+    public final <V> CLAPClassNode<V> addClass(Class<V> pClass) {
+        return internalAddClass(pClass);
+    }
 
-	@Override
-	public final CLAPDecisionNode addDecision() {
-		return internalAddDecision();
-	}
+    @Override
+    public final CLAPDecisionNode addDecision() {
+        return internalAddDecision();
+    }
 
-	@Override
-	public final <V> CLAPTypedDecisionNode<V> addDecision(final Class<V> pResultClass, final Class<? extends V>... pBranchClasses) {
-		return internalAddDecision(pResultClass, pBranchClasses);
-	}
+    @Override
+    public final <V> CLAPTypedDecisionNode<V> addDecision(Class<V> pResultClass, Class<? extends V>... pBranchClasses) {
+        return internalAddDecision(pResultClass, pBranchClasses);
+    }
 
-	@Override
-	public final CLAPOptionNode<Boolean> addFlag(final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey) {
-		return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey);
-	}
+    @Override
+    public final CLAPOptionNode<Boolean> addFlag(Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey) {
+        return internalAddFlag(pShortKey, pLongKey, pRequired, pDescriptionNLSKey);
+    }
 
-	@Override
-	public void addKeyword(final String pKeyword) {
-		internalAddKeyword(pKeyword);
-	}
+    @Override
+    public void addKeyword(String pKeyword) {
+        internalAddKeyword(pKeyword);
+    }
 
-	@Override
-	public final CLAPNodeList addNodeList() {
-		return internalAddNodeList();
-	}
+    @Override
+    public final CLAPNodeList addNodeList() {
+        return internalAddNodeList();
+    }
 
-	@Override
-	public final <V> CLAPOptionNode<V> addOption(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Integer pArgCount, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
-								 pArgUsageNLSKey
-		);
-	}
+    @Override
+    public final <V> CLAPOptionNode<V> addOption(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Integer pArgCount, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+        return internalAddOption(pResultClass, pShortKey, pLongKey, pRequired, pArgCount, pMultiArgSplit, pDescriptionNLSKey,
+                                 pArgUsageNLSKey
+        );
+    }
 
-	@Override
-	public final <V> CLAPOptionNode<V> addOption1(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
-	}
+    @Override
+    public final <V> CLAPOptionNode<V> addOption1(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+        return internalAddOption1(pResultClass, pShortKey, pLongKey, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+    }
 
-	@Override
-	public final <V> CLAPOptionNode<V[]> addOptionU(final Class<V> pResultClass, final Character pShortKey, final String pLongKey, final boolean pRequired, final Character pMultiArgSplit, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
-	}
+    @Override
+    public final <V> CLAPOptionNode<V[]> addOptionU(Class<V> pResultClass, Character pShortKey, String pLongKey, boolean pRequired, Character pMultiArgSplit, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+        return internalAddOptionU(pResultClass, pShortKey, pLongKey, pRequired, pMultiArgSplit, pDescriptionNLSKey, pArgUsageNLSKey);
+    }
 
-	@Override
-	public <V> CLAPValue<V> addNameless1(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddOption1(pResultClass, null, null, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
-	}
+    @Override
+    public <V> CLAPValue<V> addNameless1(Class<V> pResultClass, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+        return internalAddOption1(pResultClass, null, null, pRequired, pDescriptionNLSKey, pArgUsageNLSKey);
+    }
 
-	@Override
-	public <V> CLAPValue<V[]> addNamelessU(final Class<V> pResultClass, final boolean pRequired, final String pDescriptionNLSKey, final String pArgUsageNLSKey) {
-		return internalAddOptionU(pResultClass, null, null ,pRequired, null,pDescriptionNLSKey, pArgUsageNLSKey);
-	}
+    @Override
+    public <V> CLAPValue<V[]> addNamelessU(Class<V> pResultClass, boolean pRequired, String pDescriptionNLSKey, String pArgUsageNLSKey) {
+        return internalAddOptionU(pResultClass, null, null, pRequired, null, pDescriptionNLSKey, pArgUsageNLSKey);
+    }
 
-	@Override
-	public final boolean fillResult(final CLAPParseContext pContext, final CLAPResultImpl pResult) {
-		final AbstractCLAPNode decision = pContext.getDecision(this);
-		if (decision != null) {
-			if (decision.fillResult(pContext, pResult)) {
-				pResult.setCount(decision, 1);
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public final boolean fillResult(CLAPParseContext pContext, CLAPResultImpl pResult) {
+        final AbstractCLAPNode decision = pContext.getDecision(this);
+        if (decision != null) {
+            if (decision.fillResult(pContext, pResult)) {
+                pResult.setCount(decision, 1);
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

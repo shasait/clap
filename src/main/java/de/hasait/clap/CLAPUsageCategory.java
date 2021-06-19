@@ -26,16 +26,16 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-		ElementType.TYPE,
-		ElementType.METHOD
+        ElementType.TYPE,
+        ElementType.METHOD
 })
 public @interface CLAPUsageCategory {
 
-	/**
-	 * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
-	 */
-	int order() default 0;
+    /**
+     * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
+     */
+    int order() default 0;
 
-	String titleNLSKey() default "";
+    String titleNLSKey() default "";
 
 }

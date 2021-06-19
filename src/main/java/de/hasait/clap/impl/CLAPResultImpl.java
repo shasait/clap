@@ -28,84 +28,84 @@ import de.hasait.clap.CLAPValue;
  */
 public class CLAPResultImpl implements Cloneable, CLAPResult {
 
-	private final Map<CLAPValue<?>, Object> _valueMap;
-	private final Map<Object, Integer> _countMap;
+    private final Map<CLAPValue<?>, Object> _valueMap;
+    private final Map<Object, Integer> _countMap;
 
-	public CLAPResultImpl() {
-		super();
+    public CLAPResultImpl() {
+        super();
 
-		_valueMap = new HashMap<>();
-		_countMap = new HashMap<>();
-	}
+        _valueMap = new HashMap<>();
+        _countMap = new HashMap<>();
+    }
 
-	private CLAPResultImpl(final CLAPResultImpl pOther) {
-		super();
+    private CLAPResultImpl(CLAPResultImpl pOther) {
+        super();
 
-		_valueMap = new HashMap<>(pOther._valueMap);
-		_countMap = new HashMap<>(pOther._countMap);
-	}
+        _valueMap = new HashMap<>(pOther._valueMap);
+        _countMap = new HashMap<>(pOther._countMap);
+    }
 
-	@Override
-	public CLAPResult clone() {
-		return new CLAPResultImpl(this);
-	}
+    @Override
+    public CLAPResult clone() {
+        return new CLAPResultImpl(this);
+    }
 
-	@Override
-	public boolean contains(final CLAPValue<?> pNode) {
-		return getCount(pNode) > 0;
-	}
+    @Override
+    public boolean contains(CLAPValue<?> pNode) {
+        return getCount(pNode) > 0;
+    }
 
-	@Override
-	public boolean contains(final CLAPNode pNode) {
-		final Integer count = _countMap.get(pNode);
-		return count != null && count > 0;
-	}
+    @Override
+    public boolean contains(CLAPNode pNode) {
+        final Integer count = _countMap.get(pNode);
+        return count != null && count > 0;
+    }
 
-	@Override
-	public boolean equals(final Object pOther) {
-		if (pOther == this) {
-			return true;
-		}
+    @Override
+    public boolean equals(Object pOther) {
+        if (pOther == this) {
+            return true;
+        }
 
-		if (pOther == null) {
-			return false;
-		}
+        if (pOther == null) {
+            return false;
+        }
 
-		if (getClass() != pOther.getClass()) {
-			return false;
-		}
+        if (getClass() != pOther.getClass()) {
+            return false;
+        }
 
-		final CLAPResultImpl other = (CLAPResultImpl) pOther;
+        final CLAPResultImpl other = (CLAPResultImpl) pOther;
 
-		if (!_valueMap.equals(other._valueMap)) {
-			return false;
-		}
+        if (!_valueMap.equals(other._valueMap)) {
+            return false;
+        }
 
-		return _countMap.equals(other._countMap);
-	}
+        return _countMap.equals(other._countMap);
+    }
 
-	@Override
-	public int getCount(final CLAPValue<?> pNode) {
-		final Integer count = _countMap.get(pNode);
-		return count == null ? 0 : count;
-	}
+    @Override
+    public int getCount(CLAPValue<?> pNode) {
+        final Integer count = _countMap.get(pNode);
+        return count == null ? 0 : count;
+    }
 
-	@Override
-	public <T> T getValue(final CLAPValue<T> pNode) {
-		return (T) _valueMap.get(pNode);
-	}
+    @Override
+    public <T> T getValue(CLAPValue<T> pNode) {
+        return (T) _valueMap.get(pNode);
+    }
 
-	@Override
-	public int hashCode() {
-		return _valueMap.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return _valueMap.hashCode();
+    }
 
-	public void setCount(final Object pNode, final int pCount) {
-		_countMap.put(pNode, pCount);
-	}
+    public void setCount(Object pNode, int pCount) {
+        _countMap.put(pNode, pCount);
+    }
 
-	public <T> void setValue(final CLAPValue<T> pNode, final T pValue) {
-		_valueMap.put(pNode, pValue);
-	}
+    public <T> void setValue(CLAPValue<T> pNode, T pValue) {
+        _valueMap.put(pNode, pValue);
+    }
 
 }

@@ -28,38 +28,38 @@ import de.hasait.clap.CLAPUICallback;
  */
 public class SwingDialogUICallback implements CLAPUICallback {
 
-	private final JComponent _dialogParent;
+    private final JComponent _dialogParent;
 
-	/**
-	 * @param pDialogParent The parent for dialogs.
-	 */
-	public SwingDialogUICallback(final JComponent pDialogParent) {
-		super();
-		_dialogParent = pDialogParent;
-	}
+    /**
+     * @param pDialogParent The parent for dialogs.
+     */
+    public SwingDialogUICallback(JComponent pDialogParent) {
+        super();
+        _dialogParent = pDialogParent;
+    }
 
-	@Override
-	public String readLine(final String pPrompt) {
-		final JTextField field = new JTextField(40);
-		final int result = JOptionPane
-				.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (result != JOptionPane.OK_OPTION) {
-			return null;
-		}
-		final String line = field.getText();
-		return line;
-	}
+    @Override
+    public String readLine(String pPrompt) {
+        final JTextField field = new JTextField(40);
+        final int result = JOptionPane
+                .showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return null;
+        }
+        final String line = field.getText();
+        return line;
+    }
 
-	@Override
-	public String readPassword(final String pPrompt) {
-		final JPasswordField field = new JPasswordField(40);
-		final int result = JOptionPane
-				.showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (result != JOptionPane.OK_OPTION) {
-			return null;
-		}
-		final char[] passwordRaw = field.getPassword();
-		return passwordRaw == null ? null : new String(passwordRaw);
-	}
+    @Override
+    public String readPassword(String pPrompt) {
+        final JPasswordField field = new JPasswordField(40);
+        final int result = JOptionPane
+                .showConfirmDialog(_dialogParent, field, pPrompt, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return null;
+        }
+        final char[] passwordRaw = field.getPassword();
+        return passwordRaw == null ? null : new String(passwordRaw);
+    }
 
 }

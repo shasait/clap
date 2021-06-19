@@ -28,170 +28,170 @@ import de.hasait.clap.CLAP;
  */
 public class CLAPParseContext implements Cloneable {
 
-	private final CLAP _clap;
-	private final List<Pair<? extends AbstractCLAPNode, ?>> _nodeContextMap;
-	private final String[] _args;
-	private int _currentArgIndex;
-	private String _currentArg;
+    private final CLAP _clap;
+    private final List<Pair<? extends AbstractCLAPNode, ?>> _nodeContextMap;
+    private final String[] _args;
+    private int _currentArgIndex;
+    private String _currentArg;
 
-	public CLAPParseContext(final CLAP pCLAP, final String[] pArgs) {
-		super();
+    public CLAPParseContext(CLAP pCLAP, String[] pArgs) {
+        super();
 
-		_clap = pCLAP;
+        _clap = pCLAP;
 
-		_args = pArgs.clone();
+        _args = pArgs.clone();
 
-		_nodeContextMap = new ArrayList<>();
+        _nodeContextMap = new ArrayList<>();
 
-		_currentArgIndex = -1;
-		_currentArg = null;
-		consumeCurrent();
-	}
+        _currentArgIndex = -1;
+        _currentArg = null;
+        consumeCurrent();
+    }
 
-	private CLAPParseContext(final CLAPParseContext pOther) {
-		super();
+    private CLAPParseContext(CLAPParseContext pOther) {
+        super();
 
-		_clap = pOther._clap;
+        _clap = pOther._clap;
 
-		// used read only - so can use reference
-		_args = pOther._args;
+        // used read only - so can use reference
+        _args = pOther._args;
 
-		_nodeContextMap = new ArrayList<>(pOther._nodeContextMap);
+        _nodeContextMap = new ArrayList<>(pOther._nodeContextMap);
 
-		_currentArgIndex = pOther._currentArgIndex;
-		_currentArg = pOther._currentArg;
-	}
+        _currentArgIndex = pOther._currentArgIndex;
+        _currentArg = pOther._currentArg;
+    }
 
-	public <T> void addDecision(final AbstractCLAPDecision pDecisionNode, final AbstractCLAPNode pBranchNode) {
-		_nodeContextMap.add(Pair.of(pDecisionNode, pBranchNode));
-	}
+    public <T> void addDecision(AbstractCLAPDecision pDecisionNode, AbstractCLAPNode pBranchNode) {
+        _nodeContextMap.add(Pair.of(pDecisionNode, pBranchNode));
+    }
 
-	public void addKeyword(final CLAPKeywordNode pKeywordNode) {
-		_nodeContextMap.add(Pair.of(pKeywordNode, null));
-	}
+    public void addKeyword(CLAPKeywordNode pKeywordNode) {
+        _nodeContextMap.add(Pair.of(pKeywordNode, null));
+    }
 
-	public void addOption(final CLAPOptionNode<?> pOption, final List<String> pArgs) {
-		_nodeContextMap.add(Pair.of(pOption, pArgs));
-	}
+    public void addOption(CLAPOptionNode<?> pOption, List<String> pArgs) {
+        _nodeContextMap.add(Pair.of(pOption, pArgs));
+    }
 
-	@Override
-	public CLAPParseContext clone() {
-		return new CLAPParseContext(this);
-	}
+    @Override
+    public CLAPParseContext clone() {
+        return new CLAPParseContext(this);
+    }
 
-	public String consumeCurrent() {
-		final String result = _currentArg;
-		_currentArgIndex++;
-		_currentArg = _currentArgIndex < _args.length ? _args[_currentArgIndex] : null;
-		return result;
-	}
+    public String consumeCurrent() {
+        final String result = _currentArg;
+        _currentArgIndex++;
+        _currentArg = _currentArgIndex < _args.length ? _args[_currentArgIndex] : null;
+        return result;
+    }
 
-	public boolean consumeCurrentLongKey(final String pLongKey, final boolean pAllowEquals) {
-		if (!hasCurrentLongKey(pLongKey, pAllowEquals)) {
-			throw new IllegalStateException();
-		}
-		final String prefix = _clap.getLongOptPrefix() + pLongKey + _clap.getLongOptEquals();
-		if (pAllowEquals && _currentArg.startsWith(prefix)) {
-			_currentArg = _currentArg.substring(prefix.length());
-			return true;
-		} else {
-			consumeCurrent();
-			return false;
-		}
-	}
+    public boolean consumeCurrentLongKey(String pLongKey, boolean pAllowEquals) {
+        if (!hasCurrentLongKey(pLongKey, pAllowEquals)) {
+            throw new IllegalStateException();
+        }
+        final String prefix = _clap.getLongOptPrefix() + pLongKey + _clap.getLongOptAssignment();
+        if (pAllowEquals && _currentArg.startsWith(prefix)) {
+            _currentArg = _currentArg.substring(prefix.length());
+            return true;
+        } else {
+            consumeCurrent();
+            return false;
+        }
+    }
 
-	public boolean consumeCurrentShortKey(final char pShortKey, final boolean pHasArg) {
-		if (!hasCurrentShortKey(pShortKey)) {
-			throw new IllegalStateException();
-		}
-		if (_currentArg.length() > 2) {
-			_currentArg = (pHasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2);
-			return true;
-		} else {
-			consumeCurrent();
-			return false;
-		}
-	}
+    public boolean consumeCurrentShortKey(char pShortKey, boolean pHasArg) {
+        if (!hasCurrentShortKey(pShortKey)) {
+            throw new IllegalStateException();
+        }
+        if (_currentArg.length() > 2) {
+            _currentArg = (pHasArg ? "" : _currentArg.charAt(0)) + _currentArg.substring(2);
+            return true;
+        } else {
+            consumeCurrent();
+            return false;
+        }
+    }
 
-	public String currentArg() {
-		return _currentArg;
-	}
+    public String currentArg() {
+        return _currentArg;
+    }
 
-	public int getArgCount(final CLAPOptionNode<?> pOptionNode) {
-		int count = 0;
+    public int getArgCount(CLAPOptionNode<?> pOptionNode) {
+        int count = 0;
 
-		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-			if (entry.getLeft().equals(pOptionNode)) {
-				count += ((List<String>) entry.getRight()).size();
-			}
-		}
+        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+            if (entry.getLeft().equals(pOptionNode)) {
+                count += ((List<String>) entry.getRight()).size();
+            }
+        }
 
-		return count;
-	}
+        return count;
+    }
 
-	public int getCurrentArgIndex() {
-		return _currentArgIndex;
-	}
+    public int getCurrentArgIndex() {
+        return _currentArgIndex;
+    }
 
-	public AbstractCLAPNode getDecision(final AbstractCLAPDecision pDecisionNode) {
-		AbstractCLAPNode lastBranchNode = null;
-		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-			if (entry.getLeft().equals(pDecisionNode)) {
-				lastBranchNode = (AbstractCLAPNode) entry.getRight();
-			}
-		}
-		return lastBranchNode;
-	}
+    public AbstractCLAPNode getDecision(AbstractCLAPDecision pDecisionNode) {
+        AbstractCLAPNode lastBranchNode = null;
+        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+            if (entry.getLeft().equals(pDecisionNode)) {
+                lastBranchNode = (AbstractCLAPNode) entry.getRight();
+            }
+        }
+        return lastBranchNode;
+    }
 
-	public int getNodeCount(final AbstractCLAPNode pNode) {
-		int result = 0;
+    public int getNodeCount(AbstractCLAPNode pNode) {
+        int result = 0;
 
-		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-			if (entry.getLeft().equals(pNode)) {
-				result++;
-			}
-		}
+        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+            if (entry.getLeft().equals(pNode)) {
+                result++;
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	public String[] getOptionArgs(final CLAPOptionNode<?> pOptionNode) {
-		final List<String> result = new ArrayList<>();
-		boolean anyFound = false;
-		for (final Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-			if (entry.getLeft().equals(pOptionNode)) {
-				result.addAll((List<String>) entry.getRight());
-				anyFound = true;
-			}
-		}
-		return anyFound ? result.toArray(new String[0]) : null;
-	}
+    public String[] getOptionArgs(CLAPOptionNode<?> pOptionNode) {
+        final List<String> result = new ArrayList<>();
+        boolean anyFound = false;
+        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+            if (entry.getLeft().equals(pOptionNode)) {
+                result.addAll((List<String>) entry.getRight());
+                anyFound = true;
+            }
+        }
+        return anyFound ? result.toArray(new String[0]) : null;
+    }
 
-	public boolean hasCurrentLongKey(final String pLongKey, final boolean pAllowEquals) {
-		if (pLongKey == null) {
-			throw new IllegalArgumentException("pLongKey == null");
-		}
-		if (_currentArg == null) {
-			return false;
-		}
-		return _currentArg.equals(_clap.getLongOptPrefix() + pLongKey) || pAllowEquals && _currentArg
-				.startsWith(_clap.getLongOptPrefix() + pLongKey + _clap.getLongOptEquals());
-	}
+    public boolean hasCurrentLongKey(String pLongKey, boolean pAllowEquals) {
+        if (pLongKey == null) {
+            throw new IllegalArgumentException("pLongKey == null");
+        }
+        if (_currentArg == null) {
+            return false;
+        }
+        return _currentArg.equals(_clap.getLongOptPrefix() + pLongKey) || pAllowEquals && _currentArg
+                .startsWith(_clap.getLongOptPrefix() + pLongKey + _clap.getLongOptAssignment());
+    }
 
-	public boolean hasCurrentShortKey(final char pShortKey) {
-		return _currentArg != null
-				&& _currentArg.length() >= 2
-				&& _currentArg.charAt(0) == _clap.getShortOptPrefix()
-				&& _currentArg.charAt(1) == pShortKey;
-	}
+    public boolean hasCurrentShortKey(char pShortKey) {
+        return _currentArg != null
+                && _currentArg.length() >= 2
+                && _currentArg.charAt(0) == _clap.getShortOptPrefix()
+                && _currentArg.charAt(1) == pShortKey;
+    }
 
-	public boolean hasMoreTokens() {
-		return _currentArg != null;
-	}
+    public boolean hasMoreTokens() {
+        return _currentArg != null;
+    }
 
-	@Override
-	public String toString() {
-		return _currentArg + " " + _currentArgIndex;
-	}
+    @Override
+    public String toString() {
+        return _currentArg + " " + _currentArgIndex;
+    }
 
 }

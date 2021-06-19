@@ -21,6 +21,6 @@ package de.hasait.clap;
  */
 public interface CLAPConverter<T> {
 
-	T convert(String pInput);
+    T convert(String pInput);
 
 }

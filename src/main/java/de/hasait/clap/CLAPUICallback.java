@@ -21,8 +21,8 @@ package de.hasait.clap;
  */
 public interface CLAPUICallback {
 
-	String readLine(String pPrompt);
+    String readLine(String pPrompt);
 
-	String readPassword(String pPrompt);
+    String readPassword(String pPrompt);
 
 }
