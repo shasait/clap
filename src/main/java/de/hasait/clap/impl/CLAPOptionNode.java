@@ -42,11 +42,13 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments";
     private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg";
 
-    public static <V> CLAPOptionNode<V> create(CLAP clap, Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+    public static <V> CLAPOptionNode<V> create(CLAP clap, Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
         return new CLAPOptionNode<>(clap, resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
-                                    argUsageNLSKey
+                                    argUsageNLSKey, immediateReturn
         );
     }
+
+    private final Class<T> _resultClass;
 
     private final Character _shortKey;
 
@@ -62,20 +64,28 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
     private final String _argUsageNLSKey;
 
-    private final Class<T> _resultClass;
+    private final boolean _immediateReturn;
 
     private final Mapper<T> _mapper;
 
-    private CLAPOptionNode(CLAP clap, Class<T> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+    private CLAPOptionNode(CLAP clap, Class<T> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
         super(clap);
+
+        _resultClass = resultClass;
 
         if (shortKey != null && shortKey == getCLAP().getShortOptPrefix()) {
             throw new IllegalArgumentException("ShortKey " + shortKey + " cannot be shortOptPrefix " + getCLAP().getShortOptPrefix());
         }
+        _shortKey = shortKey;
+
         if (longKey != null && longKey.contains(getCLAP().getLongOptAssignment())) {
             throw new IllegalArgumentException(
                     "LongKey " + longKey + " cannot contain longOptAssignment " + getCLAP().getLongOptAssignment());
         }
+        _longKey = longKey;
+
+        _required = required;
+
 
         if (argCount == null) {
             // autodetect using resultClass
@@ -113,6 +123,11 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             throw new IllegalArgumentException("Nameless options need an argCount > 0");
         }
 
+        _multiArgSplit = multiArgSplit;
+        _descriptionNLSKey = descriptionNLSKey;
+        _argUsageNLSKey = argUsageNLSKey;
+        _immediateReturn = immediateReturn;
+
         if (resultClass.isArray()) {
             final Class<?> componentType = resultClass.getComponentType();
             final CLAPConverter<?> converter = clap.getConverter(componentType);
@@ -138,14 +153,6 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
                 return converter.convert(stringValues[0]);
             };
         }
-
-        _shortKey = shortKey;
-        _longKey = longKey;
-        _required = required;
-        _multiArgSplit = multiArgSplit;
-        _descriptionNLSKey = descriptionNLSKey;
-        _argUsageNLSKey = argUsageNLSKey;
-        _resultClass = resultClass;
     }
 
     @Override
@@ -168,6 +175,10 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
         }
 
         final CLAPOptionNode<?> casted = (CLAPOptionNode<?>) other;
+
+        if (!ObjectUtils.equals(_resultClass, casted._resultClass)) {
+            return false;
+        }
 
         if (_shortKey != casted._shortKey) {
             return false;
@@ -197,7 +208,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             return false;
         }
 
-        if (!ObjectUtils.equals(_resultClass, casted._resultClass)) {
+        if (_immediateReturn != casted._immediateReturn) {
             return false;
         }
 
@@ -261,6 +272,10 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
     public boolean isRequired() {
         return _required;
+    }
+
+    public boolean isImmediateReturn() {
+        return _immediateReturn;
     }
 
     @Override

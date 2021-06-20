@@ -23,7 +23,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPNode;
-import de.hasait.clap.CLAPValue;
 
 /**
  * A list of nodes.
@@ -50,11 +49,6 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
     }
 
     @Override
-    public CLAPOptionNode<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
-        return internalAddFlag(shortKey, longKey, required, descriptionNLSKey);
-    }
-
-    @Override
     public void addKeyword(String keyword) {
         internalAddKeyword(keyword);
     }
@@ -65,30 +59,10 @@ public class CLAPNodeList extends AbstractCLAPNodeList implements CLAPNode {
     }
 
     @Override
-    public <V> CLAPOptionNode<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
-        return internalAddOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
-                                 argUsageNLSKey
+    public <V> CLAPOptionNode<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
+        return internalAddOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey,
+                                 immediateReturn
         );
-    }
-
-    @Override
-    public <V> CLAPOptionNode<V> addOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return internalAddOption1(resultClass, shortKey, longKey, required, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPOptionNode<V[]> addOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
-        return internalAddOptionU(resultClass, shortKey, longKey, required, multiArgSplit, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V> addNameless1(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return internalAddOption1(resultClass, null, null, required, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V[]> addNamelessU(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return internalAddOptionU(resultClass, null, null, required, null, descriptionNLSKey, argUsageNLSKey);
     }
 
     @Override

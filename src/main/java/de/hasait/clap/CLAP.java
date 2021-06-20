@@ -20,6 +20,7 @@ import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,6 +70,11 @@ public final class CLAP implements CLAPNode {
     private static final String NLSKEY_ENTER_LINE = "clap.enterline";
     private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory";
     private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory";
+
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T[]> asArrayClass(Class<T> type) {
+        return (Class<T[]>) Array.newInstance(type, 0).getClass();
+    }
 
     private final ResourceBundle nls;
 
@@ -157,28 +163,10 @@ public final class CLAP implements CLAPNode {
     }
 
     @Override
-    public <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
-        return root.addOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V> addOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return root.addOption1(resultClass, shortKey, longKey, required, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V[]> addOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
-        return root.addOptionU(resultClass, shortKey, longKey, required, multiArgSplit, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V> addNameless1(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return root.addNameless1(resultClass, required, descriptionNLSKey, argUsageNLSKey);
-    }
-
-    @Override
-    public <V> CLAPValue<V[]> addNamelessU(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        return root.addNamelessU(resultClass, required, descriptionNLSKey, argUsageNLSKey);
+    public <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
+        return root.addOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey,
+                              immediateReturn
+        );
     }
 
     public <R> CLAPConverter<? extends R> getConverter(Class<R> resultClass) {
@@ -271,6 +259,11 @@ public final class CLAP implements CLAPNode {
         activeContexts.add(new CLAPParseContext(this, args));
         while (!activeContexts.isEmpty()) {
             final CLAPParseContext context = activeContexts.removeFirst();
+            if (context.containsImmediateReturn()) {
+                parsedContexts.clear();
+                parsedContexts.add(context);
+                break;
+            }
             if (context.hasMoreTokens()) {
                 final CLAPParseContext[] result = root.parse(context);
                 if (result != null) {
@@ -302,7 +295,9 @@ public final class CLAP implements CLAPNode {
         final Set<CLAPResultImpl> results = new LinkedHashSet<>();
         for (CLAPParseContext context : parsedContexts) {
             final List<String> errorMessages = new ArrayList<>();
-            root.validate(context, errorMessages);
+            if (!context.containsImmediateReturn()) {
+                root.validate(context, errorMessages);
+            }
             if (errorMessages.isEmpty()) {
                 final CLAPResultImpl result = new CLAPResultImpl();
                 root.fillResult(context, result);

@@ -764,4 +764,26 @@ public class CLAPTest {
         assertEquals(4, result.getCount(helpOption));
     }
 
+    @Test(expected = CLAPException.class)
+    public void testImmediateReturnWorks1a() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
+        final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", true, "pdkey", "pukey");
+
+        // fails because port is required and help is not immediateReturn
+        final CLAPResult result = clap.parse("-h");
+        assertTrue(result.contains(helpOption));
+    }
+
+    @Test
+    public void testImmediateReturnWorks1b() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", true);
+        final CLAPValue<Integer> portOption = clap.addOption1(Integer.class, 'p', "port", true, "pdkey", "pukey");
+
+        // succeeds because help is immediateReturn and therefore port is not validated
+        final CLAPResult result = clap.parse("-h");
+        assertTrue(result.contains(helpOption));
+    }
+
 }

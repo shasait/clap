@@ -33,6 +33,7 @@ public class CLAPParseContext implements Cloneable {
     private final String[] _args;
     private int _currentArgIndex;
     private String _currentArg;
+    private boolean _immediateReturn;
 
     public CLAPParseContext(CLAP clap, String[] args) {
         super();
@@ -60,6 +61,7 @@ public class CLAPParseContext implements Cloneable {
 
         _currentArgIndex = other._currentArgIndex;
         _currentArg = other._currentArg;
+        _immediateReturn = other._immediateReturn;
     }
 
     public <T> void addDecision(AbstractCLAPDecision decisionNode, AbstractCLAPNode branchNode) {
@@ -72,6 +74,9 @@ public class CLAPParseContext implements Cloneable {
 
     public void addOption(CLAPOptionNode<?> option, List<String> args) {
         _nodeContextMap.add(Pair.of(option, args));
+        if (option.isImmediateReturn()) {
+            _immediateReturn = true;
+        }
     }
 
     @Override
@@ -187,6 +192,10 @@ public class CLAPParseContext implements Cloneable {
 
     public boolean hasMoreTokens() {
         return _currentArg != null;
+    }
+
+    public boolean containsImmediateReturn() {
+        return _immediateReturn;
     }
 
     @Override

@@ -304,7 +304,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         final String argUsageNLSKey = clapOption.argUsageNLSKey().length() == 0 ? null : clapOption.argUsageNLSKey();
 
         final CLAPOptionNode<V> optionNode = internalAddOption(propertyType, shortKey, longKey, required, argCount, multiArgSplit,
-                                                               descriptionNLSKey, argUsageNLSKey
+                                                               descriptionNLSKey, argUsageNLSKey, false
         );
         _propertyDescriptorByOptionMap.put(optionNode, propertyDescriptor);
         return optionNode;

@@ -21,7 +21,7 @@ public class Example2 {
     public static void main(String[] args) {
         CLAP clap = new CLAP();
         CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "Increase verbosity level");
-        CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help");
+        CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help", true);
         CLAPNode decision = clap.addDecision();
         CLAPNode clientBranch = decision.addNodeList();
         clientBranch.setHelpCategory(2000, "Client");
@@ -42,6 +42,7 @@ public class Example2 {
 
         if (result.contains(helpOption)) {
             clap.printUsageAndHelp(System.out);
+            return;
         }
 
         int verbosityLevel = result.getCount(verboseOption);

@@ -31,11 +31,6 @@ import de.hasait.clap.CLAP;
  */
 public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
 
-    @SuppressWarnings("unchecked")
-    private static <T> Class<T[]> asArrayClass(Class<T> type) {
-        return (Class<T[]>) Array.newInstance(type, 0).getClass();
-    }
-
     private final List<AbstractCLAPNode> _list = new ArrayList<>();
     private final List<AbstractCLAPNode> _ulist = Collections.unmodifiableList(_list);
 
@@ -77,13 +72,6 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return node;
     }
 
-    protected final CLAPOptionNode<Boolean> internalAddFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
-        final CLAPOptionNode<Boolean> node = CLAPOptionNode
-                .create(getCLAP(), Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null);
-        _list.add(node);
-        return node;
-    }
-
     protected final CLAPKeywordNode internalAddKeyword(String keyword) {
         final CLAPKeywordNode node = new CLAPKeywordNode(getCLAP(), keyword);
         _list.add(node);
@@ -96,26 +84,10 @@ public abstract class AbstractCLAPNodeList extends AbstractCLAPNode {
         return list;
     }
 
-    protected final <V> CLAPOptionNode<V> internalAddOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+    protected final <V> CLAPOptionNode<V> internalAddOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
         final CLAPOptionNode<V> node = CLAPOptionNode
-                .create(getCLAP(), resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
-                        argUsageNLSKey
-                );
-        _list.add(node);
-        return node;
-    }
-
-    protected final <V> CLAPOptionNode<V> internalAddOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
-        final CLAPOptionNode<V> node = CLAPOptionNode
-                .create(getCLAP(), resultClass, shortKey, longKey, required, 1, null, descriptionNLSKey, argUsageNLSKey);
-        _list.add(node);
-        return node;
-    }
-
-    protected final <V> CLAPOptionNode<V[]> internalAddOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
-        final CLAPOptionNode<V[]> node = CLAPOptionNode
-                .create(getCLAP(), asArrayClass(resultClass), shortKey, longKey, required, CLAP.UNLIMITED_ARG_COUNT, multiArgSplit,
-                        descriptionNLSKey, argUsageNLSKey
+                .create(getCLAP(), resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey,
+                        immediateReturn
                 );
         _list.add(node);
         return node;

@@ -64,12 +64,24 @@ public interface CLAPNode {
      * @param shortKey          Short key or <code>null</code>.
      * @param longKey           Long key or <code>null</code>.
      * @param required          Typically flags are not required (<code>false</code>), but for decision branches they can be
-     *                           required, e.g. one branch with an option and another branch with a required flag and an option, so the
-     *                           existence of the flag decides which branch is active.
+     *                          required, e.g. one branch with an option and another branch with a required flag and an option, so the
+     *                          existence of the flag decides which branch is active.
      * @param descriptionNLSKey NLSkey for the description
      * @return The node.
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
      */
-    CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey);
+    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey, boolean immediateReturn) {
+        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null, immediateReturn);
+    }
+
+    /**
+     * Add flag node.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
+     */
+    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
+        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null);
+    }
 
     /**
      * Add a keyword.
@@ -93,34 +105,57 @@ public interface CLAPNode {
      * @param longKey           Long key or <code>null</code>.
      * @param required          Required (<code>true</code>) or optional (<code>false</code>)
      * @param argCount          Arguments to the option: <code>null</code> for autodetect (i.e. arrays and collections become
-     *                           unlimited); {@link CLAP#UNLIMITED_ARG_COUNT} for unlimited; <code>0</code> for no arg;
-     *                           <code>&gt; 0</code> for exact arg count.
+     *                          unlimited); {@link CLAP#UNLIMITED_ARG_COUNT} for unlimited; <code>0</code> for no arg;
+     *                          <code>&gt; 0</code> for exact arg count.
      * @param multiArgSplit     Character for splitting multiple arguments
      * @param descriptionNLSKey NLSkey for the description
      * @param argUsageNLSKey    NLSkey for the usage
+     * @param immediateReturn   If found while parsing, return immediately the current result - typically used for help flags to skip validation.
      * @return The handle for getting the actual value after parsing.
      */
-    <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey);
+    <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn);
+
+    default <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        return addOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey, false);
+    }
 
     /**
      * Add option with single argument.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
      */
-    <V> CLAPValue<V> addOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey);
+    default <V> CLAPValue<V> addOption1(Class<V> resultClass, Character shortKey, String longKey, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return addOption(resultClass, shortKey, longKey, required, 1, null, descriptionNLSKey, argUsageNLSKey);
+    }
 
     /**
      * Add option with unlimited arguments.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
      */
-    <V> CLAPValue<V[]> addOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey);
+    default <V> CLAPValue<V[]> addOptionU(Class<V> resultClass, Character shortKey, String longKey, boolean required, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
+        return addOption(CLAP.asArrayClass(resultClass), shortKey, longKey, required, CLAP.UNLIMITED_ARG_COUNT, multiArgSplit,
+                         descriptionNLSKey, argUsageNLSKey
+        );
+    }
 
     /**
      * Add nameless option with 1 arguments, e.g. a filename as last argument.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
      */
-    <V> CLAPValue<V> addNameless1(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey);
+    default <V> CLAPValue<V> addNameless1(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return addOption1(resultClass, null, null, required, descriptionNLSKey, argUsageNLSKey);
+    }
 
     /**
      * Add nameless option with unlimited arguments, e.g. a list of files as last arguments.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
      */
-    <V> CLAPValue<V[]> addNamelessU(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey);
+    default <V> CLAPValue<V[]> addNamelessU(Class<V> resultClass, boolean required, String descriptionNLSKey, String argUsageNLSKey) {
+        return addOptionU(resultClass, null, null, required, null, descriptionNLSKey, argUsageNLSKey);
+    }
 
     /**
      * <p>Can be used to group options in the help screen.</p>
