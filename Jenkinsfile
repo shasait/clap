@@ -106,6 +106,7 @@ node('linux') {
 						sh "git commit -m '[Jenkinsfile] ${msg}'"
 						def gitTagOptions = params.forceTag ? '-f' : ''
 						sh "git tag ${gitTagOptions} ${releaseTag}"
+						manager.addInfoBadge("Release ${params.releaseVersion}")
 					}
 				}
 
