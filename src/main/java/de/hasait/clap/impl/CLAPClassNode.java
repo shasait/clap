@@ -138,6 +138,11 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             }
         }
 
+        final CLAPKeyword classKeyword = findAnnotation(clazz, CLAPKeyword.class);
+        if (classKeyword != null) {
+            annotations.add(new Item(classKeyword.order(), classKeyword, null, null, null));
+        }
+
         final CLAPHelpCategory classHelpCategory = findAnnotation(clazz, CLAPHelpCategory.class);
         if (classHelpCategory != null) {
             String titleNLSKey = classHelpCategory.titleNLSKey();
