@@ -112,7 +112,7 @@ public class CommandCLI {
 
     }
 
-    @CLAPKeywords(@CLAPKeyword("rotate"))
+    @CLAPKeyword("rotate")
     public static class RotateCommand implements Command {
 
         private boolean ccw;
@@ -133,7 +133,7 @@ public class CommandCLI {
 
     }
 
-    @CLAPKeywords(@CLAPKeyword("scale"))
+    @CLAPKeyword("scale")
     public static class ScaleCommand implements Command {
 
         private int percent;
