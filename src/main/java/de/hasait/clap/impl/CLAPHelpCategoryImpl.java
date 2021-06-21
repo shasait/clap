@@ -18,6 +18,8 @@ package de.hasait.clap.impl;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import de.hasait.clap.CLAP;
+
 /**
  *
  */
@@ -30,12 +32,8 @@ public class CLAPHelpCategoryImpl implements Comparable<CLAPHelpCategoryImpl> {
     public CLAPHelpCategoryImpl(int order, String titleNLSKey) {
         super();
 
-        if (titleNLSKey == null) {
-            throw new IllegalArgumentException("TitleNLSKey cannot be null");
-        }
-
         _order = order;
-        _titleNLSKey = titleNLSKey;
+        _titleNLSKey = titleNLSKey != null ? titleNLSKey : CLAP.NLSKEY_DEFAULT_HELP_CATEGORY;
     }
 
     @Override

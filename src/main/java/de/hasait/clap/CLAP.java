@@ -60,6 +60,8 @@ import de.hasait.clap.impl.SystemConsoleUICallback;
 public final class CLAP implements CLAPNode {
 
     public static final int UNLIMITED_ARG_COUNT = -1;
+    public static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory";
+    public static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory";
 
     private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGES_SPLIT = "clap.error.errorMessagesSplit";
     private static final String NLSKEY_CLAP_ERROR_ERROR_MESSAGE_SPLIT = "clap.error.errorMessageSplit";
@@ -68,8 +70,6 @@ public final class CLAP implements CLAPNode {
     private static final String NLSKEY_CLAP_ERROR_INVALID_TOKEN_LIST = "clap.error.invalidTokenList";
     private static final String NLSKEY_ENTER_PASSWORD = "clap.enterpassword";
     private static final String NLSKEY_ENTER_LINE = "clap.enterline";
-    private static final String NLSKEY_DEFAULT_HELP_CATEGORY = "clap.defaultHelpCategory";
-    private static final String NLSKEY_DEFAULT_USAGE_CATEGORY = "clap.defaultUsageCategory";
 
     @SuppressWarnings("unchecked")
     public static <T> Class<T[]> asArrayClass(Class<T> type) {
@@ -112,8 +112,8 @@ public final class CLAP implements CLAPNode {
         initDefaultConverters();
 
         this.root = new CLAPNodeList(this);
-        this.root.setHelpCategory(1000, NLSKEY_DEFAULT_HELP_CATEGORY);
-        this.root.setUsageCategory(1000, NLSKEY_DEFAULT_USAGE_CATEGORY);
+        this.root.setHelpCategory(1000, null);
+        this.root.setUsageCategory(1000, null);
 
         if (System.console() != null) {
             this.uiCallback = new SystemConsoleUICallback();

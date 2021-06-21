@@ -33,25 +33,39 @@ public @interface CLAPOption {
     int UNLIMITED_ARG_COUNT = -1;
     int AUTOMATIC_ARG_COUNT = -2;
 
-    int argCount() default AUTOMATIC_ARG_COUNT;
-
-    String argUsageNLSKey() default "";
-
-    String descriptionNLSKey() default "";
-
-    String longKey() default "";
-
-    char multiArgSplit() default ' ';
-
-    int order() default 1000;
-
-    boolean required() default false;
-
     char shortKey() default ' ';
 
     /**
-     * Short key as String, especially for Groovy.
+     * shortKey as String, useful for Groovy, where char in annotation is not easy.
      */
     String sshortKey() default "";
+
+    String longKey() default "";
+
+    boolean required() default false;
+
+    /**
+     * Arguments to the option: not specified for autodetect (i.e. arrays and collections become unlimited);
+     * {@link #UNLIMITED_ARG_COUNT} for unlimited;
+     * <code>0</code> for no arg;
+     * <code>&gt; 0</code> for exact arg count.
+     */
+    int argCount() default AUTOMATIC_ARG_COUNT;
+
+    char multiArgSplit() default ' ';
+
+    /**
+     * multiArgSplit as String, useful for Groovy, where char in annotation is not easy.
+     */
+    String smultiArgSplit() default "";
+
+    String descriptionNLSKey() default "";
+
+    String argUsageNLSKey() default "";
+
+    /**
+     * The order within the class; for help and usage ordering see {@link CLAPHelpCategory} and {@link CLAPUsageCategory}.
+     */
+    int order() default 1000;
 
 }

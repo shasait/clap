@@ -87,6 +87,27 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         return null;
     }
 
+    private static Character useCharOrString(char charValue, String stringValue, String name, PropertyDescriptor propertyDescriptor) {
+        int stringLength = stringValue.length();
+        Character result;
+        if (charValue == ' ') {
+            if (stringLength == 0) {
+                result = null;
+            } else if (stringLength == 1) {
+                result = stringValue.charAt(0);
+            } else {
+                throw new IllegalArgumentException("s" + name + ".length > 1: " + propertyDescriptor);
+            }
+        } else {
+            if (stringLength == 0) {
+                result = charValue;
+            } else {
+                throw new IllegalArgumentException("Cannot use both " + name + " and s" + name + ": " + propertyDescriptor);
+            }
+        }
+        return result;
+    }
+
     private final Class<T> _class;
 
     private final Map<CLAPValue<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
@@ -119,12 +140,14 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 
         final CLAPHelpCategory classHelpCategory = findAnnotation(clazz, CLAPHelpCategory.class);
         if (classHelpCategory != null) {
-            setHelpCategory(classHelpCategory.order(), classHelpCategory.titleNLSKey());
+            String titleNLSKey = classHelpCategory.titleNLSKey();
+            setHelpCategory(classHelpCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
         }
 
         final CLAPUsageCategory classUsageCategory = findAnnotation(clazz, CLAPUsageCategory.class);
         if (classUsageCategory != null) {
-            setUsageCategory(classUsageCategory.order(), classUsageCategory.titleNLSKey());
+            String titleNLSKey = classUsageCategory.titleNLSKey();
+            setUsageCategory(classUsageCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
         }
 
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
@@ -271,23 +294,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
     }
 
     private <V> CLAPOptionNode<V> processCLAPOption(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPOption clapOption) {
-        int sslength = clapOption.sshortKey().length();
-        final Character shortKey;
-        if (clapOption.shortKey() == ' ') {
-            if (sslength == 0) {
-                shortKey = null;
-            } else if (sslength == 1) {
-                shortKey = clapOption.sshortKey().charAt(0);
-            } else {
-                throw new IllegalArgumentException("sshortKey.length > 1: " + propertyDescriptor);
-            }
-        } else {
-            if (sslength == 0) {
-                shortKey = clapOption.shortKey();
-            } else {
-                throw new IllegalArgumentException("Cannot use both shortKey and sshortKey: " + propertyDescriptor);
-            }
-        }
+        final Character shortKey = useCharOrString(clapOption.shortKey(), clapOption.sshortKey(), "shortKey", propertyDescriptor);
         final String longKey = clapOption.longKey().length() == 0 ? null : clapOption.longKey();
         final boolean required = clapOption.required();
         final Integer argCount;
@@ -299,7 +306,9 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         } else {
             argCount = argCountA;
         }
-        final Character multiArgSplit = clapOption.multiArgSplit() == ' ' ? null : clapOption.multiArgSplit();
+        final Character multiArgSplit = useCharOrString(clapOption.multiArgSplit(), clapOption.smultiArgSplit(), "multiArgSplit",
+                                                        propertyDescriptor
+        );
         final String descriptionNLSKey = clapOption.descriptionNLSKey().length() == 0 ? null : clapOption.descriptionNLSKey();
         final String argUsageNLSKey = clapOption.argUsageNLSKey().length() == 0 ? null : clapOption.argUsageNLSKey();
 

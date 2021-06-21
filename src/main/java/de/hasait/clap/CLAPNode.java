@@ -174,12 +174,16 @@ public interface CLAPNode {
      *   -p, --port         The port, where the server is listening
      * </pre>
      *
-     * @param order Initially set to <code>1000</code>.
+     * @param order       Initially set to <code>1000</code>.
+     * @param titleNLSKey The category title or <code>null</code> to use the default.
      */
     void setHelpCategory(int order, String titleNLSKey);
 
     /**
-     * @param order Initially set to <code>1000</code>.
+     * <p>Can be used to extract options into separate usage line and include only the title in the main usage.</p>
+     *
+     * @param order       Initially set to <code>1000</code>.
+     * @param titleNLSKey The category title or <code>null</code> to use the default.
      */
     void setUsageCategory(int order, String titleNLSKey);
 
