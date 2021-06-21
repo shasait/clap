@@ -143,17 +143,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             annotations.add(new Item(classKeyword.order(), classKeyword, null, null, null));
         }
 
-        final CLAPHelpCategory classHelpCategory = findAnnotation(clazz, CLAPHelpCategory.class);
-        if (classHelpCategory != null) {
-            String titleNLSKey = classHelpCategory.titleNLSKey();
-            setHelpCategory(classHelpCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
-        }
-
-        final CLAPUsageCategory classUsageCategory = findAnnotation(clazz, CLAPUsageCategory.class);
-        if (classUsageCategory != null) {
-            String titleNLSKey = classUsageCategory.titleNLSKey();
-            setUsageCategory(classUsageCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
-        }
+        processCLAPHelpCategory(this, findAnnotation(clazz, CLAPHelpCategory.class));
+        processCLAPUsageCategory(this, findAnnotation(clazz, CLAPUsageCategory.class));
 
         for (PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
             final CLAPOption pdOption = getAnnotation(propertyDescriptor, CLAPOption.class);
@@ -204,12 +195,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
                 throw new RuntimeException();
             }
 
-            if (entry._helpCategory != null) {
-                node.setHelpCategory(entry._helpCategory.order(), entry._helpCategory.titleNLSKey());
-            }
-            if (entry._usageCategory != null) {
-                node.setUsageCategory(entry._usageCategory.order(), entry._usageCategory.titleNLSKey());
-            }
+            processCLAPHelpCategory(node, entry._helpCategory);
+            processCLAPUsageCategory(node, entry._usageCategory);
         }
 
     }
@@ -322,6 +309,20 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         );
         _propertyDescriptorByOptionMap.put(optionNode, propertyDescriptor);
         return optionNode;
+    }
+
+    private void processCLAPHelpCategory(AbstractCLAPNode node, CLAPHelpCategory clapHelpCategory) {
+        if (clapHelpCategory != null) {
+            String titleNLSKey = clapHelpCategory.titleNLSKey();
+            node.setHelpCategory(clapHelpCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
+        }
+    }
+
+    private void processCLAPUsageCategory(AbstractCLAPNode node, CLAPUsageCategory clapUsageCategory) {
+        if (clapUsageCategory != null) {
+            String titleNLSKey = clapUsageCategory.titleNLSKey();
+            node.setUsageCategory(clapUsageCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
+        }
     }
 
     private static class Item {
