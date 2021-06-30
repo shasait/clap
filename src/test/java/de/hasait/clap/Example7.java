@@ -19,27 +19,64 @@ package de.hasait.clap;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-public class Example3 {
+public class Example7 {
 
-    public interface Command {
+    public static class Gpu {
 
-        void execute(PrintStream printStream, String[] files);
+        private String gpu;
+
+        public String getGpu() {
+            return gpu;
+        }
+
+        @CLAPOption(longKey = "gpu", descriptionNLSKey = "GPU device to use")
+        public void setGpu(String gpu) {
+            this.gpu = gpu;
+        }
+
+    }
+
+    public static abstract class Command {
+
+        private boolean debug;
+
+        public boolean isDebug() {
+            return debug;
+        }
+
+        @CLAPOption(longKey = "debug", descriptionNLSKey = "Debug output")
+        public void setDebug(boolean debug) {
+            this.debug = debug;
+        }
+
+        public abstract void execute(PrintStream printStream, String[] files);
 
     }
 
     @CLAPUsageCategory(value = "Rotate", categoryOrder = 2)
     @CLAPKeyword("rotate")
-    public static class RotateCommand implements Command {
+    public static class RotateCommand extends Command {
 
         private boolean ccw;
+
+        private Gpu gpu;
 
         public boolean isCcw() {
             return ccw;
         }
 
-        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise")
+        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise", order = 1)
         public void setCcw(boolean ccw) {
             this.ccw = ccw;
+        }
+
+        public Gpu getGpu() {
+            return gpu;
+        }
+
+        @CLAPDelegate(order = 10)
+        public void setGpu(Gpu gpu) {
+            this.gpu = gpu;
         }
 
         @Override
@@ -51,17 +88,28 @@ public class Example3 {
 
     @CLAPUsageCategory(value = "Scale", categoryOrder = 1)
     @CLAPKeyword("scale")
-    public static class ScaleCommand implements Command {
+    public static class ScaleCommand extends Command {
 
         private int percent;
+
+        private Gpu gpu;
 
         public int getPercent() {
             return percent;
         }
 
-        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent")
+        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent", order = 1)
         public void setPercent(int percent) {
             this.percent = percent;
+        }
+
+        public Gpu getGpu() {
+            return gpu;
+        }
+
+        @CLAPDelegate(order = 10)
+        public void setGpu(Gpu gpu) {
+            this.gpu = gpu;
         }
 
         @Override

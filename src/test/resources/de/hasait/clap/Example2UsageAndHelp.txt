@@ -1,0 +1,19 @@
+Usage: [-v|--verbose] [-h|--help] { *Client | *Server }
+*Client: {-H|--host <host>} {-p|--port <port>}
+*Server: {-l|--listen <port>}
+
+Common Options
+
+  -h, --help       Print help
+
+  -v, --verbose    Increase verbosity level
+
+Client
+
+  -H, --host       The host to connect to
+
+  -p, --port       The port to connect to
+
+Server
+
+  -l, --listen     The port to listen on

@@ -16,42 +16,51 @@
 
 package de.hasait.clap;
 
+import java.io.PrintStream;
+
 public class Example2 {
 
-    public static void main(String[] args) {
+    public static void main(String[] rawArgs) {
+        main(rawArgs, System.out);
+    }
+
+    public static void main(String[] rawArgs, PrintStream printStream) {
         CLAP clap = new CLAP();
         CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "Increase verbosity level");
         CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help", true);
         CLAPNode decision = clap.addDecision();
-        CLAPNode clientBranch = decision.addNodeList();
-        clientBranch.setHelpCategory(2000, "Client");
+
+        CLAPNode clientBranch = decision.addGroup();
+        clientBranch.setUsageCategory(1, "Client");
+        clientBranch.setHelpCategory(1, "Client");
         CLAPValue<String> clientHost = clientBranch.addOption1(String.class, 'H', "host", true, "The host to connect to", "host");
         CLAPValue<Integer> clientPort = clientBranch.addOption1(Integer.class, 'p', "port", true, "The port to connect to", "port");
 
-        CLAPNode serverBranch = decision.addNodeList();
-        serverBranch.setHelpCategory(2001, "Server");
+        CLAPNode serverBranch = decision.addGroup();
+        serverBranch.setUsageCategory(2, "Server");
+        serverBranch.setHelpCategory(2, "Server");
         CLAPValue<Integer> serverPort = serverBranch.addOption1(Integer.class, 'l', "listen", true, "The port to listen on", "port");
 
         CLAPResult result;
         try {
-            result = clap.parse(args);
+            result = clap.parse(rawArgs);
         } catch (CLAPException e) {
-            clap.printUsageAndHelp(System.out);
+            clap.printUsageAndHelp(printStream);
             throw e;
         }
 
         if (result.contains(helpOption)) {
-            clap.printUsageAndHelp(System.out);
+            clap.printUsageAndHelp(printStream);
             return;
         }
 
         int verbosityLevel = result.getCount(verboseOption);
-        System.out.println("verbosityLevel=" + verbosityLevel);
+        printStream.println("verbosityLevel=" + verbosityLevel);
 
         if (result.contains(clientBranch)) {
-            System.out.println("Connecting to " + result.getValue(clientHost) + ":" + result.getValue(clientPort) + "...");
+            printStream.println("Connecting to " + result.getValue(clientHost) + ":" + result.getValue(clientPort) + "...");
         } else if (result.contains(serverBranch)) {
-            System.out.println("Listening on " + result.getValue(serverPort) + "...");
+            printStream.println("Listening on " + result.getValue(serverPort) + "...");
         }
     }
 

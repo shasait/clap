@@ -14,58 +14,71 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.tree;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPNode;
 import de.hasait.clap.CLAPValue;
+import de.hasait.clap.impl.parser.CLAPParseContext;
+import de.hasait.clap.impl.parser.CLAPResultImpl;
 
 /**
  * Decision node (XOR).
  */
-public class CLAPDecisionNode extends AbstractCLAPDecision implements CLAPNode {
+public class CLAPDecisionNode extends AbstractCLAPDecisionNode implements CLAPNode {
 
     public CLAPDecisionNode(CLAP clap) {
         super(clap);
     }
 
     @Override
-    public final <V> CLAPClassNode<V> addClass(Class<V> clazz) {
+    public final void setUsageCategoryTitle(String usageCategoryTitle) {
+        internalSetUsageCategoryTitle(usageCategoryTitle);
+    }
+
+    @Override
+    public final void setUsageCategoryOrder(int usageCategoryOrder) {
+        internalSetUsageCategoryOrder(usageCategoryOrder);
+    }
+
+    @Override
+    public final <V> CLAPValue<V> addClass(Class<V> clazz) {
         return internalAddClass(clazz);
     }
 
     @Override
-    public final CLAPDecisionNode addDecision() {
+    public final CLAPNode addDecision() {
         return internalAddDecision();
     }
 
     @Override
-    public final <V> CLAPTypedDecisionNode<V> addDecision(Class<V> resultClass, Class<? extends V>... branchClasses) {
+    public final <V> CLAPValue<V> addDecision(Class<V> resultClass, Class<? extends V>... branchClasses) {
         return internalAddDecision(resultClass, branchClasses);
     }
 
     @Override
-    public void addKeyword(String keyword) {
+    public final void addKeyword(String keyword) {
         internalAddKeyword(keyword);
     }
 
     @Override
-    public final CLAPNodeList addNodeList() {
+    public final CLAPNode addGroup() {
         return internalAddNodeList();
     }
 
     @Override
-    public final <V> CLAPOptionNode<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
+    public final <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn, boolean password) {
         return internalAddOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey,
-                                 immediateReturn);
+                                 immediateReturn, password
+        );
     }
 
     @Override
     public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
-        final AbstractCLAPNode decision = context.getDecision(this);
-        if (decision != null) {
-            if (decision.fillResult(context, result)) {
-                result.setCount(decision, 1);
+        AbstractCLAPLeafOrNode branchLeafOrNode = context.getDecisionBranch(this);
+        if (branchLeafOrNode != null) {
+            if (branchLeafOrNode.fillResult(context, result)) {
+                result.setCount(branchLeafOrNode, 1);
                 return true;
             }
         }

@@ -16,15 +16,25 @@
 
 package de.hasait.clap.impl;
 
+import java.util.Objects;
+
+import de.hasait.clap.CLAP;
+
 /**
- *
+ * Leaf or Node of the option tree.
  */
-public interface CLAPHelpNode {
+public abstract class AbstractCLAPRelated {
 
-    String getDescriptionNLSKey();
+    protected final CLAP clap;
 
-    CLAPHelpCategoryImpl getHelpCategory();
+    protected AbstractCLAPRelated(CLAP clap) {
+        super();
 
-    String getHelpID();
+        this.clap = Objects.requireNonNull(clap, "clap must not be null");
+    }
+
+    protected final String nls(String key, Object... arguments) {
+        return clap.nls(key, arguments);
+    }
 
 }

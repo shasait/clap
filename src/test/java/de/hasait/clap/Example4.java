@@ -19,17 +19,28 @@ package de.hasait.clap;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-public class Example3 {
+public class Example4 {
 
-    public interface Command {
+    public static abstract class Command {
 
-        void execute(PrintStream printStream, String[] files);
+        private boolean debug;
+
+        public boolean isDebug() {
+            return debug;
+        }
+
+        @CLAPOption(longKey = "debug", descriptionNLSKey = "Debug output")
+        public void setDebug(boolean debug) {
+            this.debug = debug;
+        }
+
+        public abstract void execute(PrintStream printStream, String[] files);
 
     }
 
     @CLAPUsageCategory(value = "Rotate", categoryOrder = 2)
     @CLAPKeyword("rotate")
-    public static class RotateCommand implements Command {
+    public static class RotateCommand extends Command {
 
         private boolean ccw;
 
@@ -37,7 +48,7 @@ public class Example3 {
             return ccw;
         }
 
-        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise")
+        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise", order = 1)
         public void setCcw(boolean ccw) {
             this.ccw = ccw;
         }
@@ -51,7 +62,7 @@ public class Example3 {
 
     @CLAPUsageCategory(value = "Scale", categoryOrder = 1)
     @CLAPKeyword("scale")
-    public static class ScaleCommand implements Command {
+    public static class ScaleCommand extends Command {
 
         private int percent;
 
@@ -59,7 +70,7 @@ public class Example3 {
             return percent;
         }
 
-        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent")
+        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent", order = 1)
         public void setPercent(int percent) {
             this.percent = percent;
         }

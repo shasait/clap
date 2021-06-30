@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.tree;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.StringUtils;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPDecision;
@@ -45,11 +45,13 @@ import de.hasait.clap.CLAPKeywords;
 import de.hasait.clap.CLAPOption;
 import de.hasait.clap.CLAPUsageCategory;
 import de.hasait.clap.CLAPValue;
+import de.hasait.clap.impl.parser.CLAPParseContext;
+import de.hasait.clap.impl.parser.CLAPResultImpl;
 
 /**
  * CLAPNode for handling annotated classes.
  */
-public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<T> {
+public class CLAPClassNode<T> extends AbstractCLAPNode implements CLAPValue<T> {
 
     private static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> annotationClass) {
         final Deque<Class<?>> queue = new ArrayDeque<>();
@@ -112,7 +114,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
 
     private final Map<CLAPValue<?>, PropertyDescriptor> _propertyDescriptorByOptionMap;
 
-    private final Set<CLAPKeywordNode> _keywordNodes;
+    private final Set<CLAPKeywordLeaf> _keywordNodes;
 
     public CLAPClassNode(CLAP clap, Class<T> clazz) {
         super(clap);
@@ -134,13 +136,13 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         final CLAPKeywords classKeywords = findAnnotation(clazz, CLAPKeywords.class);
         if (classKeywords != null) {
             for (CLAPKeyword classKeyword : classKeywords.value()) {
-                annotations.add(new Item(classKeyword.order(), classKeyword, null, null, null));
+                annotations.add(new Item(classKeyword.order(), classKeyword, null, null));
             }
         }
 
         final CLAPKeyword classKeyword = findAnnotation(clazz, CLAPKeyword.class);
         if (classKeyword != null) {
-            annotations.add(new Item(classKeyword.order(), classKeyword, null, null, null));
+            annotations.add(new Item(classKeyword.order(), classKeyword, null, null));
         }
 
         processCLAPHelpCategory(this, findAnnotation(clazz, CLAPHelpCategory.class));
@@ -151,7 +153,6 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
             final CLAPDelegate pdDelegate = getAnnotation(propertyDescriptor, CLAPDelegate.class);
             final CLAPDecision pdDecision = getAnnotation(propertyDescriptor, CLAPDecision.class);
             final CLAPHelpCategory pdHelpCategory = getAnnotation(propertyDescriptor, CLAPHelpCategory.class);
-            final CLAPUsageCategory pdUsageCategory = getAnnotation(propertyDescriptor, CLAPUsageCategory.class);
             if ((pdOption != null ? 1 : 0) + (pdDelegate != null ? 1 : 0) + (pdDecision != null ? 1 : 0) > 1) {
                 throw new IllegalArgumentException("Cannot mix annotations "
                                                            + CLAPOption.class.getSimpleName()
@@ -163,47 +164,42 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
                                                            + propertyDescriptor);
             }
             if (pdOption != null) {
-                annotations.add(new Item(pdOption.order(), pdOption, propertyDescriptor, pdHelpCategory, pdUsageCategory));
+                annotations.add(new Item(pdOption.order(), pdOption, propertyDescriptor, pdHelpCategory));
             }
             if (pdDelegate != null) {
-                annotations.add(new Item(pdDelegate.order(), pdDelegate, propertyDescriptor, pdHelpCategory, pdUsageCategory));
+                annotations.add(new Item(pdDelegate.order(), pdDelegate, propertyDescriptor, pdHelpCategory));
             }
             if (pdDecision != null) {
-                annotations.add(new Item(pdDecision.order(), pdDecision, propertyDescriptor, pdHelpCategory, pdUsageCategory));
+                annotations.add(new Item(pdDecision.order(), pdDecision, propertyDescriptor, pdHelpCategory));
             }
         }
 
-        annotations.sort(Comparator.comparing(a -> a._order));
+        annotations.sort(Comparator.comparing(a -> a.order));
 
         for (Item entry : annotations) {
-            final Object annotation = entry._annotation;
+            final Object annotation = entry.annotation;
 
-            final AbstractCLAPNode node;
+            final AbstractCLAPLeafOrNode node;
             if (annotation instanceof CLAPKeyword) {
                 node = processCLAPKeyword((CLAPKeyword) annotation);
             } else if (annotation instanceof CLAPOption) {
-                node = processCLAPOption(entry._propertyDescriptor.getPropertyType(), entry._propertyDescriptor, (CLAPOption) annotation);
+                node = processCLAPOption(entry.propertyDescriptor.getPropertyType(), entry.propertyDescriptor, (CLAPOption) annotation);
             } else if (annotation instanceof CLAPDelegate) {
-                node = processCLAPDelegate(entry._propertyDescriptor.getPropertyType(), entry._propertyDescriptor,
-                                           (CLAPDelegate) annotation
-                );
+                node = processCLAPDelegate(entry.propertyDescriptor.getPropertyType(), entry.propertyDescriptor, (CLAPDelegate) annotation);
             } else if (annotation instanceof CLAPDecision) {
-                node = processCLAPDecision(entry._propertyDescriptor.getPropertyType(), entry._propertyDescriptor,
-                                           (CLAPDecision) annotation
-                );
+                node = processCLAPDecision(entry.propertyDescriptor.getPropertyType(), entry.propertyDescriptor, (CLAPDecision) annotation);
             } else {
                 throw new RuntimeException();
             }
 
-            processCLAPHelpCategory(node, entry._helpCategory);
-            processCLAPUsageCategory(node, entry._usageCategory);
+            processCLAPHelpCategory(node, entry.helpCategory);
         }
 
     }
 
     @Override
     public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
-        internalFillResult(context, result);
+        super.fillResult(context, result);
 
         T value;
         try {
@@ -225,7 +221,7 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
                 }
             }
         }
-        for (CLAPKeywordNode node : _keywordNodes) {
+        for (CLAPKeywordLeaf node : _keywordNodes) {
             if (context.getNodeCount(node) > 0) {
                 anySet = true;
             }
@@ -239,23 +235,8 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
     }
 
     @Override
-    public final CLAPParseContext[] parse(CLAPParseContext context) {
-        return internalParse(context);
-    }
-
-    @Override
-    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
-        final Pair<CLAPUsageCategoryImpl, StringBuilder> pair = handleUsageCategory(categories, currentCategory, result);
-        if (pair != null) {
-            final CLAPUsageCategoryImpl nodeCategory = pair.getLeft();
-            final StringBuilder nodeResult = pair.getRight();
-            internalPrintUsage(categories, nodeCategory, nodeResult, " ");
-        }
-    }
-
-    @Override
-    public final void validate(CLAPParseContext context, List<String> errorMessages) {
-        internalValidate(context, errorMessages);
+    protected String getDistinctionKey() {
+        return _class.getName();
     }
 
     private <V> CLAPTypedDecisionNode<V> processCLAPDecision(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPDecision clapDecision) {
@@ -279,18 +260,18 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         return classNode;
     }
 
-    private CLAPKeywordNode processCLAPKeyword(CLAPKeyword clapKeyword) {
-        final CLAPKeywordNode keywordNode = internalAddKeyword(clapKeyword.value());
+    private CLAPKeywordLeaf processCLAPKeyword(CLAPKeyword clapKeyword) {
+        final CLAPKeywordLeaf keywordNode = internalAddKeyword(clapKeyword.value());
         _keywordNodes.add(keywordNode);
         return keywordNode;
     }
 
-    private <V> CLAPOptionNode<V> processCLAPOption(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPOption clapOption) {
-        final Character shortKey = useCharOrString(clapOption.shortKey(), clapOption.sshortKey(), "shortKey", propertyDescriptor);
-        final String longKey = clapOption.longKey().length() == 0 ? null : clapOption.longKey();
-        final boolean required = clapOption.required();
-        final Integer argCount;
-        final int argCountA = clapOption.argCount();
+    private <V> CLAPOptionLeaf<V> processCLAPOption(Class<V> propertyType, PropertyDescriptor propertyDescriptor, CLAPOption clapOption) {
+        Character shortKey = useCharOrString(clapOption.shortKey(), clapOption.sshortKey(), "shortKey", propertyDescriptor);
+        String longKey = clapOption.longKey().length() == 0 ? null : clapOption.longKey();
+        boolean required = clapOption.required();
+        Integer argCount;
+        int argCountA = clapOption.argCount();
         if (argCountA == CLAPOption.UNLIMITED_ARG_COUNT) {
             argCount = CLAP.UNLIMITED_ARG_COUNT;
         } else if (argCountA == CLAPOption.AUTOMATIC_ARG_COUNT) {
@@ -298,48 +279,50 @@ public class CLAPClassNode<T> extends AbstractCLAPNodeList implements CLAPValue<
         } else {
             argCount = argCountA;
         }
-        final Character multiArgSplit = useCharOrString(clapOption.multiArgSplit(), clapOption.smultiArgSplit(), "multiArgSplit",
-                                                        propertyDescriptor
+        Character multiArgSplit = useCharOrString(clapOption.multiArgSplit(), clapOption.smultiArgSplit(), "multiArgSplit",
+                                                  propertyDescriptor
         );
-        final String descriptionNLSKey = clapOption.descriptionNLSKey().length() == 0 ? null : clapOption.descriptionNLSKey();
-        final String argUsageNLSKey = clapOption.argUsageNLSKey().length() == 0 ? null : clapOption.argUsageNLSKey();
+        String descriptionNLSKey = clapOption.descriptionNLSKey().length() == 0 ? null : clapOption.descriptionNLSKey();
+        String argUsageNLSKey = clapOption.argUsageNLSKey().length() == 0 ? null : clapOption.argUsageNLSKey();
+        boolean password = clapOption.password();
 
-        final CLAPOptionNode<V> optionNode = internalAddOption(propertyType, shortKey, longKey, required, argCount, multiArgSplit,
-                                                               descriptionNLSKey, argUsageNLSKey, false
+        CLAPOptionLeaf<V> optionNode = internalAddOption(propertyType, shortKey, longKey, required, argCount, multiArgSplit,
+                                                         descriptionNLSKey, argUsageNLSKey, false, password
         );
         _propertyDescriptorByOptionMap.put(optionNode, propertyDescriptor);
         return optionNode;
     }
 
-    private void processCLAPHelpCategory(AbstractCLAPNode node, CLAPHelpCategory clapHelpCategory) {
+    private void processCLAPHelpCategory(AbstractCLAPLeafOrNode node, CLAPHelpCategory clapHelpCategory) {
         if (clapHelpCategory != null) {
-            String titleNLSKey = clapHelpCategory.titleNLSKey();
-            node.setHelpCategory(clapHelpCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
+            String helpCategory = clapHelpCategory.value();
+            node.setHelpCategoryTitle(StringUtils.isEmpty(helpCategory) ? null : helpCategory);
+            node.setHelpCategoryOrder(clapHelpCategory.categoryOrder());
+            node.setHelpEntryOrder(clapHelpCategory.entryOrder());
         }
     }
 
     private void processCLAPUsageCategory(AbstractCLAPNode node, CLAPUsageCategory clapUsageCategory) {
         if (clapUsageCategory != null) {
-            String titleNLSKey = clapUsageCategory.titleNLSKey();
-            node.setUsageCategory(clapUsageCategory.order(), "".equals(titleNLSKey) ? null : titleNLSKey);
+            String usageCategory = clapUsageCategory.value();
+            node.internalSetUsageCategoryTitle(StringUtils.isEmpty(usageCategory) ? null : usageCategory);
+            node.internalSetUsageCategoryOrder(clapUsageCategory.categoryOrder());
         }
     }
 
     private static class Item {
 
-        public final int _order;
-        public final Annotation _annotation;
-        public final PropertyDescriptor _propertyDescriptor;
-        public final CLAPHelpCategory _helpCategory;
-        public final CLAPUsageCategory _usageCategory;
+        public final int order;
+        public final Annotation annotation;
+        public final PropertyDescriptor propertyDescriptor;
+        public final CLAPHelpCategory helpCategory;
 
-        public Item(int order, Annotation annotation, PropertyDescriptor propertyDescriptor, CLAPHelpCategory helpCategory, CLAPUsageCategory usageCategory) {
+        public Item(int order, Annotation annotation, PropertyDescriptor propertyDescriptor, CLAPHelpCategory helpCategory) {
             super();
-            _order = order;
-            _annotation = annotation;
-            _propertyDescriptor = propertyDescriptor;
-            _helpCategory = helpCategory;
-            _usageCategory = usageCategory;
+            this.order = order;
+            this.annotation = annotation;
+            this.propertyDescriptor = propertyDescriptor;
+            this.helpCategory = helpCategory;
         }
 
     }

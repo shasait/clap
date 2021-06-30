@@ -63,9 +63,12 @@ public @interface CLAPOption {
 
     String argUsageNLSKey() default "";
 
+    boolean password() default false;
+
     /**
-     * The order within the class; for help and usage ordering see {@link CLAPHelpCategory} and {@link CLAPUsageCategory}.
+     * The order within the class; will affect parsing and usage.
+     * For help ordering see {@link CLAPHelpCategory}.
      */
-    int order() default 1000;
+    int order() default 0;
 
 }

@@ -33,7 +33,7 @@ public class CLAPTypeC {
         return _object;
     }
 
-    @CLAPOption(shortKey = 'c', longKey = "cboolean", order = 1)
+    @CLAPOption(shortKey = 'c', longKey = "cboolean")
     public void setBoolean(Boolean value) {
         _boolean = value;
     }

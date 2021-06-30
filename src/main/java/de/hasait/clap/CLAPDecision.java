@@ -32,6 +32,10 @@ public @interface CLAPDecision {
 
     Class<?>[] branches();
 
-    int order() default 1000;
+    /**
+     * The order within the class; will affect parsing and usage.
+     * For help ordering see {@link CLAPHelpCategory}.
+     */
+    int order() default 0;
 
 }

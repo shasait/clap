@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.tree;
 
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,21 +30,18 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPConverter;
 import de.hasait.clap.CLAPValue;
+import de.hasait.clap.impl.help.CLAPHelpPrinter;
+import de.hasait.clap.impl.parser.CLAPParseContext;
+import de.hasait.clap.impl.parser.CLAPResultImpl;
 
 /**
  * An option node.
  */
-public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPValue<T>, CLAPHelpNode {
+public final class CLAPOptionLeaf<T> extends AbstractCLAPLeaf implements CLAPValue<T> {
 
     private static final String NLSKEY_CLAP_ERROR_OPTION_IS_MISSING = "clap.error.optionIsMissing";
     private static final String NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS = "clap.error.incorrectNumberOfArguments";
     private static final String NLSKEY_CLAP_DEFAULT_ARG = "clap.defaultArg";
-
-    public static <V> CLAPOptionNode<V> create(CLAP clap, Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
-        return new CLAPOptionNode<>(clap, resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey,
-                                    argUsageNLSKey, immediateReturn
-        );
-    }
 
     private final Class<T> _resultClass;
 
@@ -60,27 +55,28 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
 
     private final Character _multiArgSplit;
 
-    private final String _descriptionNLSKey;
+    private final String helpDescription;
 
-    private final String _argUsageNLSKey;
+    private final String argUsageTitle;
 
     private final boolean _immediateReturn;
 
+    private final boolean password;
+
     private final Mapper<T> _mapper;
 
-    private CLAPOptionNode(CLAP clap, Class<T> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
+    public CLAPOptionLeaf(CLAP clap, Class<T> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String helpDescription, String argUsageTitle, boolean immediateReturn, boolean password) {
         super(clap);
 
         _resultClass = resultClass;
 
-        if (shortKey != null && shortKey == getCLAP().getShortOptPrefix()) {
-            throw new IllegalArgumentException("ShortKey " + shortKey + " cannot be shortOptPrefix " + getCLAP().getShortOptPrefix());
+        if (shortKey != null && shortKey == clap.getShortOptPrefix()) {
+            throw new IllegalArgumentException("ShortKey " + shortKey + " cannot be shortOptPrefix " + clap.getShortOptPrefix());
         }
         _shortKey = shortKey;
 
-        if (longKey != null && longKey.contains(getCLAP().getLongOptAssignment())) {
-            throw new IllegalArgumentException(
-                    "LongKey " + longKey + " cannot contain longOptAssignment " + getCLAP().getLongOptAssignment());
+        if (longKey != null && longKey.contains(clap.getLongOptAssignment())) {
+            throw new IllegalArgumentException("LongKey " + longKey + " cannot contain longOptAssignment " + clap.getLongOptAssignment());
         }
         _longKey = longKey;
 
@@ -124,9 +120,10 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
         }
 
         _multiArgSplit = multiArgSplit;
-        _descriptionNLSKey = descriptionNLSKey;
-        _argUsageNLSKey = argUsageNLSKey;
+        this.helpDescription = helpDescription;
+        this.argUsageTitle = argUsageTitle;
         _immediateReturn = immediateReturn;
+        this.password = password;
 
         if (resultClass.isArray()) {
             final Class<?> componentType = resultClass.getComponentType();
@@ -156,8 +153,8 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     }
 
     @Override
-    public void collectHelpNodes(Map<CLAPHelpCategoryImpl, Set<CLAPHelpNode>> nodes, CLAPHelpCategoryImpl currentCategory) {
-        addHelpNode(nodes, currentCategory, this);
+    public int hashCode() {
+        return new HashCodeBuilder().append(_shortKey).append(_longKey).append(_required).append(_argCount).toHashCode();
     }
 
     @Override
@@ -174,7 +171,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             return false;
         }
 
-        final CLAPOptionNode<?> casted = (CLAPOptionNode<?>) other;
+        final CLAPOptionLeaf<?> casted = (CLAPOptionLeaf<?>) other;
 
         if (!ObjectUtils.equals(_resultClass, casted._resultClass)) {
             return false;
@@ -200,11 +197,11 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             return false;
         }
 
-        if (!StringUtils.equals(_descriptionNLSKey, casted._descriptionNLSKey)) {
+        if (!StringUtils.equals(helpDescription, casted.helpDescription)) {
             return false;
         }
 
-        if (!StringUtils.equals(_argUsageNLSKey, casted._argUsageNLSKey)) {
+        if (!StringUtils.equals(argUsageTitle, casted.argUsageTitle)) {
             return false;
         }
 
@@ -217,65 +214,32 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
         return true;
     }
 
-    @Override
-    public boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
-        final int optionCount = context.getNodeCount(this);
-        if (optionCount > 0) {
-            result.setCount(this, optionCount);
-            final String[] stringValues = context.getOptionArgs(this);
-            result.setValue(this, _mapper.transform(stringValues));
-            return true;
-        }
-        return false;
-    }
-
-    public String getArgUsageNLSKey() {
-        return _argUsageNLSKey;
-    }
-
-    @Override
-    public String getDescriptionNLSKey() {
-        return _descriptionNLSKey;
-    }
-
-    @Override
-    public String getHelpID() {
-        final StringBuilder helpIDSB = new StringBuilder();
-        if (_shortKey != null) {
-            helpIDSB.append(getCLAP().getShortOptPrefix()).append(_shortKey);
-            if (_longKey != null) {
-                helpIDSB.append(", ");
-            }
-        }
-        if (_longKey != null) {
-            helpIDSB.append(getCLAP().getLongOptPrefix()).append(_longKey);
-        }
-        if (_shortKey == null && _longKey == null) {
-            final String text = _argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(CLAPOptionNode.NLSKEY_CLAP_DEFAULT_ARG);
-            helpIDSB.append('<').append(text).append('>');
-        }
-        return helpIDSB.toString();
+    public Character getShortKey() {
+        return _shortKey;
     }
 
     public String getLongKey() {
         return _longKey;
     }
 
-    public Character getShortKey() {
-        return _shortKey;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(_shortKey).append(_longKey).append(_required).append(_argCount).toHashCode();
-    }
-
     public boolean isRequired() {
         return _required;
     }
 
+    public String getHelpDescription() {
+        return helpDescription;
+    }
+
+    public String getArgUsageTitle() {
+        return argUsageTitle;
+    }
+
     public boolean isImmediateReturn() {
         return _immediateReturn;
+    }
+
+    public boolean isPassword() {
+        return password;
     }
 
     @Override
@@ -291,7 +255,37 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
     }
 
     @Override
-    public void printUsage(Map<CLAPUsageCategoryImpl, StringBuilder> categories, CLAPUsageCategoryImpl currentCategory, StringBuilder result) {
+    public void validate(CLAPParseContext context, List<String> errorMessages) {
+        if (context.getNodeCount(this) == 0) {
+            if (_required) {
+                errorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, buildHelpEntryTitle()));
+            }
+        } else if (_argCount != CLAP.UNLIMITED_ARG_COUNT && _argCount != context.getArgCount(this)) {
+            errorMessages
+                    .add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, buildHelpEntryTitle(), _argCount, context.getArgCount(this)));
+        }
+    }
+
+    @Override
+    public boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
+        final int optionCount = context.getNodeCount(this);
+        if (optionCount > 0) {
+            result.setCount(this, optionCount);
+            final String[] stringValues = context.getOptionArgs(this);
+            result.setValue(this, _mapper.transform(stringValues));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void collectHelp(CLAPHelpPrinter helpPrinter) {
+        helpPrinter.addEntry(getHelpCategoryTitle(), getHelpCategoryOrder(), buildHelpEntryTitle(), getHelpDescription(), getHelpEntryOrder());
+    }
+
+    @Override
+    protected String buildUsageEntryText() {
+        StringBuilder result = new StringBuilder();
         if (_required) {
             if (_shortKey != null && _longKey != null) {
                 result.append('{');
@@ -300,14 +294,14 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             result.append('[');
         }
         if (_shortKey != null) {
-            result.append(getCLAP().getShortOptPrefix());
+            result.append(clap.getShortOptPrefix());
             result.append(_shortKey);
             if (_longKey != null) {
                 result.append('|');
             }
         }
         if (_longKey != null) {
-            result.append(getCLAP().getLongOptPrefix());
+            result.append(clap.getLongOptPrefix());
             result.append(_longKey);
         }
         if (_argCount != 0) {
@@ -315,7 +309,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
             for (int i = 0; i < count; i++) {
                 if (_multiArgSplit != null) {
                     if (i == 0) {
-                        result.append(getCLAP().getLongOptAssignment());
+                        result.append(clap.getLongOptAssignment());
                     } else {
                         result.append(_multiArgSplit);
                     }
@@ -326,7 +320,7 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
                     result.append("...");
                 } else {
                     result.append('<');
-                    result.append(_argUsageNLSKey != null ? nls(_argUsageNLSKey) : nls(NLSKEY_CLAP_DEFAULT_ARG));
+                    result.append(argUsageTitle != null ? nls(argUsageTitle) : nls(NLSKEY_CLAP_DEFAULT_ARG));
                     if (count > 1 + (_argCount == CLAP.UNLIMITED_ARG_COUNT ? 1 : 0)) {
                         result.append(i + 1);
                     }
@@ -341,22 +335,31 @@ public final class CLAPOptionNode<T> extends AbstractCLAPNode implements CLAPVal
         } else {
             result.append(']');
         }
+
+        return result.toString();
+    }
+
+    private String buildHelpEntryTitle() {
+        final StringBuilder helpIDSB = new StringBuilder();
+        if (_shortKey != null) {
+            helpIDSB.append(clap.getShortOptPrefix()).append(_shortKey);
+            if (_longKey != null) {
+                helpIDSB.append(", ");
+            }
+        }
+        if (_longKey != null) {
+            helpIDSB.append(clap.getLongOptPrefix()).append(_longKey);
+        }
+        if (_shortKey == null && _longKey == null) {
+            final String text = argUsageTitle != null ? nls(argUsageTitle) : nls(CLAPOptionLeaf.NLSKEY_CLAP_DEFAULT_ARG);
+            helpIDSB.append('<').append(text).append('>');
+        }
+        return helpIDSB.toString();
     }
 
     @Override
     public String toString() {
         return MessageFormat.format("{0}[''{1}'', \"{2}\"]", getClass().getSimpleName(), _shortKey, _longKey);
-    }
-
-    @Override
-    public void validate(CLAPParseContext context, List<String> errorMessages) {
-        if (context.getNodeCount(this) == 0) {
-            if (_required) {
-                errorMessages.add(nls(NLSKEY_CLAP_ERROR_OPTION_IS_MISSING, getHelpID()));
-            }
-        } else if (_argCount != CLAP.UNLIMITED_ARG_COUNT && _argCount != context.getArgCount(this)) {
-            errorMessages.add(nls(NLSKEY_CLAP_ERROR_INCORRECT_NUMBER_OF_ARGUMENTS, getHelpID(), _argCount, context.getArgCount(this)));
-        }
     }
 
     private List<String> handleArgCount(CLAPParseContext context, boolean allWithSplit) {

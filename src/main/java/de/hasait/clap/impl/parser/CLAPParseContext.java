@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,27 +22,29 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.hasait.clap.CLAP;
+import de.hasait.clap.impl.AbstractCLAPRelated;
+import de.hasait.clap.impl.tree.AbstractCLAPDecisionNode;
+import de.hasait.clap.impl.tree.AbstractCLAPLeafOrNode;
+import de.hasait.clap.impl.tree.CLAPKeywordLeaf;
+import de.hasait.clap.impl.tree.CLAPOptionLeaf;
 
 /**
  * Context used while parsing arguments.
  */
-public class CLAPParseContext implements Cloneable {
+public class CLAPParseContext extends AbstractCLAPRelated implements Cloneable {
 
-    private final CLAP _clap;
-    private final List<Pair<? extends AbstractCLAPNode, ?>> _nodeContextMap;
+    private final List<Pair<? extends AbstractCLAPLeafOrNode, ?>> nodeOrLeafContext;
     private final String[] _args;
     private int _currentArgIndex;
     private String _currentArg;
     private boolean _immediateReturn;
 
     public CLAPParseContext(CLAP clap, String[] args) {
-        super();
-
-        _clap = clap;
+        super(clap);
 
         _args = args.clone();
 
-        _nodeContextMap = new ArrayList<>();
+        nodeOrLeafContext = new ArrayList<>();
 
         _currentArgIndex = -1;
         _currentArg = null;
@@ -50,30 +52,38 @@ public class CLAPParseContext implements Cloneable {
     }
 
     private CLAPParseContext(CLAPParseContext other) {
-        super();
-
-        _clap = other._clap;
+        super(other.clap);
 
         // used read only - so can use reference
         _args = other._args;
 
-        _nodeContextMap = new ArrayList<>(other._nodeContextMap);
+        nodeOrLeafContext = new ArrayList<>(other.nodeOrLeafContext);
 
         _currentArgIndex = other._currentArgIndex;
         _currentArg = other._currentArg;
         _immediateReturn = other._immediateReturn;
     }
 
-    public <T> void addDecision(AbstractCLAPDecision decisionNode, AbstractCLAPNode branchNode) {
-        _nodeContextMap.add(Pair.of(decisionNode, branchNode));
+    public void addDecisionBranch(AbstractCLAPDecisionNode decisionNode, AbstractCLAPLeafOrNode branch) {
+        nodeOrLeafContext.add(Pair.of(decisionNode, branch));
     }
 
-    public void addKeyword(CLAPKeywordNode keywordNode) {
-        _nodeContextMap.add(Pair.of(keywordNode, null));
+    public AbstractCLAPLeafOrNode getDecisionBranch(AbstractCLAPDecisionNode decisionNode) {
+        AbstractCLAPLeafOrNode lastBranch = null;
+        for (Pair<? extends AbstractCLAPLeafOrNode, ?> entry : nodeOrLeafContext) {
+            if (entry.getLeft().equals(decisionNode)) {
+                lastBranch = (AbstractCLAPLeafOrNode) entry.getRight();
+            }
+        }
+        return lastBranch;
     }
 
-    public void addOption(CLAPOptionNode<?> option, List<String> args) {
-        _nodeContextMap.add(Pair.of(option, args));
+    public void addKeyword(CLAPKeywordLeaf keywordNode) {
+        nodeOrLeafContext.add(Pair.of(keywordNode, null));
+    }
+
+    public void addOption(CLAPOptionLeaf<?> option, List<String> args) {
+        nodeOrLeafContext.add(Pair.of(option, args));
         if (option.isImmediateReturn()) {
             _immediateReturn = true;
         }
@@ -95,7 +105,7 @@ public class CLAPParseContext implements Cloneable {
         if (!hasCurrentLongKey(longKey, allowEquals)) {
             throw new IllegalStateException();
         }
-        final String prefix = _clap.getLongOptPrefix() + longKey + _clap.getLongOptAssignment();
+        final String prefix = clap.getLongOptPrefix() + longKey + clap.getLongOptAssignment();
         if (allowEquals && _currentArg.startsWith(prefix)) {
             _currentArg = _currentArg.substring(prefix.length());
             return true;
@@ -122,10 +132,10 @@ public class CLAPParseContext implements Cloneable {
         return _currentArg;
     }
 
-    public int getArgCount(CLAPOptionNode<?> optionNode) {
+    public int getArgCount(CLAPOptionLeaf<?> optionNode) {
         int count = 0;
 
-        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+        for (Pair<? extends AbstractCLAPLeafOrNode, ?> entry : nodeOrLeafContext) {
             if (entry.getLeft().equals(optionNode)) {
                 count += ((List<String>) entry.getRight()).size();
             }
@@ -138,20 +148,10 @@ public class CLAPParseContext implements Cloneable {
         return _currentArgIndex;
     }
 
-    public AbstractCLAPNode getDecision(AbstractCLAPDecision decisionNode) {
-        AbstractCLAPNode lastBranchNode = null;
-        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
-            if (entry.getLeft().equals(decisionNode)) {
-                lastBranchNode = (AbstractCLAPNode) entry.getRight();
-            }
-        }
-        return lastBranchNode;
-    }
-
-    public int getNodeCount(AbstractCLAPNode node) {
+    public int getNodeCount(AbstractCLAPLeafOrNode node) {
         int result = 0;
 
-        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+        for (Pair<? extends AbstractCLAPLeafOrNode, ?> entry : nodeOrLeafContext) {
             if (entry.getLeft().equals(node)) {
                 result++;
             }
@@ -160,10 +160,10 @@ public class CLAPParseContext implements Cloneable {
         return result;
     }
 
-    public String[] getOptionArgs(CLAPOptionNode<?> optionNode) {
+    public String[] getOptionArgs(CLAPOptionLeaf<?> optionNode) {
         final List<String> result = new ArrayList<>();
         boolean anyFound = false;
-        for (Pair<? extends AbstractCLAPNode, ?> entry : _nodeContextMap) {
+        for (Pair<? extends AbstractCLAPLeafOrNode, ?> entry : nodeOrLeafContext) {
             if (entry.getLeft().equals(optionNode)) {
                 result.addAll((List<String>) entry.getRight());
                 anyFound = true;
@@ -179,14 +179,14 @@ public class CLAPParseContext implements Cloneable {
         if (_currentArg == null) {
             return false;
         }
-        return _currentArg.equals(_clap.getLongOptPrefix() + longKey) || allowEquals && _currentArg
-                .startsWith(_clap.getLongOptPrefix() + longKey + _clap.getLongOptAssignment());
+        return _currentArg.equals(clap.getLongOptPrefix() + longKey) || allowEquals && _currentArg
+                .startsWith(clap.getLongOptPrefix() + longKey + clap.getLongOptAssignment());
     }
 
     public boolean hasCurrentShortKey(char shortKey) {
         return _currentArg != null
                 && _currentArg.length() >= 2
-                && _currentArg.charAt(0) == _clap.getShortOptPrefix()
+                && _currentArg.charAt(0) == clap.getShortOptPrefix()
                 && _currentArg.charAt(1) == shortKey;
     }
 

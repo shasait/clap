@@ -1,0 +1,20 @@
+Usage: [-v|--verbose] [-h|--help] { *Scale | *Rotate }  <file> ...
+*Scale: scale [--debug] {-p|--percent <percent>} *GPU
+*Rotate: rotate [--debug] [--ccw] *GPU
+*GPU: [--gpu <arg>]
+
+Common Options
+
+  --ccw            Rotate counterclockwise
+
+  --debug          Debug output
+
+  --gpu            GPU device to use
+
+  -h, --help       Print help
+
+  -p, --percent    Scale percentage
+
+  -v, --verbose    Increase verbosity level
+
+  <file>           Files to process

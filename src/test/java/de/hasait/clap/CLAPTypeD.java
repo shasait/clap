@@ -42,17 +42,17 @@ public class CLAPTypeD {
         return _string;
     }
 
-    @CLAPOption(shortKey = 'b', longKey = "dboolean", order = 1)
+    @CLAPOption(shortKey = 'b', longKey = "dboolean")
     public void setBoolean(Boolean value) {
         _boolean = value;
     }
 
-    @CLAPOption(longKey = "dint", order = 3)
+    @CLAPOption(longKey = "dint")
     public void setInt(int value) {
         _int = value;
     }
 
-    @CLAPOption(longKey = "dstring", argCount = 1, order = 2)
+    @CLAPOption(longKey = "dstring", argCount = 1)
     public void setString(String string) {
         _string = string;
     }

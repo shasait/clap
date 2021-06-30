@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-package de.hasait.clap;
+package de.hasait.clap.impl.usage;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import de.hasait.clap.CLAP;
+import de.hasait.clap.impl.AbstractCLAPRelated;
 
-/**
- * Annotation for adding keyword.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-        ElementType.ANNOTATION_TYPE,
-        ElementType.TYPE
-})
-public @interface CLAPKeyword {
+abstract class AbstractUsageLeafOrNode extends AbstractCLAPRelated {
 
-    String value();
+    protected final UsageNode parent;
 
-    /**
-     * The order within the class; will affect parsing and usage.
-     * For help ordering see {@link CLAPHelpCategory}.
-     */
-    int order() default 0;
+    protected AbstractUsageLeafOrNode(CLAP clap, UsageNode parent) {
+        super(clap);
+
+        this.parent = parent;
+        if (parent != null) {
+            parent.addChild(this);
+        }
+    }
+
+    public void beforePrint() {
+        // nop
+    }
+
+    public abstract void print(StringBuilder stringBuilder);
 
 }

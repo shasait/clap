@@ -20,7 +20,7 @@ package de.hasait.clap;
 /**
  * Class used by {@link CLAPTest}.
  */
-@CLAPUsageCategory(order = 1, titleNLSKey = "typeBKey")
+@CLAPUsageCategory(value = "typeBKey", categoryOrder = 1)
 public class CLAPTypeB {
 
     private Boolean _boolean;
@@ -35,12 +35,12 @@ public class CLAPTypeB {
         return _string;
     }
 
-    @CLAPOption(shortKey = 'b', longKey = "bboolean", order = 1)
+    @CLAPOption(shortKey = 'b', longKey = "bboolean")
     public void setBoolean(Boolean value) {
         _boolean = value;
     }
 
-    @CLAPOption(longKey = "bstring", argCount = 1, order = 2)
+    @CLAPOption(longKey = "bstring", argCount = 1)
     public void setString(String string) {
         _string = string;
     }

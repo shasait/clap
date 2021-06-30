@@ -1,0 +1,9 @@
+Usage: [-h|--help] [-p|--password <password>] [-u|--username <username>]
+
+Common Options
+
+  -h, --help        Print help
+
+  -p, --password    Password
+
+  -u, --username    Username

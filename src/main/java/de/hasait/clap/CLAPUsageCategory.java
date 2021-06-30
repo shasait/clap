@@ -23,19 +23,22 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to set usage category. Can be used to group options in the usage.
+ * The order of options and keywords is defined via their order attribute.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({
-        ElementType.TYPE,
-        ElementType.METHOD
+        ElementType.TYPE
 })
 public @interface CLAPUsageCategory {
 
     /**
-     * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
+     * The title of the category (plain or nls key).
      */
-    int order() default 0;
+    String value() default "";
 
-    String titleNLSKey() default "";
+    /**
+     * The order of the usage category compared to other categories; if not specified order by name.
+     */
+    int categoryOrder() default 0;
 
 }

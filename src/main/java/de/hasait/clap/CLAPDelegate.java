@@ -30,6 +30,10 @@ import java.lang.annotation.Target;
 })
 public @interface CLAPDelegate {
 
-    int order() default 1000;
+    /**
+     * The order within the class; will affect parsing and usage.
+     * For help ordering see {@link CLAPHelpCategory}.
+     */
+    int order() default 0;
 
 }

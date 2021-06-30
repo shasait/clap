@@ -1,0 +1,14 @@
+Usage: [-v|--verbose] [-h|--help] *Listen-Options
+*Listen-Options: {-p|--port <port>} [-i|--interface <if>]
+
+Common Options
+
+  -h, --help         Display this message
+
+  -v, --verbose      Verbosity level, use multiple times to increase
+
+Listen Options
+
+  -i, --interface    The interface, where the server is listening
+
+  -p, --port         The port, where the server is listening

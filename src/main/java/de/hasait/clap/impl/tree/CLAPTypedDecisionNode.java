@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.tree;
 
 import de.hasait.clap.CLAP;
 import de.hasait.clap.CLAPValue;
+import de.hasait.clap.impl.parser.CLAPParseContext;
+import de.hasait.clap.impl.parser.CLAPResultImpl;
 
 /**
  * Decision (XOR) node only used by annotation.
  */
-public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CLAPValue<T> {
+public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecisionNode implements CLAPValue<T> {
 
     public CLAPTypedDecisionNode(CLAP clap) {
         super(clap);
@@ -34,18 +36,18 @@ public class CLAPTypedDecisionNode<T> extends AbstractCLAPDecision implements CL
 
     @Override
     public final boolean fillResult(CLAPParseContext context, CLAPResultImpl result) {
-        final AbstractCLAPNode decision = context.getDecision(this);
-        if (decision != null) {
-            boolean anyFilled = decision.fillResult(context, result);
-            if (decision instanceof CLAPValue) {
-                @SuppressWarnings("unchecked") final CLAPValue<? extends T> decisionWithResult = (CLAPValue<? extends T>) decision;
-                final int count = result.getCount(decisionWithResult);
+        AbstractCLAPLeafOrNode branchLeafOrNode = context.getDecisionBranch(this);
+        if (branchLeafOrNode != null) {
+            boolean anyFilled = branchLeafOrNode.fillResult(context, result);
+            if (branchLeafOrNode instanceof CLAPValue) {
+                @SuppressWarnings("unchecked") CLAPValue<? extends T> branchWithValue = (CLAPValue<? extends T>) branchLeafOrNode;
+                int count = result.getCount(branchWithValue);
                 if (count > 0) {
                     result.setCount(this, count);
-                    result.setValue(this, result.getValue(decisionWithResult));
+                    result.setValue(this, result.getValue(branchWithValue));
                 }
             } else if (anyFilled) {
-                result.setCount(decision, 1);
+                result.setCount(branchLeafOrNode, 1);
             }
             return anyFilled;
         }

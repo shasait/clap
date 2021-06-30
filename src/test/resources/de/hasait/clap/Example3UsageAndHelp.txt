@@ -1,0 +1,15 @@
+Usage: [-v|--verbose] [-h|--help] { *Scale | *Rotate }  <file> ...
+*Scale: scale {-p|--percent <percent>}
+*Rotate: rotate [--ccw]
+
+Common Options
+
+  --ccw            Rotate counterclockwise
+
+  -h, --help       Print help
+
+  -p, --percent    Scale percentage
+
+  -v, --verbose    Increase verbosity level
+
+  <file>           Files to process

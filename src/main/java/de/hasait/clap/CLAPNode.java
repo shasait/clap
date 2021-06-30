@@ -17,78 +17,9 @@
 package de.hasait.clap;
 
 /**
- * Node of the parse tree used for parsing arguments in {@link CLAP#parse(String...)}.
+ * Node of the option tree.
  */
-public interface CLAPNode {
-
-    /**
-     * <p>Add annotated class.</p>
-     * Annotations: <ul>
-     * <li>{@link CLAPOption}</li>
-     * <li>{@link CLAPKeyword}</li>
-     * <li>{@link CLAPKeywords}</li>
-     * <li>{@link CLAPDecision}</li>
-     * <li>{@link CLAPHelpCategory}</li>
-     * <li>{@link CLAPUsageCategory}</li>
-     * <li>{@link CLAPDelegate}</li>
-     * </ul>
-     *
-     * @param clazz The class.
-     * @return The handle for getting the actual value after parsing.
-     */
-    <V> CLAPValue<V> addClass(Class<V> clazz);
-
-    /**
-     * Add decision node. Only one of the direct children can match, e.g.:
-     *
-     * <pre>
-     * --client --connect &lt;address&gt; | --server --port &lt;port&gt;
-     * </pre>
-     */
-    CLAPNode addDecision();
-
-    /**
-     * Build decision by using annotated classes: You have one base class or interface and for each decision branch a
-     * class extending the base class or implementing the interface. The base class can contain common options. Complex
-     * type hierarchies are supported.
-     *
-     * @param resultClass   The base class or interface
-     * @param branchClasses The branch classes
-     * @return The handle for getting the actual value after parsing.
-     */
-    <V> CLAPValue<V> addDecision(Class<V> resultClass, Class<? extends V>... branchClasses);
-
-    /**
-     * Add flag node.
-     *
-     * @param shortKey          Short key or <code>null</code>.
-     * @param longKey           Long key or <code>null</code>.
-     * @param required          Typically flags are not required (<code>false</code>), but for decision branches they can be
-     *                          required, e.g. one branch with an option and another branch with a required flag and an option, so the
-     *                          existence of the flag decides which branch is active.
-     * @param descriptionNLSKey NLSkey for the description
-     * @return The node.
-     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
-     */
-    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey, boolean immediateReturn) {
-        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null, immediateReturn);
-    }
-
-    /**
-     * Add flag node.
-     *
-     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
-     */
-    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
-        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null);
-    }
-
-    /**
-     * Add a keyword.
-     */
-    void addKeyword(String keyword);
-
-    CLAPNode addNodeList();
+public interface CLAPNode extends CLAPLeafOrNode {
 
     /**
      * <p>Add option.</p>
@@ -111,12 +42,44 @@ public interface CLAPNode {
      * @param descriptionNLSKey NLSkey for the description
      * @param argUsageNLSKey    NLSkey for the usage
      * @param immediateReturn   If found while parsing, return immediately the current result - typically used for help flags to skip validation.
+     * @param password          <code>true</code> if the option is a password.
      * @return The handle for getting the actual value after parsing.
      */
-    <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn);
+    <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn, boolean password);
+
+    default <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey, boolean immediateReturn) {
+        return addOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey,
+                         immediateReturn, false
+        );
+    }
 
     default <V> CLAPValue<V> addOption(Class<V> resultClass, Character shortKey, String longKey, boolean required, Integer argCount, Character multiArgSplit, String descriptionNLSKey, String argUsageNLSKey) {
         return addOption(resultClass, shortKey, longKey, required, argCount, multiArgSplit, descriptionNLSKey, argUsageNLSKey, false);
+    }
+
+    /**
+     * Add flag.
+     *
+     * @param shortKey          Short key or <code>null</code>.
+     * @param longKey           Long key or <code>null</code>.
+     * @param required          Typically flags are not required (<code>false</code>), but for decision branches they can be
+     *                          required, e.g. one branch with an option and another branch with a required flag and an option, so the
+     *                          existence of the flag decides which branch is active.
+     * @param descriptionNLSKey NLSkey for the description
+     * @return The node.
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
+     */
+    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey, boolean immediateReturn) {
+        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null, immediateReturn);
+    }
+
+    /**
+     * Add flag.
+     *
+     * @see #addOption(Class, Character, String, boolean, Integer, Character, String, String, boolean)
+     */
+    default CLAPValue<Boolean> addFlag(Character shortKey, String longKey, boolean required, String descriptionNLSKey) {
+        return addOption(Boolean.class, shortKey, longKey, required, 0, null, descriptionNLSKey, null);
     }
 
     /**
@@ -158,33 +121,70 @@ public interface CLAPNode {
     }
 
     /**
-     * <p>Can be used to group options in the help screen.</p>
-     * For example &quot;Server Options&quot; is a separate help category with one option:
-     * <pre>
-     * Common Options
-     *
-     *   -h, --help         Display this message
-     *
-     *   -v, --verbose      Verbosity level, use multiple times to increase
-     *
-     * Server Options
-     *
-     *   -i, --interface    The interface, where the server is listening
-     *
-     *   -p, --port         The port, where the server is listening
-     * </pre>
-     *
-     * @param order       Initially set to <code>1000</code>.
-     * @param titleNLSKey The category title or <code>null</code> to use the default.
+     * Add keyword.
      */
-    void setHelpCategory(int order, String titleNLSKey);
+    void addKeyword(String keyword);
+
+    /**
+     * Add group node.
+     */
+    CLAPNode addGroup();
+
+    /**
+     * Add decision node. Only one of the direct children can match, e.g.:
+     *
+     * <pre>
+     * --client --connect &lt;address&gt; | --server --port &lt;port&gt;
+     * </pre>
+     */
+    CLAPNode addDecision();
+
+    /**
+     * Build decision by using annotated classes: You have one base class or interface and for each decision branch a
+     * class extending the base class or implementing the interface. The base class can contain common options. Complex
+     * type hierarchies are supported.
+     *
+     * @param resultClass   The base class or interface
+     * @param branchClasses The branch classes
+     * @return The handle for getting the actual value after parsing.
+     */
+    <V> CLAPValue<V> addDecision(Class<V> resultClass, Class<? extends V>... branchClasses);
+
+    /**
+     * <p>Add annotated class.</p>
+     * Annotations: <ul>
+     * <li>{@link CLAPOption}</li>
+     * <li>{@link CLAPKeyword}</li>
+     * <li>{@link CLAPKeywords}</li>
+     * <li>{@link CLAPDecision}</li>
+     * <li>{@link CLAPHelpCategory}</li>
+     * <li>{@link CLAPUsageCategory}</li>
+     * <li>{@link CLAPDelegate}</li>
+     * </ul>
+     *
+     * @param clazz The class.
+     * @return The handle for getting the actual value after parsing.
+     */
+    <V> CLAPValue<V> addClass(Class<V> clazz);
 
     /**
      * <p>Can be used to extract options into separate usage line and include only the title in the main usage.</p>
      *
-     * @param order       Initially set to <code>1000</code>.
-     * @param titleNLSKey The category title or <code>null</code> to use the default.
+     * @param usageCategoryTitle The title of the category (plain or nls key).
      */
-    void setUsageCategory(int order, String titleNLSKey);
+    void setUsageCategoryTitle(String usageCategoryTitle);
+
+    /**
+     * @param usageCategoryOrder The order of the usage category compared to other categories; if not specified order by name.
+     */
+    void setUsageCategoryOrder(int usageCategoryOrder);
+
+    /**
+     * Combination of {@link #setUsageCategoryTitle(String)} and {@link #setUsageCategoryOrder(int)}.
+     */
+    default void setUsageCategory(int usageCategoryOrder, String usageCategoryTitle) {
+        setUsageCategoryTitle(usageCategoryTitle);
+        setUsageCategoryOrder(usageCategoryOrder);
+    }
 
 }

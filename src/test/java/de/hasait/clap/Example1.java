@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.example1;
+package de.hasait.clap;
 
+import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
-
-import de.hasait.clap.CLAP;
-import de.hasait.clap.CLAPException;
-import de.hasait.clap.CLAPNode;
-import de.hasait.clap.CLAPResult;
-import de.hasait.clap.CLAPValue;
 
 /**
  * Imperative style example.
@@ -33,49 +28,48 @@ public class Example1 {
     private static final int DEFAULT_PORT = 1234;
     private static final ResourceBundle NLS = ResourceBundle.getBundle("example1-msg");
 
-    public static void main(String[] args) {
+    public static void main(String[] rawArgs) {
+        main(rawArgs, System.out);
+    }
+
+    public static void main(String[] rawArgs, PrintStream printStream) {
         final CLAP clap = new CLAP(NLS);
 
         final CLAPValue<Boolean> verboseFlag = clap.addFlag('v', "verbose", false, "option.verbose.description");
-        final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description");
-        final CLAPNode listenOptionsNode = clap.addNodeList();
-        listenOptionsNode.setUsageCategory(1001, "usage_category.listen");
-        listenOptionsNode.setHelpCategory(1001, "help_category.listen");
+        final CLAPValue<Boolean> helpFlag = clap.addFlag('h', "help", false, "option.help.description", true);
+        final CLAPNode listenOptionsNode = clap.addGroup();
+        listenOptionsNode.setUsageCategoryTitle("usage_category.listen");
+        listenOptionsNode.setHelpCategoryTitle("help_category.listen");
         final CLAPValue<Integer> portOption = listenOptionsNode
                 .addOption1(Integer.class, 'p', "port", true, "option.port.description", "option.port.usage");
         final CLAPValue<String> interfaceOption = listenOptionsNode
                 .addOption1(String.class, 'i', "interface", false, "option.interface.description", "option.interface.usage");
 
-        final CLAPResult claresult;
+        final CLAPResult clapResult;
         try {
-            claresult = clap.parse(args);
+            clapResult = clap.parse(rawArgs);
         } catch (CLAPException e) {
-            printUsageAndHelp(clap);
+            clap.printUsageAndHelp(printStream);
             throw e;
         }
 
-        if (claresult.contains(helpFlag)) {
-            printUsageAndHelp(clap);
+        if (clapResult.contains(helpFlag)) {
+            clap.printUsageAndHelp(printStream);
             return;
         }
 
-        final int verbosityLevel = claresult.getCount(verboseFlag);
+        final int verbosityLevel = clapResult.getCount(verboseFlag);
 
         final int port;
-        if (claresult.contains(portOption)) {
-            port = claresult.getValue(portOption);
+        if (clapResult.contains(portOption)) {
+            port = clapResult.getValue(portOption);
         } else {
             port = DEFAULT_PORT;
         }
-        final String interfaceName = claresult.getValue(interfaceOption);
+        final String interfaceName = clapResult.getValue(interfaceOption);
 
         final Example1 example1 = new Example1(verbosityLevel, port, interfaceName);
-        example1.run();
-    }
-
-    private static void printUsageAndHelp(CLAP clap) {
-        clap.printUsage(System.out);
-        clap.printHelp(System.out);
+        example1.run(printStream);
     }
 
     private final int _verboseLevel;
@@ -90,13 +84,13 @@ public class Example1 {
         _interfaceName = interfaceName;
     }
 
-    private void run() {
-        System.out.println(NLS.getString("msg.starting"));
+    private void run(PrintStream printStream) {
+        printStream.println(NLS.getString("msg.starting"));
         if (_verboseLevel > 0) {
-            System.out.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port));
+            printStream.println(MessageFormat.format(NLS.getString("msg.listening_on"), _interfaceName, _port));
         }
         // your logic here
-        System.out.println(NLS.getString("msg.started"));
+        printStream.println(NLS.getString("msg.started"));
     }
 
 }

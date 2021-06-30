@@ -46,10 +46,18 @@ import java.lang.annotation.Target;
 public @interface CLAPHelpCategory {
 
     /**
-     * @return Defaults to <code>0</code>; if unset <code>1000</code> is used.
+     * The title of the category (plain or nls key).
      */
-    int order() default 0;
+    String value() default "";
 
-    String titleNLSKey() default "";
+    /**
+     * The order of the help category compared to other categories; if not specified order by name.
+     */
+    int categoryOrder() default 0;
+
+    /**
+     * The order within the help category; if not specified order by name.
+     */
+    int entryOrder() default 0;
 
 }

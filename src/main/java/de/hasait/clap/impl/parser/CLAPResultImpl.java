@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.hasait.clap.impl;
+package de.hasait.clap.impl.parser;
 
 import java.util.HashMap;
 import java.util.Map;

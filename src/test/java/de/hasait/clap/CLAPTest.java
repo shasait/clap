@@ -49,11 +49,11 @@ public class CLAPTest {
         clap.addFlag('v', "verbose", false, "vdkey");
         clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", false, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", false, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(String.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -227,11 +227,11 @@ public class CLAPTest {
         clap.addFlag('v', "verbose", false, "vdkey");
         clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -251,11 +251,11 @@ public class CLAPTest {
         final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
         final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", false, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", false, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -269,12 +269,12 @@ public class CLAPTest {
         final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
         final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         final CLAPValue<String> ftpServerOption = ftpDecisionBranch
                 .addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         final CLAPValue<String> httpServerOption = httpDecisionBranch
                 .addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
@@ -293,11 +293,11 @@ public class CLAPTest {
         final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
 
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", false, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", false, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -315,11 +315,11 @@ public class CLAPTest {
         clap.addFlag('v', "verbose", false, "vdkey");
         clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -336,11 +336,11 @@ public class CLAPTest {
         clap.addFlag('v', "verbose", false, "vdkey");
         clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -357,12 +357,12 @@ public class CLAPTest {
         clap.addFlag('v', "verbose", false, "vdkey");
         clap.addFlag('h', "help", false, "hdkey");
         final CLAPNode ftpHttpDecision = clap.addDecision();
-        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode ftpDecisionBranch = ftpHttpDecision.addGroup();
         ftpDecisionBranch.addOption1(String.class, null, "ftp-server", true, "ftpsdkey", "ftpsukey");
         ftpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
         ftpDecisionBranch.addOption1(Integer.class, 's', "size", true, "sdkey", "sukey");
 
-        final CLAPNode httpDecisionBranch = ftpHttpDecision.addNodeList();
+        final CLAPNode httpDecisionBranch = ftpHttpDecision.addGroup();
         httpDecisionBranch.addOption1(String.class, null, "http-server", true, "httpsdkey", "httpsukey");
         httpDecisionBranch.addOption1(Integer.class, 'p', "port", false, "pdkey", "pukey");
 
@@ -372,90 +372,6 @@ public class CLAPTest {
         } catch (CLAPException e) {
             assertEquals("clap.error.validationFailed clap.error.optionIsMissing --http-server", e.getMessage());
         }
-    }
-
-    @Test
-    public void testGetPasswordOrReadInteractivlyWorks01() {
-        final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
-
-        final CLAPResult result = clap.parse("Hallo");
-        final CLAPTypeD typeD = result.getValue(typeDClass);
-        assertNotNull(typeD);
-        assertNull(typeD.getString());
-        assertNull(typeD.getBoolean());
-
-        clap.setUICallback(new CLAPUICallback() {
-
-            @Override
-            public String readLine(String prompt) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String readPassword(String prompt) {
-                return "secret";
-            }
-
-        });
-
-        assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", false).getString());
-        assertNull(typeD.getString());
-    }
-
-    @Test
-    public void testGetPasswordOrReadInteractivlyWorks02() {
-        final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
-
-        final CLAPResult result = clap.parse("Hallo", "--dstring", "foobar");
-        final CLAPTypeD typeD = result.getValue(typeDClass);
-        assertNotNull(typeD);
-        assertEquals("foobar", typeD.getString());
-        assertNull(typeD.getBoolean());
-
-        clap.setUICallback(new CLAPUICallback() {
-
-            @Override
-            public String readLine(String prompt) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String readPassword(String prompt) {
-                return "secret";
-            }
-
-        });
-
-        assertEquals("foobar", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", false).getString());
-        assertEquals("foobar", typeD.getString());
-    }
-
-    @Test
-    public void testGetPasswordOrReadInteractivlyWorks03() {
-        final CLAPValue<CLAPTypeD> typeDClass = clap.addClass(CLAPTypeD.class);
-
-        final CLAPResult result = clap.parse("Hallo");
-        final CLAPTypeD typeD = result.getValue(typeDClass);
-        assertNotNull(typeD);
-        assertNull(typeD.getString());
-        assertNull(typeD.getBoolean());
-
-        clap.setUICallback(new CLAPUICallback() {
-
-            @Override
-            public String readLine(String prompt) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String readPassword(String prompt) {
-                return "secret";
-            }
-
-        });
-
-        assertEquals("secret", clap.getPasswordOrReadInteractivly(typeD, "cancelkey", true).getString());
-        assertEquals("secret", typeD.getString());
     }
 
     @Test

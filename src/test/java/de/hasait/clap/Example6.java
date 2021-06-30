@@ -19,17 +19,57 @@ package de.hasait.clap;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-public class Example3 {
+import org.junit.Test;
 
-    public interface Command {
+public class Example6 {
 
-        void execute(PrintStream printStream, String[] files);
+    @CLAPUsageCategory(value = "GPU", categoryOrder = 10)
+    public static class Gpu {
+
+        private String gpu;
+
+        public String getGpu() {
+            return gpu;
+        }
+
+        @CLAPOption(longKey = "gpu", descriptionNLSKey = "GPU device to use")
+        public void setGpu(String gpu) {
+            this.gpu = gpu;
+        }
+
+    }
+
+    public static abstract class Command {
+
+        private boolean debug;
+
+        private Gpu gpu;
+
+        public boolean isDebug() {
+            return debug;
+        }
+
+        @CLAPOption(longKey = "debug", descriptionNLSKey = "Debug output")
+        public void setDebug(boolean debug) {
+            this.debug = debug;
+        }
+
+        public Gpu getGpu() {
+            return gpu;
+        }
+
+        @CLAPDelegate(order = 10)
+        public void setGpu(Gpu gpu) {
+            this.gpu = gpu;
+        }
+
+        public abstract void execute(PrintStream printStream, String[] files);
 
     }
 
     @CLAPUsageCategory(value = "Rotate", categoryOrder = 2)
     @CLAPKeyword("rotate")
-    public static class RotateCommand implements Command {
+    public static class RotateCommand extends Command {
 
         private boolean ccw;
 
@@ -37,7 +77,7 @@ public class Example3 {
             return ccw;
         }
 
-        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise")
+        @CLAPOption(longKey = "ccw", descriptionNLSKey = "Rotate counterclockwise", order = 1)
         public void setCcw(boolean ccw) {
             this.ccw = ccw;
         }
@@ -51,7 +91,7 @@ public class Example3 {
 
     @CLAPUsageCategory(value = "Scale", categoryOrder = 1)
     @CLAPKeyword("scale")
-    public static class ScaleCommand implements Command {
+    public static class ScaleCommand extends Command {
 
         private int percent;
 
@@ -59,7 +99,7 @@ public class Example3 {
             return percent;
         }
 
-        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent")
+        @CLAPOption(shortKey = 'p', longKey = "percent", required = true, descriptionNLSKey = "Scale percentage", argUsageNLSKey = "percent", order = 1)
         public void setPercent(int percent) {
             this.percent = percent;
         }
