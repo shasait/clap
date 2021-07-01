@@ -29,6 +29,8 @@ Command Line Arguments Parser for Java
 ### Basic usage
 
 ```java
+import de.hasait.clap.*;
+
 public class BasicCLI {
     public static void main(String[] args) {
         CLAP clap = new CLAP();
@@ -54,6 +56,8 @@ public class BasicCLI {
 Example with two exclusive sets of options: One for acting as client and another one for acting as server.
 
 ```java
+import de.hasait.clap.*;
+
 public class ClientServerCLI {
     public static void main(String[] args) {
         // Usage: [-v|--verbose] [-h|--help] { {-H|--host <host>} {-p|--port <port>} | {-l|--listen <port>} }
@@ -62,12 +66,12 @@ public class ClientServerCLI {
         CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "Increase verbosity level");
         CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "Print help", true);
         CLAPNode decision = clap.addDecision();
-        CLAPNode clientBranch = decision.addNodeList();
+        CLAPNode clientBranch = decision.addGroup();
         clientBranch.setHelpCategory(2000, "Client");
         CLAPValue<String> clientHost = clientBranch.addOption1(String.class, 'H', "host", true, "The host to connect to", "host");
         CLAPValue<Integer> clientPort = clientBranch.addOption1(Integer.class, 'p', "port", true, "The port to connect to", "port");
 
-        CLAPNode serverBranch = decision.addNodeList();
+        CLAPNode serverBranch = decision.addGroup();
         serverBranch.setHelpCategory(2001, "Server");
         CLAPValue<Integer> serverPort = serverBranch.addOption1(Integer.class, 'l', "listen", true, "The port to listen on", "port");
 
@@ -104,6 +108,8 @@ public class ClientServerCLI {
 Example program supporting two commands: Scale and rotate of provided files.
 
 ```java
+import de.hasait.clap.*;
+
 public class CommandCLI {
 
     public interface Command {
