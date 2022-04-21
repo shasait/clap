@@ -383,7 +383,7 @@ public final class CLAPOptionLeaf<T> extends AbstractCLAPLeaf implements CLAPVal
                 }
             } else {
                 int i = 0;
-                while (i++ < _argCount) {
+                while (i++ < _argCount && context.hasMoreTokens()) {
                     args.add(context.consumeCurrent());
                 }
             }

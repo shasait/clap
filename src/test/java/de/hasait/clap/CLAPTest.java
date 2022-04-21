@@ -702,4 +702,32 @@ public class CLAPTest {
         assertTrue(result.contains(helpOption));
     }
 
+    @Test
+    public void testNamelessWithArgCount01() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", true);
+        final CLAPValue<String[]> filesOption = clap.addOption(String[].class, null, null, true, 2, null, "fdkey", "fukey");
+
+        final CLAPResult result = clap.parse("-v", "src.txt", "tgt.txt");
+        assertEquals(1, result.getCount(verboseOption));
+        assertArrayEquals(new String[]{
+                "src.txt",
+                "tgt.txt"
+        }, result.getValue(filesOption));
+    }
+
+    @Test
+    public void testNamelessWithArgCount02() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", true);
+        final CLAPValue<String[]> filesOption = clap.addOption(String[].class, null, null, true, 2, null, "fdkey", "fukey");
+
+        try {
+            clap.parse("-v", "src.txt");
+            fail(CLAPException.class + " expected");
+        } catch (CLAPException e) {
+            assertEquals("clap.error.validationFailed clap.error.incorrectNumberOfArguments <fukey> 2 1", e.getMessage());
+        }
+    }
+
 }
