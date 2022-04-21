@@ -730,4 +730,40 @@ public class CLAPTest {
         }
     }
 
+    @Test
+    public void testMultipleNamelessWithArgCount01() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", true);
+        final CLAPValue<String[]> filesOption = clap.addOption(String[].class, null, null, true, 2, null, "fdkey", "fukey");
+        final CLAPValue<String[]> usersOption = clap.addOption(String[].class, null, null, true, 2, null, "udkey", "uukey");
+
+        final CLAPResult result = clap.parse("-v", "src.txt", "tgt.txt", "foo", "bar");
+        assertEquals(1, result.getCount(verboseOption));
+        assertArrayEquals(new String[]{
+                "src.txt",
+                "tgt.txt"
+        }, result.getValue(filesOption));
+        assertArrayEquals(new String[]{
+                "foo",
+                "bar"
+        }, result.getValue(usersOption));
+    }
+
+    @Test
+    public void testMultipleNamelessWithArgCount02() {
+        final CLAPValue<Boolean> verboseOption = clap.addFlag('v', "verbose", false, "vdkey");
+        final CLAPValue<Boolean> helpOption = clap.addFlag('h', "help", false, "hdkey", true);
+        final CLAPValue<String> fileOption = clap.addOption1(String.class, null, null, true, "fdkey", "fukey");
+        final CLAPValue<String[]> usersOption = clap.addOption(String[].class, null, null, true, 2, null, "udkey", "uukey");
+
+        final CLAPResult result = clap.parse("-v", "src.txt", "foo", "bar");
+
+        assertEquals(1, result.getCount(verboseOption));
+        assertEquals("src.txt", result.getValue(fileOption));
+        assertArrayEquals(new String[]{
+                "foo",
+                "bar"
+        }, result.getValue(usersOption));
+    }
+
 }

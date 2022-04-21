@@ -401,6 +401,9 @@ public final class CLAPOptionLeaf<T> extends AbstractCLAPLeaf implements CLAPVal
             final boolean wasEquals = context.consumeCurrentLongKey(_longKey, allowEqualsForLongOpt);
             return handleArgCount(context, wasEquals);
         } else if (_shortKey == null && _longKey == null) {
+            if (context.getArgCount(this) == _argCount) {
+                return null;
+            }
             return handleArgCount(context, false);
         } else {
             return null;
