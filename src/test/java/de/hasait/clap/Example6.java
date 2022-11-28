@@ -19,8 +19,6 @@ package de.hasait.clap;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import org.junit.Test;
-
 public class Example6 {
 
     @CLAPUsageCategory(value = "GPU", categoryOrder = 10)
