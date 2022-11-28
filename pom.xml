@@ -19,7 +19,7 @@
 
 	<groupId>de.hasait</groupId>
 	<artifactId>clap</artifactId>
-	<version>3.0.0</version>
+	<version>3.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Command Line Arguments Parser</name>
