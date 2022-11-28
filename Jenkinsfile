@@ -50,7 +50,7 @@ node('linux') {
 		wsHome = pwd()
 		echo "wsHome = ${wsHome}"
 
-		jdkHome = tool 'JDK8'
+		jdkHome = tool 'JDK17'
 		echo "jdkHome = ${jdkHome}"
 
 		mvnHome = tool 'M3'

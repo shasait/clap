@@ -164,7 +164,7 @@ public class UserInteractionInterceptor<T> extends AbstractCLAPRelated {
         ProxyFactory proxyFactory = new ProxyFactory();
         proxyFactory.setSuperclass(clazz);
         proxyFactory.setFilter(readMethodToDescriptionMap::containsKey);
-        return proxyFactory.createClass();
+        return (Class<T>) proxyFactory.createClass();
     }
 
     private class MethodHandlerImpl implements MethodHandler {
