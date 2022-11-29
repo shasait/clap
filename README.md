@@ -23,6 +23,7 @@ Command Line Arguments Parser for Java
 * Mapping of arguments to nested data structures
 * I18N for usage and error messages
 * Customizable usage and help categories
+* Since 3.0.0 support for JDK17
 
 ## Examples
 
